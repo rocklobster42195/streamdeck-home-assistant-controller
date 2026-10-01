@@ -25,7 +25,9 @@ const MAX_HITS = 40;
 export function initPiBridge(): void {
     piBridge.init();
     piBridge.registerOptions("mdi-icons", mdiOptions);
-    piBridge.handle("window-opened", (msg) => streamDeck.logger.info(`[pi] settings window ${msg.width}×${msg.height} at ${msg.scale}×`));
+    piBridge.handle("window-opened", (msg) => {
+        streamDeck.logger.info(`[pi] settings window ${msg.width}×${msg.height} at ${msg.scale}×`);
+    });
     piBridge.handle("reconnect", () => reconnectBroker());
     piBridge.handle("ha-reconnect", () => reconnectHa());
     piBridge.handle("ha-attributes", async (msg) => {

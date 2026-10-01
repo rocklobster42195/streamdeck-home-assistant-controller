@@ -100,6 +100,9 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         ha.onState(() => {
             for (const inst of this.instances.values()) this.render(inst);
         });
+        ha.onIcons(() => {
+            for (const inst of this.instances.values()) this.render(inst);
+        });
         ha.onEntities((entities) => {
             for (const inst of this.instances.values()) if (this.fromHa(inst) && entities[inst.settings.entityId ?? ""] !== inst.seen) this.render(inst);
         });

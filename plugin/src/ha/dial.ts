@@ -5,6 +5,8 @@
 import type { HassEntity } from "home-assistant-js-websocket";
 import { domainOf } from "./entities";
 
+export { dimmable } from "./entities";
+
 export type HaDial = {
     /** The value to show: percent, setpoint or number; undefined while HA reports none. */
     value?: number;
@@ -21,12 +23,6 @@ export type HaDial = {
 };
 
 const num = (v: unknown): number | undefined => (typeof v === "number" && Number.isFinite(v) ? v : typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : undefined);
-
-/** Lights that can only switch (no brightness) don't fit the dial. */
-export function dimmable(e: HassEntity): boolean {
-    const modes = e.attributes.supported_color_modes;
-    return !Array.isArray(modes) || modes.some((m) => m !== "onoff");
-}
 
 /** The dial for an entity; undefined for domains it can't turn. */
 export function haDial(e: HassEntity | undefined): HaDial | undefined {

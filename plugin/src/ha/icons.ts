@@ -1,8 +1,10 @@
-// Icons for HA entities on keys and in the picker: HA's own icon ("mdi:…") when it has one, else
-// one per domain (a scene's palette, a script, a lock, …).
+// Icons for HA entities on keys and in the picker: the one HA's frontend shows (see icon-rules.ts:
+// set by the user, the icon attribute, or HA's tables by state and range, e.g. the weather's
+// condition), else one per domain while the tables load (a scene's palette, a script, a lock, …).
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiEye, mdiFan, mdiGarage, mdiGestureTapButton, mdiLightbulb, mdiLock, mdiPalette, mdiPlaylistPlay, mdiRobot, mdiScriptText, mdiToggleSwitch, mdiWeatherPartlyCloudy } from "@mdi/js";
 import type { HassEntity } from "home-assistant-js-websocket";
+import { ha } from "./connection";
 import { domainOf, haIcon } from "./entities";
 
 const DOMAIN_ICONS: Record<string, string> = {
@@ -22,11 +24,20 @@ const DOMAIN_ICONS: Record<string, string> = {
     select: mdiPlaylistPlay,
 };
 
-/** HA's icon for the entity, else its domain's; `except` domains get none (the key keeps its own default). */
-export function haIconPath(e: HassEntity | undefined, except: string[] = []): string | undefined {
+/**
+ * HA's icon for the entity (for its state, or `state`), else its domain's; `except` domains get only
+ * an icon the user set, the key keeps its own default otherwise (a lit bulb for lights).
+ */
+export function haIconPath(e: HassEntity | undefined, except: string[] = [], state?: string): string | undefined {
     if (!e) return undefined;
     const domain = domainOf(e.entity_id);
-    return mdiPath(haIcon(e)) ?? (except.includes(domain) ? undefined : DOMAIN_ICONS[domain]);
+    if (except.includes(domain)) return mdiPath(haIcon(e));
+    return mdiPath(mdiNameOf(ha.iconFor(e, state))) ?? mdiPath(haIcon(e)) ?? DOMAIN_ICONS[domain];
+}
+
+/** "mdi:weather-cloudy" → "mdiWeatherCloudy" (the kit's icon names). */
+function mdiNameOf(icon: string | undefined): string | undefined {
+    return icon ? haIcon({ attributes: { icon } } as unknown as HassEntity) : undefined;
 }
 
 /** For lists: always an icon. */

@@ -8,7 +8,7 @@ import { zoneColor } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiLightbulbOnOutline, mdiLightbulbOutline, mdiToggleSwitchOffOutline } from "@mdi/js";
 import { ha } from "../ha/connection";
-import { haName, haRead } from "../ha/entities";
+import { haName, haOnOffStates, haRead } from "../ha/entities";
 import { haIconPath } from "../ha/icons";
 import type { SwitchTopics } from "../mqtt/switch-state";
 import { shownValue, zonesOf } from "../mqtt/value-state";
@@ -107,13 +107,15 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
         // The on colour follows the value's range, with the chosen on colour as the base
         const base = s.colorOn || ACCENT;
         const colorOn = value?.number !== undefined && s.valueThresholds?.length ? zoneColor(value.number, zonesOf(base, s.valueThresholds)) : base;
-        // Lights keep the bulb that lights up; other domains get their own icon
-        const fromHaIcon = fromHa ? haIconPath(e, ["light"]) : undefined;
+        // Lights keep the bulb that lights up; other domains get HA's icon for on and for off
+        const states = fromHa ? haOnOffStates(s.entityId ?? "") : undefined;
+        const haOn = fromHa ? haIconPath(e, ["light"], states?.on) : undefined;
+        const haOff = fromHa ? haIconPath(e, ["light"], states?.off) : undefined;
         return renderSwitchKey({
             state: fromHa ? this.haToggle.state(inst.id, s.entityId!) : this.toggle.state(inst.id, s),
             offline: this.isOffline(inst),
-            iconOn: mdiPath(s.iconOn) ?? fromHaIcon ?? mdiLightbulbOnOutline,
-            iconOff: mdiPath(s.iconOff) ?? mdiPath(s.iconOn) ?? fromHaIcon ?? mdiLightbulbOutline,
+            iconOn: mdiPath(s.iconOn) ?? haOn ?? mdiLightbulbOnOutline,
+            iconOff: mdiPath(s.iconOff) ?? mdiPath(s.iconOn) ?? haOff ?? mdiLightbulbOutline,
             colorOn,
             label: keyLabel(s, fromHa ? haName(e) : undefined),
             value: value ? `${value.text ?? "–"}${value.unit ? ` ${value.unit}` : ""}` : undefined,

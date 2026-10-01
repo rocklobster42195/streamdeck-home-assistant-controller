@@ -3,7 +3,8 @@
 // entity's state, reads the area/device/entity registries for the picker, calls services, and
 // reports its state. Once connected, the library reconnects by itself.
 // Knows nothing of Stream Deck.
-import { callService, createConnection, createLongLivedTokenAuth, ERR_CANNOT_CONNECT, ERR_INVALID_AUTH, subscribeEntities, type Connection, type HassEntities } from "home-assistant-js-websocket";
+import { callService, createConnection, createLongLivedTokenAuth, ERR_CANNOT_CONNECT, ERR_INVALID_AUTH, subscribeEntities, type Connection, type HassEntities, type HassEntity } from "home-assistant-js-websocket";
+import { resolveIcon, type ComponentIcons, type EntityIcons, type IconEntry } from "./icon-rules";
 import { parseHaUrl, type HaAddress } from "./url";
 
 export type HaConfig = { url?: string; token?: string };
@@ -15,7 +16,19 @@ export type HaState = "unconfigured" | "invalid" | "connecting" | "online" | "of
 export type HaRegistry = {
     areas: { area_id: string; name: string }[];
     devices: { id: string; name: string | null; name_by_user: string | null; area_id: string | null }[];
-    entities: { entity_id: string; device_id: string | null; area_id: string | null; entity_category: string | null; hidden_by: string | null; disabled_by: string | null }[];
+    entities: {
+        entity_id: string;
+        device_id: string | null;
+        area_id: string | null;
+        entity_category: string | null;
+        hidden_by: string | null;
+        disabled_by: string | null;
+        /** The icon the user set on the entity in HA. */
+        icon?: string | null;
+        /** The integration the entity comes from, and its key in the integration's icon table. */
+        platform?: string;
+        translation_key?: string | null;
+    }[];
 };
 
 /** How long the registries are reused before they are read again. */
@@ -43,6 +56,9 @@ export class HaConnection {
     version: string | undefined;
     entities: HassEntities = {};
     private registryCache: { at: number; value: Promise<HaRegistry> } | undefined;
+    /** HA's icon tables and the registry entries they need, loaded once per connection. */
+    private icons: { component: ComponentIcons; entity: EntityIcons; entries: Map<string, IconEntry> } | undefined;
+    private readonly iconListeners = new Set<() => void>();
 
     constructor(private readonly log: Logger = console) {}
 
@@ -55,6 +71,7 @@ export class HaConnection {
         this.entities = {};
         this.version = undefined;
         this.registryCache = undefined;
+        this.icons = undefined;
         this.address = parseHaUrl(config.url);
         this.lastError = undefined;
         if (!config.url?.trim() && !config.token?.trim()) return this.setState("unconfigured");
@@ -119,6 +136,44 @@ export class HaConnection {
     }
 
     /** Called with all entities whenever one of them changes. */
+    /**
+     * The icon HA's own frontend shows for the entity ("mdi:weather-cloudy"), for its state or the
+     * given one; undefined until the icon tables have loaded.
+     */
+    iconFor(e: HassEntity | undefined, state?: string): string | undefined {
+        if (!e || !this.icons) return undefined;
+        return resolveIcon(e, this.icons.entries.get(e.entity_id), this.icons.component, this.icons.entity, state ?? e.state);
+    }
+
+    /** Called once the icon tables have loaded (keys redraw with HA's icons). */
+    onIcons(fn: () => void): () => void {
+        this.iconListeners.add(fn);
+        return () => this.iconListeners.delete(fn);
+    }
+
+    /** Read HA's icon tables: per domain, and per integration the entities come from. */
+    private async loadIcons(conn: Connection, attempt: number): Promise<void> {
+        type Icons<T> = { resources: T };
+        try {
+            const reg = await this.registry();
+            const platforms = [...new Set(reg.entities.map((r) => r.platform).filter((p): p is string => !!p))];
+            const [component, ...perIntegration] = await Promise.all([
+                conn.sendMessagePromise<Icons<ComponentIcons>>({ type: "frontend/get_icons", category: "entity_component" }),
+                ...platforms.map((integration) => conn.sendMessagePromise<Icons<EntityIcons>>({ type: "frontend/get_icons", category: "entity", integration }).catch(() => ({ resources: {} as EntityIcons }))),
+            ]);
+            if (attempt !== this.attempt) return;
+            this.icons = {
+                component: component.resources,
+                entity: Object.assign({}, ...perIntegration.map((r) => r.resources)) as EntityIcons,
+                entries: new Map(reg.entities.map((r) => [r.entity_id, { icon: r.icon, platform: r.platform, translation_key: r.translation_key }])),
+            };
+            for (const fn of this.iconListeners) fn();
+        } catch (e) {
+            // Older HA without the icon API: keys keep the icon attribute and their domain's icon
+            this.log.warn(`[ha] icons: ${JSON.stringify(e)}`);
+        }
+    }
+
     onEntities(fn: (entities: HassEntities) => void): () => void {
         this.entityListeners.add(fn);
         return () => this.entityListeners.delete(fn);
@@ -163,6 +218,8 @@ export class HaConnection {
         });
         this.log.info(`[ha] connected to ${address.url} (Home Assistant ${conn.haVersion})`);
         this.setState("online");
+        // Only now: the icons need the registry, which is read through the online connection
+        void this.loadIcons(conn, attempt);
     }
 
     private setState(state: HaState): void {

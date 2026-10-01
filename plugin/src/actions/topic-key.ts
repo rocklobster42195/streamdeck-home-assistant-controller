@@ -38,6 +38,9 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
         ha.onState(() => {
             for (const inst of this.instances.values()) this.render(inst);
         });
+        ha.onIcons(() => {
+            for (const inst of this.instances.values()) this.render(inst);
+        });
         ha.onEntities((entities) => {
             for (const inst of this.instances.values()) {
                 const ids = this.entityIds(inst);

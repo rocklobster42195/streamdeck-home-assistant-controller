@@ -8,7 +8,8 @@ import type { JsonObject } from "@elgato/utils";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiThermometer } from "@mdi/js";
 import { ha } from "../ha/connection";
-import { haIcon, haName, haRead } from "../ha/entities";
+import { haName, haRead } from "../ha/entities";
+import { haIconPath } from "../ha/icons";
 import { numberSetting, shownValue, zonesOf } from "../mqtt/value-state";
 import { ACCENT } from "../render/svg";
 import { renderKeyHint } from "../render/switch-key";
@@ -112,7 +113,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
             unit: s.unit?.trim() || (fromHa ? haV.unit : undefined),
             second: this.second(inst, fromHa),
             label: keyLabel(s, fromHa ? haName(e) : undefined),
-            icon: mdiPath(s.icon) ?? (fromHa ? mdiPath(haIcon(e)) : undefined),
+            icon: mdiPath(s.icon) ?? (fromHa ? haIconPath(e) : undefined),
             zones: zonesOf(s.color || "#FFFFFF", s.thresholds),
             min: numberSetting(s.min, 0),
             max: numberSetting(s.max, 100),

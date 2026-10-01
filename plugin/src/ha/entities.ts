@@ -6,7 +6,6 @@ import type { HassEntity } from "home-assistant-js-websocket";
 import { mdiName } from "../discovery/ha-config";
 import type { ActionKind } from "../discovery/ha-entities";
 import type { SwitchState } from "../mqtt/switch-state";
-import { dimmable } from "./dial";
 
 /** Per domain: the state that counts as "on" and the services for on and off. */
 const SWITCHABLE: Record<string, { on: string; turnOn: string; turnOff: string }> = {
@@ -36,6 +35,19 @@ const UNAVAILABLE = new Set(["unavailable"]);
 
 export function domainOf(entityId: string): string {
     return entityId.split(".")[0];
+}
+
+/** Lights that can only switch (no brightness) don't fit the dial. */
+export function dimmable(e: HassEntity): boolean {
+    const modes = e.attributes.supported_color_modes;
+    return !Array.isArray(modes) || modes.some((m) => m !== "onoff");
+}
+
+/** The states a switchable entity has for on and off ("locked"/"unlocked" for a lock). */
+export function haOnOffStates(entityId: string): { on: string; off: string } | undefined {
+    const d = domainOf(entityId);
+    const sw = SWITCHABLE[d];
+    return sw ? { on: sw.on, off: OFF[d]?.[0] ?? "off" } : undefined;
 }
 
 /** Domains the Slider dial turns (see dial.ts); lights only when they can dim. */

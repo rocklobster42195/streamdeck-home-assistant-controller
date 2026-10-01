@@ -34,6 +34,7 @@ import { pressListenTopic, pressState, runPress, type PressSettings } from "./pr
 import { HaToggle } from "./ha-toggle";
 import { Toggle } from "./toggle";
 import { keyLabel, sourceOf, type SourceSettings } from "../source";
+import { localNumber } from "../format";
 import { syncTopics } from "./topic-key";
 
 export type SliderDialSettings = JsonObject &
@@ -263,9 +264,9 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         return renderSliderDial({
             look: s.look === "ring" ? "ring" : "half",
             setpoint,
-            setpointText: setpoint === undefined ? undefined : formatNumber(setpoint, r.step, s.decimals),
+            setpointText: setpoint === undefined ? undefined : localNumber(formatNumber(setpoint, r.step, s.decimals)),
             actual: d?.actual,
-            actualText: d?.actual === undefined ? undefined : formatNumber(d.actual, 0.1, s.decimals),
+            actualText: d?.actual === undefined ? undefined : localNumber(formatNumber(d.actual, 0.1, s.decimals)),
             unit: s.unit?.trim() || d?.unit || (d?.actual !== undefined || e?.entity_id.startsWith("climate.") ? "°C" : undefined),
             label: keyLabel(s, haName(e)),
             icon: mdiPath(s.icon) ?? haIconPath(e),
@@ -293,7 +294,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         return renderSliderDial({
             look: s.look === "ring" ? "ring" : "half",
             setpoint,
-            setpointText: setpoint === undefined ? undefined : s.percent ? String(toPercent(setpoint, r)) : formatNumber(setpoint, r.step, s.decimals),
+            setpointText: setpoint === undefined ? undefined : s.percent ? String(toPercent(setpoint, r)) : localNumber(formatNumber(setpoint, r.step, s.decimals)),
             actual: actual?.number,
             actualText: actual?.text,
             unit: s.percent ? "%" : s.unit,

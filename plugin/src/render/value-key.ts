@@ -4,6 +4,7 @@
 // a second value at the bottom. Offline: dimmed with a cloud badge; before a value arrives: a dash. A frame shows that what a press
 // switches is on.
 import { escapeXml, halfArc, measureArialWidth, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
+import { localNumber } from "../format";
 import { mdiCloudOffOutline } from "@mdi/js";
 import { BG, FONT, icon, SIZE, svgUri } from "./svg";
 
@@ -133,5 +134,5 @@ function fit(s: string, max: number, width: number, bold: boolean, min: number):
 }
 
 function short(n: number): string {
-    return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    return Number.isInteger(n) ? String(n) : localNumber(n.toFixed(1));
 }

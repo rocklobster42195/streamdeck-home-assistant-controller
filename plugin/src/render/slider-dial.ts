@@ -4,6 +4,7 @@
 // left, the name and value on the right. Off (what a push switches is off): dimmed with "Off".
 // Offline: dimmed with a cloud badge.
 import { arc, halfArc, halfArcPosition, measureArialWidth, mdi, stripImage, text, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
+import { localNumber } from "../format";
 import { mdiCloudOffOutline } from "@mdi/js";
 
 export type SliderView = {
@@ -106,5 +107,5 @@ function fitSize(s: string, max: number, width: number, min: number): number {
 }
 
 function short(n: number): string {
-    return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    return Number.isInteger(n) ? String(n) : localNumber(n.toFixed(1));
 }

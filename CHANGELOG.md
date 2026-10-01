@@ -5,6 +5,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- Numbers on keys and dials use Stream Deck's language: "19,4 °C" in German. What goes to a device keeps the point; IP addresses and versions stay as they are.
 - Value key with an icon: the icon large at the top and two lines under it (value and second value, or name and value), as other HA plugins show it; long names end in "…".
 - Keys use the family's plain, large icons: 112 px without text (as in MA-C), 88 px with a name; no glow circle behind a switched-on icon.
 - The settings window fits Stream Deck's fixed 500 × 650 window: no page title, the menu is one wrapping bar at the top with short names.

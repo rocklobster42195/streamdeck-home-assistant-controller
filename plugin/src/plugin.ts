@@ -7,6 +7,7 @@ import { SliderDial } from "./actions/slider-dial";
 import { ValueKey } from "./actions/value-key";
 import { startHacBus, trackHacActions } from "./bus/hac-bus";
 import { startConnections } from "./connections";
+import { setNumberLanguage } from "./format";
 import { initPiBridge } from "./pi/handlers";
 
 streamDeck.logger.setLevel("info");
@@ -22,6 +23,8 @@ initPiBridge();
 trackHacActions();
 
 await streamDeck.connect();
+// Numbers on keys in Stream Deck's language (19,4 in German)
+setNumberLanguage(streamDeck.info.application.language);
 await startConnections();
 streamDeck.logger.info("HA-C started");
 // deckbus: tell other plugins whether the broker is reachable (works without it if the bus can't start)

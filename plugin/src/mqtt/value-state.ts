@@ -1,12 +1,13 @@
 // The Value key's logic without Stream Deck: the value from a payload (a number when it is one),
 // formatted with the chosen decimals, and the colour zones from the settings.
 import type { Zones } from "@rocklobster42195/streamdeck-kit";
+import { localNumber } from "../format";
 import { readValue } from "./payload";
 
 export type Threshold = { from: number; color: string };
 
 export type ShownValue = {
-    /** The text to show ("21.5", "open"); undefined before anything arrived. */
+    /** The text to show ("21.5", "21,5" in German, "open"); undefined before anything arrived. */
     text?: string;
     /** The number, when the value is one. */
     number?: number;
@@ -20,7 +21,8 @@ export function shownValue(payload: string | undefined, field?: string, decimals
     if (!Number.isFinite(n)) return { text: raw };
     const d = decimals === undefined || decimals === "" ? undefined : Number(decimals);
     const text = d !== undefined && Number.isInteger(d) && d >= 0 && d <= 6 ? n.toFixed(d) : raw;
-    return { text, number: n };
+    // For showing: a decimal comma in German (see format.ts)
+    return { text: localNumber(text), number: n };
 }
 
 /** Zones for the kit's gauges: the base colour below everything, then the thresholds in order. */

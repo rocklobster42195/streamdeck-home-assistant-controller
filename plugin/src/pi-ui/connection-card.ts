@@ -1,4 +1,4 @@
-// <hac-connection-card> — the broker connection, shared by all HA-C actions (global settings):
+// <hac-connection-card> — the MQTT broker connection, shared by all HA-C actions (global settings):
 // status line, address, login, "allow self-signed certificates", and a Connect button.
 import { escapeHtml, reloadPiSelects, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
 import type { ConnectionStatus, PiPush } from "../pi/protocol";

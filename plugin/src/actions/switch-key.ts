@@ -27,6 +27,8 @@ export type SwitchKeySettings = TopicKeySettings &
         iconOff?: string;
         colorOn?: string;
         label?: string;
+        /** The name in the key's colour instead of white. */
+        colorCaption?: boolean;
         /** Optional value line under the icon (e.g. the power). */
         valueTopic?: string;
         valueField?: string;
@@ -118,6 +120,7 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
             colorOn,
             label: this.label(inst, fromHa ? haName(e) : undefined),
             value: value ? `${value.text ?? "–"}${value.unit ? ` ${value.unit}` : ""}` : undefined,
+            colorCaption: s.colorCaption === true,
         });
     }
 }

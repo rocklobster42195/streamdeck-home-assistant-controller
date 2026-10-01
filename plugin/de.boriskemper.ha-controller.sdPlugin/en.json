@@ -213,7 +213,9 @@
 			"icons": "Icons",
 			"states_count": "{n} states",
 			"states_none": "No states yet",
-			"states_edit": "Edit: names, icons, colours, order …"
+			"states_edit": "Edit: names, icons, colours, order …",
+			"color_caption": "Name in the key's colour",
+			"color_caption_hint": "Off: white, readable on every colour. On: in the key's colour (harder to read with dark colours)."
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

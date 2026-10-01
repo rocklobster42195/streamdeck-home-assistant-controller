@@ -12,6 +12,8 @@ export type PublishKeyView = {
     /** Text while armed ("Press again"). */
     armedText: string;
     offline: boolean;
+    /** The name in the key's colour instead of white. */
+    colorCaption?: boolean;
 };
 
 export function renderPublishKey(v: PublishKeyView): string {
@@ -25,7 +27,7 @@ export function renderPublishKey(v: PublishKeyView): string {
     // The family's look (the kit's key style): the icon large, the name as a bold caption under it
     const ink = v.offline ? KEY_TIERS.unavailable : v.color;
     parts.push(keyIcon(v.icon, label ? KEY_ICON.withCaption : KEY_ICON.full, ink));
-    if (label) parts.push(keyCaption(label, ink));
+    if (label) parts.push(keyCaption(label, v.offline ? ink : v.colorCaption ? v.color : "#FFFFFF"));
     if (v.offline) parts.push(icon(mdiCloudOffOutline, SIZE - 42, 8, 32, "#ff6b6b"));
     return svgUri(parts);
 }

@@ -13,6 +13,8 @@ export type MultiStateKeyView = {
     /** The state's name (or value); the key's own name when unknown. */
     text?: string;
     offline: boolean;
+    /** The state's name in its colour instead of white. */
+    colorCaption?: boolean;
 };
 
 const DIM = "#7a7a80";
@@ -22,7 +24,7 @@ export function renderMultiStateKey(v: MultiStateKeyView): string {
     const ink = v.offline || !known ? DIM : v.color;
     const parts = [`<rect width="${SIZE}" height="${SIZE}" fill="${BG}"/>`];
     parts.push(icon(v.icon, 34, 4, 76, ink, v.offline ? 0.35 : 1));
-    if (v.text) parts.push(keyCaption(v.text, v.offline || !known ? DIM : v.color, { y: 104, max: 22, min: 13 }));
+    if (v.text) parts.push(keyCaption(v.text, v.offline || !known ? DIM : v.colorCaption ? v.color : "#FFFFFF", { y: 104, max: 22, min: 13 }));
     // One dot per state, the current one filled in its colour
     const n = Math.min(v.count, 8);
     const gap = 14;

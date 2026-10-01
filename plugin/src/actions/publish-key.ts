@@ -23,6 +23,8 @@ export type PublishKeySettings = TopicKeySettings & {
     icon?: string;
     color?: string;
     label?: string;
+    /** The name in the key's colour instead of white. */
+    colorCaption?: boolean;
 };
 
 const ARM_MS = 3000;
@@ -90,6 +92,7 @@ export class PublishKey extends TopicKey<PublishKeySettings> {
             armed: this.armed.has(inst.id),
             armedText: t("key.press_again"),
             offline: this.isOffline(inst),
+            colorCaption: s.colorCaption === true,
         });
     }
 

@@ -213,7 +213,9 @@
 			"icons": "Symbole",
 			"states_count": "{n} Stufen",
 			"states_none": "Noch keine Stufen",
-			"states_edit": "Bearbeiten: Namen, Icons, Farben, Reihenfolge …"
+			"states_edit": "Bearbeiten: Namen, Icons, Farben, Reihenfolge …",
+			"color_caption": "Name in der Tastenfarbe",
+			"color_caption_hint": "Aus: weiß, auf jeder Farbe gut lesbar. An: in der Farbe der Taste (bei dunklen Farben schlechter lesbar)."
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

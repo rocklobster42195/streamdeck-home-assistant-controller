@@ -8,12 +8,41 @@ import { entities as mqttEntities } from "../discovery/ha-discovery";
 import { fits, PALETTE, settingsFor, type ActionKind, type HaEntity } from "../discovery/ha-entities";
 import { ha } from "../ha/connection";
 import type { HaRegistry } from "../ha/ha-connection";
-import { haFits, haName, haOptions } from "../ha/entities";
+import { domainOf, haFits, haName, haOptions } from "../ha/entities";
 import { haListIcon } from "../ha/icons";
 import { broker } from "../mqtt/connection";
 import type { DeviceItem, PiPush } from "./protocol";
 
-const MAX_ITEMS = 80;
+/**
+ * Words people search for, per domain (German and English): "Thermostat" finds a climate entity
+ * named "Heizung Wohnzimmer Gruppe", "Rollladen" every cover.
+ */
+const KIND_WORDS: Record<string, string> = {
+    light: "licht lampe leuchte light lamp",
+    switch: "schalter steckdose switch plug outlet",
+    input_boolean: "schalter helfer switch toggle helper",
+    fan: "ventilator lüfter fan",
+    lock: "schloss tür lock door",
+    cover: "rollladen rolladen jalousie markise tor garage cover blind shutter awning gate",
+    climate: "thermostat heizung klima climate heating hvac",
+    sensor: "sensor messwert sensor",
+    binary_sensor: "sensor kontakt melder binary contact",
+    scene: "szene scene",
+    script: "skript script",
+    automation: "automation automatisierung",
+    button: "taste knopf button",
+    input_button: "taste knopf button helper",
+    select: "auswahl modus select mode",
+    input_select: "auswahl modus helfer select mode helper",
+    number: "zahl wert number",
+    input_number: "zahl wert helfer number helper",
+    siren: "sirene alarm siren",
+    humidifier: "luftbefeuchter entfeuchter humidifier dehumidifier",
+    weather: "wetter weather",
+};
+
+/** Enough for a whole home without searching (e.g. 114 entities fit the dial in a big one). */
+const MAX_ITEMS = 300;
 
 export function initDevicePicker(): void {
     piBridge.handle("devices", async (msg) => {
@@ -90,7 +119,7 @@ async function haItems(action: ActionKind): Promise<DeviceItem[]> {
             sub: [deviceName && !name.startsWith(deviceName) ? deviceName : "", e.entity_id].filter(Boolean).join(" · "),
             extra: !!entry?.entity_category,
             icon: haListIcon(e),
-            search: `${name} ${e.entity_id} ${deviceName} ${area}`.toLowerCase(),
+            search: `${name} ${e.entity_id} ${deviceName} ${area} ${KIND_WORDS[domainOf(e.entity_id)] ?? ""}`.toLowerCase(),
             sortArea: area,
             sortDevice: deviceName,
         });
@@ -107,7 +136,7 @@ function byDevice(a: HaEntity, b: HaEntity): number {
 }
 
 function mqttItem(e: HaEntity): DeviceItem {
-    return { id: e.id, source: "mqtt", name: e.name, group: e.device ?? "", sub: e.component, extra: !!e.category, icon: mdiPath(e.icon), search: `${e.name} ${e.device ?? ""} ${e.component}`.toLowerCase() };
+    return { id: e.id, source: "mqtt", name: e.name, group: e.device ?? "", sub: e.component, extra: !!e.category, icon: mdiPath(e.icon), search: `${e.name} ${e.device ?? ""} ${e.component} ${KIND_WORDS[e.component] ?? ""}`.toLowerCase() };
 }
 
 function reply(msg: PiPush): Promise<void> {

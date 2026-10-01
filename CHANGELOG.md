@@ -5,6 +5,8 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- The device picker also finds entities by their kind, in German and English: "Thermostat" or "Heizung" finds every climate entity, "Rollladen" every cover, "Lampe" every light.
+- The device picker lists up to 300 entities without a search (was 80), so entities without an area at the end aren't cut off.
 - Numbers on keys and dials use Stream Deck's language: "19,4 °C" in German. What goes to a device keeps the point; IP addresses and versions stay as they are.
 - Value key with an icon: the icon large at the top and two lines under it (value and second value, or name and value), as other HA plugins show it; long names end in "…".
 - Keys use the family's plain, large icons: 112 px without text (as in MA-C), 88 px with a name; no glow circle behind a switched-on icon.
@@ -14,6 +16,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- Slider dial on a thermostat: a push steps through its modes (auto → heat → off, as HA lists them); the mode shows in the corner in HA's words, the dial dims while off.
 - **States in your language:** an HA state that isn't a number shows as HA writes it, in Stream Deck's language ("Bewölkt" for cloudy, "Geöffnet" for an open door), also for the states of a Multi-state key; HA's own texts (`frontend/get_translations`).
 - **HA's own icons, also the changing ones:** keys show the icon Home Assistant shows (an icon set in HA, the icon attribute, or HA's icon tables by integration and device class), following the state and value: the weather's condition, a battery's level, a lock open or closed. Lights on the Switch key keep the bulb that lights up.
 - **No name on a key:** "No name" under the name field hides it, also the one from Home Assistant; an empty name field shows HA's.

@@ -1,7 +1,8 @@
 // What the Slider dial does with a Home Assistant entity, without Stream Deck: the value it shows,
 // its range and step, and the service call that sets a new value. Lights, fans and covers turn in
 // percent (brightness, speed, position) and switch on and off on a push; a thermostat turns its
-// setpoint and shows the room temperature; number and input_number entities use HA's own range.
+// setpoint, shows the room temperature and steps through its modes on a push (auto → heat → off);
+// number and input_number entities use HA's own range.
 import type { HassEntity } from "home-assistant-js-websocket";
 import { domainOf } from "./entities";
 
@@ -18,11 +19,26 @@ export type HaDial = {
     unit?: string;
     /** Push switches the entity on and off (lights, fans, covers). */
     toggles: boolean;
+    /** Push steps through these modes instead (a thermostat's hvac_modes: auto → heat → off). */
+    modes?: string[];
+    /** The entity is off (a thermostat in mode "off"): the dial is drawn dimmed. */
+    off?: boolean;
     /** The service call that sets `value`. */
     set(value: number): { domain: string; service: string; data: Record<string, unknown> };
 };
 
 const num = (v: unknown): number | undefined => (typeof v === "number" && Number.isFinite(v) ? v : typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : undefined);
+
+/** The mode after `current` in the list (round and round; the first one when `current` isn't in it). */
+export function nextMode(modes: string[], current: string): string | undefined {
+    if (!modes.length) return undefined;
+    return modes[(modes.indexOf(current) + 1) % modes.length];
+}
+
+/** The call that puts a thermostat into a mode. */
+export function modeCall(mode: string): { domain: string; service: string; data: Record<string, unknown> } {
+    return { domain: "climate", service: "set_hvac_mode", data: { hvac_mode: mode } };
+}
 
 /** The dial for an entity; undefined for domains it can't turn. */
 export function haDial(e: HassEntity | undefined): HaDial | undefined {
@@ -70,6 +86,8 @@ export function haDial(e: HassEntity | undefined): HaDial | undefined {
                 max: num(a.max_temp) ?? 35,
                 step: num(a.target_temp_step) ?? 0.5,
                 toggles: false,
+                modes: Array.isArray(a.hvac_modes) ? a.hvac_modes.filter((m): m is string => typeof m === "string") : undefined,
+                off: e.state === "off",
                 set: (v) => ({ domain, service: "set_temperature", data: { temperature: v } }),
             };
         case "number":

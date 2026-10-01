@@ -21,7 +21,7 @@ import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiKnob } from "@mdi/js";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { ha } from "../ha/connection";
-import { haDial, type HaDial } from "../ha/dial";
+import { haDial, modeCall, nextMode, type HaDial } from "../ha/dial";
 import { haName } from "../ha/entities";
 import { haIconPath } from "../ha/icons";
 import { broker } from "../mqtt/connection";
@@ -180,8 +180,16 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         const inst = this.instances.get(id);
         if (!inst) return;
         if (this.fromHa(inst)) {
-            // Lights, fans and covers switch on and off; thermostats and numbers have no push
+            // Lights, fans and covers switch on and off, a thermostat steps through its modes
             const d = this.dial(inst);
+            const e = ha.entities[inst.settings.entityId ?? ""];
+            const mode = d?.modes && e ? nextMode(d.modes, e.state) : undefined;
+            if (mode) {
+                const call = modeCall(mode);
+                streamDeck.logger.info(`[ha] ${call.domain}.${call.service} ${e!.entity_id} ${mode}`);
+                void ha.call(call.domain, call.service, e!.entity_id, call.data).then((ok) => void (ok ? undefined : inst.action.showAlert()));
+                return;
+            }
             if (!d?.toggles) return;
             if (ha.state !== "online" || !this.haToggle.press(id, inst.settings.entityId!)) void inst.action.showAlert();
             this.render(inst);
@@ -274,7 +282,9 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             max: r.max,
             rangeLabels: percent ? ["0", "100"] : undefined,
             zones: zonesOf(s.color || "#F7A600", s.thresholds),
-            off: d?.toggles === true && this.haToggle.state(inst.id, s.entityId) === "off",
+            off: d?.off === true || (d?.toggles === true && this.haToggle.state(inst.id, s.entityId) === "off"),
+            // A thermostat's mode in HA's words ("Heizen", "Automatisch"); "Aus" shows as off
+            status: d?.modes && e && !d.off ? ha.stateText(e) : undefined,
             offText: t("key.off"),
             offline: ha.state !== "online" || !e || e.state === "unavailable",
             adjusting: Date.now() < inst.adjustingUntil,

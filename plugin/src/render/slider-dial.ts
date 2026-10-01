@@ -25,6 +25,8 @@ export type SliderView = {
     zones: Zones;
     /** What a push switches is off. */
     off: boolean;
+    /** A short state in the corner, e.g. a thermostat's mode ("Heizen"). */
+    status?: string;
     offText: string;
     offline: boolean;
     /** The user is turning the dial: the setpoint is drawn highlighted. */
@@ -78,6 +80,7 @@ function half(v: SliderView): string[] {
     parts.push(text(cx, cy - 12, big, { size: fitSize(big, 30, 92, 16), color, weight: "bold", anchor: "middle" }));
     if (s.small && !v.off) parts.push(text(cx, cy + 6, s.small, { size: 14, color: v.adjusting ? "#ffffff" : SOFT, anchor: "middle", maxWidth: 110 }));
     if (v.label?.trim()) parts.push(text(4, 14, v.label.trim(), { size: 13, color: dim ? DIM : SOFT, maxWidth: 66 }));
+    if (v.status) parts.push(text(196, 14, v.status, { size: 12, color: dim ? DIM : SOFT, anchor: "end", maxWidth: 66 }));
     else if (v.icon) parts.push(mdi(v.icon, 4, 2, 20, dim ? DIM : SOFT));
     // Range at the ends of the arc
     parts.push(text(cx - r, 96, v.rangeLabels?.[0] ?? short(v.min), { size: 11, color: DIM, anchor: "middle" }), text(cx + r, 96, v.rangeLabels?.[1] ?? short(v.max), { size: 11, color: DIM, anchor: "middle" }));
@@ -93,6 +96,7 @@ function ring(v: SliderView): string[] {
     if (v.icon) parts.push(mdi(v.icon, 32, 36, 28, dim ? DIM : SOFT));
     else parts.push(text(46, 56, `${Math.round(pos * 100)}%`, { size: 15, color: dim ? DIM : "#ffffff", weight: "bold", anchor: "middle" }));
     const x = 92;
+    if (v.status) parts.push(text(x, 13, v.status, { size: 11, color: dim ? DIM : SOFT, maxWidth: 104 }));
     if (v.label?.trim()) parts.push(text(x, 30, v.label.trim(), { size: 14, color: dim ? DIM : SOFT, maxWidth: 104 }));
     const big = v.off ? v.offText : s.big;
     parts.push(text(x, 62, big, { size: fitSize(big, 26, 104, 14), color, weight: "bold" }));

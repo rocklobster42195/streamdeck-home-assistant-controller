@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { haFits } from "./entities";
-import { dimmable, haDial } from "./dial";
+import { dimmable, haDial, modeCall, nextMode } from "./dial";
 
 const entity = (entity_id: string, state: string, attributes: Record<string, unknown> = {}): HassEntity => ({ entity_id, state, attributes, last_changed: "", last_updated: "", context: { id: "", user_id: null, parent_id: null } });
 
@@ -26,6 +26,16 @@ describe("HA entities on the Slider dial", () => {
         expect(d).toMatchObject({ value: 21, actual: 20.4, min: 5, max: 30, step: 0.5, toggles: false });
         expect(d.set(21.5)).toEqual({ domain: "climate", service: "set_temperature", data: { temperature: 21.5 } });
         expect(haFits("climate.bath")).toEqual(["slider"]);
+    });
+
+    it("steps a thermostat through its modes on a push", () => {
+        const d = haDial(entity("climate.living", "off", { temperature: 4.5, current_temperature: 21, hvac_modes: ["auto", "heat", "off"] }))!;
+        expect(d).toMatchObject({ modes: ["auto", "heat", "off"], off: true });
+        expect(nextMode(d.modes!, "off")).toBe("auto");
+        expect(nextMode(d.modes!, "auto")).toBe("heat");
+        expect(nextMode(d.modes!, "dry")).toBe("auto");
+        expect(nextMode([], "off")).toBeUndefined();
+        expect(modeCall("heat")).toEqual({ domain: "climate", service: "set_hvac_mode", data: { hvac_mode: "heat" } });
     });
 
     it("moves a cover and sets a fan's speed", () => {

@@ -16,3 +16,4 @@ logs/
 sim-out/
 .vscode/
 **/*.sdPlugin/cache/
+old-prototype-installed/

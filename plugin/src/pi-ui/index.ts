@@ -12,6 +12,7 @@ import { HacStates } from "./states-field";
 import { HacTest } from "./test-button";
 import { HacTopic } from "./topic-field";
 import { isSettingsWindow, mirrorOpener, shareConnection } from "./window";
+import { initWindowNav } from "./window-nav";
 
 /** MDI paths for <pi-choice data-options='[{"icon":"…"}]'> tiles. */
 const CHOICE_ICONS: Record<string, string> = { text: mdiFormatText, gauge: mdiGauge, none: mdiCancel, toggle: mdiToggleSwitchOutline, send: mdiSend, ring: mdiChartDonut };
@@ -49,6 +50,7 @@ sd.onReady(() => {
         const title = `HA-C · ${t(document.body.dataset.title ?? "")}`;
         document.title = title;
         document.body.insertAdjacentHTML("afterbegin", `<div class="hac-window-title">${escapeHtml(title)}</div>`);
+        initWindowNav();
         // The section asked for ("#connections") exists only now
         if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
     }

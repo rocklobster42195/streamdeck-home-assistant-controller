@@ -199,7 +199,8 @@
 			"same_entity": "Dieselbe Entity",
 			"second_topic": "Topic",
 			"second_line_hint": "Ein zweiter, kleinerer Wert unter dem ersten, z. B. die Luftfeuchte unter der Temperatur.",
-			"value_line_ha_hint": "Steht unter dem Icon, z. B. die Helligkeit der Lampe oder die Leistung der Steckdose (andere Entity)."
+			"value_line_ha_hint": "Steht unter dem Icon, z. B. die Helligkeit der Lampe oder die Leistung der Steckdose (andere Entity).",
+			"connections": "Verbindungen"
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

@@ -5,6 +5,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- Keys use the family's plain, large icons: 112 px without text (as in MA-C), 88 px with a name; no glow circle behind a switched-on icon.
 - The settings window fits Stream Deck's fixed 500 × 650 window: no page title, the menu is one wrapping bar at the top with short names.
 - The connection cards show "Connect" only to try again after a failure; changed settings connect by themselves.
 - The settings say "MQTT broker" and "MQTT device", to keep MQTT apart from the Home Assistant connection.

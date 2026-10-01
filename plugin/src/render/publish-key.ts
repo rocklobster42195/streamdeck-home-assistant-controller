@@ -21,10 +21,11 @@ export function renderPublishKey(v: PublishKeyView): string {
         parts.push(...lines(v.armedText, 98, 17, "#111111", 2, 700));
         return svgUri(parts);
     }
-    const size = label ? 72 : 88;
-    const y = label ? 14 : (SIZE - size) / 2;
+    // The family's plain, large icon (MA-C: 112 px); smaller with the name under it
+    const size = label ? 88 : 112;
+    const y = label ? 6 : (SIZE - size) / 2;
     parts.push(icon(v.icon, (SIZE - size) / 2, y, size, v.offline ? "#7a7a80" : v.color, v.offline ? 0.35 : 1));
-    if (label) parts.push(...lines(label, 112, 18, v.offline ? "#7a7a80" : "#FFFFFF", 1));
+    if (label) parts.push(...lines(label, 118, 18, v.offline ? "#7a7a80" : "#FFFFFF", 1));
     if (v.offline) parts.push(icon(mdiCloudOffOutline, SIZE - 42, 8, 32, "#ff6b6b"));
     return svgUri(parts);
 }

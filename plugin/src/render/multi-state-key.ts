@@ -20,8 +20,8 @@ export function renderMultiStateKey(v: MultiStateKeyView): string {
     const known = v.index >= 0;
     const ink = v.offline || !known ? DIM : v.color;
     const parts = [`<rect width="${SIZE}" height="${SIZE}" fill="${BG}"/>`];
-    parts.push(icon(v.icon, 40, 10, 64, ink, v.offline ? 0.35 : 1));
-    if (v.text) parts.push(...lines(v.text, 98, 18, v.offline ? DIM : "#FFFFFF", 1, 700));
+    parts.push(icon(v.icon, 34, 4, 76, ink, v.offline ? 0.35 : 1));
+    if (v.text) parts.push(...lines(v.text, 100, 18, v.offline ? DIM : "#FFFFFF", 1, 700));
     // One dot per state, the current one filled in its colour
     const n = Math.min(v.count, 8);
     const gap = 14;

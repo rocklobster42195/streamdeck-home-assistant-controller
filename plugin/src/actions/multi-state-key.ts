@@ -116,7 +116,7 @@ export class MultiStateKey extends TopicKey<MultiStateKeySettings> {
             count: options.length,
             icon: mdiPath(o?.icon) ?? mdiPath(options.find((x) => x.icon)?.icon) ?? (fromHa ? haIconPath(this.entity(inst)) : undefined) ?? mdiFan,
             color: o?.color || ACCENT,
-            text: o ? o.label?.trim() || o.value : s.label?.trim() || readable(fromHa ? this.entity(inst)?.state : readValue(this.payload(s.stateTopic), s.field)) || (fromHa ? haName(this.entity(inst)) : undefined),
+            text: o ? o.label?.trim() || (fromHa && this.entity(inst) ? ha.stateText(this.entity(inst)!, o.value) : o.value) : s.label?.trim() || readable(fromHa ? (this.entity(inst) && ha.stateText(this.entity(inst)!)) : readValue(this.payload(s.stateTopic), s.field)) || (fromHa ? haName(this.entity(inst)) : undefined),
             offline: this.isOffline(inst),
         });
     }

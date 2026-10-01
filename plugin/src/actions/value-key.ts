@@ -8,7 +8,7 @@ import type { JsonObject } from "@elgato/utils";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiThermometer } from "@mdi/js";
 import { ha } from "../ha/connection";
-import { haName, haRead } from "../ha/entities";
+import { haName } from "../ha/entities";
 import { haIconPath } from "../ha/icons";
 import { numberSetting, shownValue, zonesOf } from "../mqtt/value-state";
 import { ACCENT } from "../render/svg";
@@ -85,7 +85,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         let read: { payload?: string; unit?: string; field?: string };
         if (fromHa) {
             if (!s.secondAttribute?.trim() && !s.secondEntityId?.trim()) return undefined;
-            read = haRead(ha.entities[s.secondEntityId?.trim() || s.entityId || ""], s.secondAttribute);
+            read = ha.read(ha.entities[s.secondEntityId?.trim() || s.entityId || ""], s.secondAttribute);
         } else {
             if (!s.secondTopic?.trim()) return undefined;
             read = { payload: this.payload(s.secondTopic), field: s.secondField };
@@ -103,7 +103,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         const fromHa = this.source(inst) === "ha";
         if (!fromHa && !s.stateTopic?.trim()) return renderKeyHint(t("key.choose_topic"), mdiThermometer);
         const e = fromHa ? this.entity(inst) : undefined;
-        const haV = haRead(e, s.attribute);
+        const haV = ha.read(e, s.attribute);
         const v = fromHa ? shownValue(haV.payload, undefined, s.decimals) : shownValue(this.payload(s.stateTopic), s.field, s.decimals);
         const toggled = fromHa ? undefined : pressState(s, this.toggle, inst.id);
         return renderValueKey({

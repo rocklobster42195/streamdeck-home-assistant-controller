@@ -5,6 +5,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- Value key with an icon: the icon large at the top and two lines under it (value and second value, or name and value), as other HA plugins show it; long names end in "…".
 - Keys use the family's plain, large icons: 112 px without text (as in MA-C), 88 px with a name; no glow circle behind a switched-on icon.
 - The settings window fits Stream Deck's fixed 500 × 650 window: no page title, the menu is one wrapping bar at the top with short names.
 - The connection cards show "Connect" only to try again after a failure; changed settings connect by themselves.
@@ -12,6 +13,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- **States in your language:** an HA state that isn't a number shows as HA writes it, in Stream Deck's language ("Bewölkt" for cloudy, "Geöffnet" for an open door), also for the states of a Multi-state key; HA's own texts (`frontend/get_translations`).
 - **HA's own icons, also the changing ones:** keys show the icon Home Assistant shows (an icon set in HA, the icon attribute, or HA's icon tables by integration and device class), following the state and value: the weather's condition, a battery's level, a lock open or closed. Lights on the Switch key keep the bulb that lights up.
 - **No name on a key:** "No name" under the name field hides it, also the one from Home Assistant; an empty name field shows HA's.
 - **Slider dial with Home Assistant:** lights (brightness in %, 0 % switches off), fans (speed), covers (position) with push to switch on and off; thermostats (setpoint within HA's limits, room temperature on the arc); `number` / `input_number` with their own range, step and unit. Lights that can only switch stay off the dial.

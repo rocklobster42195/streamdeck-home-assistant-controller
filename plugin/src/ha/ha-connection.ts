@@ -4,7 +4,9 @@
 // reports its state. Once connected, the library reconnects by itself.
 // Knows nothing of Stream Deck.
 import { callService, createConnection, createLongLivedTokenAuth, ERR_CANNOT_CONNECT, ERR_INVALID_AUTH, subscribeEntities, type Connection, type HassEntities, type HassEntity } from "home-assistant-js-websocket";
+import { haRead } from "./entities";
 import { resolveIcon, type ComponentIcons, type EntityIcons, type IconEntry } from "./icon-rules";
+import { stateText, type StateTexts } from "./state-text";
 import { parseHaUrl, type HaAddress } from "./url";
 
 export type HaConfig = { url?: string; token?: string };
@@ -58,6 +60,10 @@ export class HaConnection {
     private registryCache: { at: number; value: Promise<HaRegistry> } | undefined;
     /** HA's icon tables and the registry entries they need, loaded once per connection. */
     private icons: { component: ComponentIcons; entity: EntityIcons; entries: Map<string, IconEntry> } | undefined;
+    /** HA's texts for states in `language` ("Bewölkt" for cloudy), loaded with the icons. */
+    private texts: StateTexts = {};
+    /** The language for state texts: Stream Deck's ("de", "en", …). */
+    language = "en";
     private readonly iconListeners = new Set<() => void>();
 
     constructor(private readonly log: Logger = console) {}
@@ -72,6 +78,7 @@ export class HaConnection {
         this.version = undefined;
         this.registryCache = undefined;
         this.icons = undefined;
+        this.texts = {};
         this.address = parseHaUrl(config.url);
         this.lastError = undefined;
         if (!config.url?.trim() && !config.token?.trim()) return this.setState("unconfigured");
@@ -145,23 +152,43 @@ export class HaConnection {
         return resolveIcon(e, this.icons.entries.get(e.entity_id), this.icons.component, this.icons.entity, state ?? e.state);
     }
 
-    /** Called once the icon tables have loaded (keys redraw with HA's icons). */
+    /** The state (or `state`) as HA writes it in the user's language; the state itself without a text. */
+    stateText(e: HassEntity, state?: string): string {
+        return stateText(e, this.icons?.entries.get(e.entity_id), this.texts, state ?? e.state);
+    }
+
+    /**
+     * The state or an attribute with its unit (see haRead); a state that isn't a number comes as HA
+     * writes it ("Bewölkt", "Geöffnet").
+     */
+    read(e: HassEntity | undefined, attribute?: string): { payload?: string; unit?: string } {
+        const r = haRead(e, attribute);
+        if (e && !attribute?.trim() && r.payload !== undefined && !Number.isFinite(Number(r.payload))) return { ...r, payload: this.stateText(e) };
+        return r;
+    }
+
+    /** Called once the icon tables and state texts have loaded (keys redraw with them). */
     onIcons(fn: () => void): () => void {
         this.iconListeners.add(fn);
         return () => this.iconListeners.delete(fn);
     }
 
-    /** Read HA's icon tables: per domain, and per integration the entities come from. */
+    /** Read HA's icon tables (per domain, and per integration the entities come from) and its state texts. */
     private async loadIcons(conn: Connection, attempt: number): Promise<void> {
         type Icons<T> = { resources: T };
         try {
             const reg = await this.registry();
             const platforms = [...new Set(reg.entities.map((r) => r.platform).filter((p): p is string => !!p))];
-            const [component, ...perIntegration] = await Promise.all([
+            type Texts = { resources: StateTexts };
+            const noTexts = { resources: {} as StateTexts };
+            const [domainTexts, entityTexts, component, ...perIntegration] = await Promise.all([
+                conn.sendMessagePromise<Texts>({ type: "frontend/get_translations", language: this.language, category: "entity_component" }).catch(() => noTexts),
+                conn.sendMessagePromise<Texts>({ type: "frontend/get_translations", language: this.language, category: "entity" }).catch(() => noTexts),
                 conn.sendMessagePromise<Icons<ComponentIcons>>({ type: "frontend/get_icons", category: "entity_component" }),
                 ...platforms.map((integration) => conn.sendMessagePromise<Icons<EntityIcons>>({ type: "frontend/get_icons", category: "entity", integration }).catch(() => ({ resources: {} as EntityIcons }))),
             ]);
             if (attempt !== this.attempt) return;
+            this.texts = { ...domainTexts.resources, ...entityTexts.resources };
             this.icons = {
                 component: component.resources,
                 entity: Object.assign({}, ...perIntegration.map((r) => r.resources)) as EntityIcons,

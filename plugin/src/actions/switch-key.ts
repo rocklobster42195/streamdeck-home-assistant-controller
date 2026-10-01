@@ -8,7 +8,7 @@ import { zoneColor } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiLightbulbOnOutline, mdiLightbulbOutline, mdiToggleSwitchOffOutline } from "@mdi/js";
 import { ha } from "../ha/connection";
-import { haName, haOnOffStates, haRead } from "../ha/entities";
+import { haName, haOnOffStates } from "../ha/entities";
 import { haIconPath } from "../ha/icons";
 import type { SwitchTopics } from "../mqtt/switch-state";
 import { shownValue, zonesOf } from "../mqtt/value-state";
@@ -69,7 +69,7 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
         const s = inst.settings;
         if (fromHa) {
             if (!s.valueEntityId?.trim() && !s.valueAttribute?.trim()) return undefined;
-            const read = haRead(ha.entities[s.valueEntityId?.trim() || s.entityId || ""], s.valueAttribute);
+            const read = ha.read(ha.entities[s.valueEntityId?.trim() || s.entityId || ""], s.valueAttribute);
             return { ...shownValue(read.payload, undefined, s.valueDecimals), unit: s.valueUnit?.trim() || read.unit };
         }
         if (!s.valueTopic?.trim()) return undefined;

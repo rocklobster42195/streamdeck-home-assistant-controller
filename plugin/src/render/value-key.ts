@@ -1,7 +1,7 @@
 // The Value key in two looks. "Text": the name at the top, the value large in its zone's colour,
-// the unit below; with a second value, both on their own line. "Gauge": the half circle with colour
-// ranges and the value inside it, a second value at the bottom. Offline:
-// dimmed with a cloud badge; before a value arrives: a dash. A frame shows that what a press
+// the unit below; with a second value, both on their own line; with an icon, the icon large at the
+// top and two lines under it. "Gauge": the half circle with colour ranges and the value inside it,
+// a second value at the bottom. Offline: dimmed with a cloud badge; before a value arrives: a dash. A frame shows that what a press
 // switches is on.
 import { escapeXml, halfArc, measureArialWidth, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
 import { mdiCloudOffOutline } from "@mdi/js";
@@ -39,10 +39,13 @@ export function renderValueKey(v: ValueKeyView): string {
 }
 
 function textLook(v: ValueKeyView, color: string): string[] {
+    if (v.icon) return iconLook(v, color);
     const parts: string[] = [];
     const label = v.label?.trim();
-    if (v.icon) parts.push(icon(v.icon, 10, 10, 26, v.offline ? DIM : "#c8c8cc"));
-    if (label) parts.push(text(label, v.icon ? 40 + (SIZE - 50) / 2 : SIZE / 2, 30, fit(label, 18, v.icon ? SIZE - 50 : SIZE - 16, true, 12), "#c8c8cc", 600));
+    if (label) {
+        const size = fit(label, 18, SIZE - 16, true, 12);
+        parts.push(text(clip(label, size, SIZE - 16, true), SIZE / 2, 30, size, "#c8c8cc", 600));
+    }
     const value = v.text ?? "–";
     const unit = v.unit?.trim();
     const second = v.second?.trim();
@@ -57,6 +60,31 @@ function textLook(v: ValueKeyView, color: string): string[] {
     const y = unit ? 92 : 100;
     parts.push(text(value, SIZE / 2, y, size, color, 700));
     if (unit) parts.push(text(unit, SIZE / 2, 124, fit(unit, 20, SIZE - 16, false, 12), v.offline ? DIM : "#c8c8cc", 400));
+    return parts;
+}
+
+/**
+ * Text look with an icon: the icon large at the top, two lines under it (as other Stream Deck HA
+ * plugins do): the value and the second value, or the name and the value, or the value alone.
+ */
+function iconLook(v: ValueKeyView, color: string): string[] {
+    const soft = v.offline ? DIM : "#c8c8cc";
+    const parts = [icon(v.icon!, 40, 6, 64, v.offline ? DIM : "#e8e8ec")];
+    const unit = v.unit?.trim();
+    const first = `${v.text ?? "–"}${unit ? ` ${unit}` : ""}`;
+    const second = v.second?.trim();
+    const label = v.label?.trim();
+    const line = (s: string, y: number, max: number, min: number, fill: string, weight: number) => {
+        const size = fit(s, max, SIZE - 12, true, min);
+        parts.push(text(clip(s, size, SIZE - 12, true), SIZE / 2, y, size, fill, weight));
+    };
+    if (second) {
+        line(first, 100, 28, 14, color, 700);
+        line(second, 130, 22, 12, soft, 600);
+    } else if (label) {
+        line(label, 98, 20, 12, soft, 600);
+        line(first, 130, 26, 14, color, 700);
+    } else line(first, 116, 34, 14, color, 700);
     return parts;
 }
 
@@ -77,13 +105,24 @@ function gauge(v: ValueKeyView, color: string): string[] {
     parts.push(text(short(v.min), cx - 54, cy + 18, 12, DIM, 400), text(short(v.max), cx + 54, cy + 18, 12, DIM, 400));
     // At the bottom: the second value, else the name, else the icon
     const label = v.second?.trim() || v.label?.trim();
-    if (label) parts.push(text(label, cx, 132, fit(label, 17, SIZE - 50, true, 11), v.offline ? DIM : "#c8c8cc", 600));
+    if (label) {
+        const size = fit(label, 17, SIZE - 50, true, 11);
+        parts.push(text(clip(label, size, SIZE - 50, true), cx, 132, size, v.offline ? DIM : "#c8c8cc", 600));
+    }
     else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, v.offline ? DIM : "#c8c8cc"));
     return parts;
 }
 
 function text(s: string, x: number, y: number, size: number, color: string, weight: number): string {
     return `<text x="${x.toFixed(1)}" y="${y}" ${FONT} font-size="${size}" font-weight="${weight}" fill="${color}" text-anchor="middle">${escapeXml(s)}</text>`;
+}
+
+/** `s` cut to fit `width` at `size`, ending in "…" when it had to be cut. */
+function clip(s: string, size: number, width: number, bold: boolean): string {
+    if (measureArialWidth(s, size, bold) <= width) return s;
+    let cut = s;
+    while (cut.length > 1 && measureArialWidth(`${cut}…`, size, bold) > width) cut = cut.slice(0, -1);
+    return `${cut.trimEnd()}…`;
 }
 
 /** The largest font size up to `max` at which `s` fits `width` (not below `min`). */

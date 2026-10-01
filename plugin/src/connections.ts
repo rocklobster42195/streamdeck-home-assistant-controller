@@ -25,6 +25,8 @@ let current: GlobalSettings = {};
 
 /** Call after streamDeck.connect(): reads the settings (creating the client id once) and connects. */
 export async function startConnections(): Promise<void> {
+    // HA writes states in Stream Deck's language ("Bewölkt" rather than "cloudy")
+    ha.language = streamDeck.info.application.language || "en";
     streamDeck.settings.onDidReceiveGlobalSettings<GlobalSettings>((ev) => apply(ev.settings));
     const settings = await streamDeck.settings.getGlobalSettings<GlobalSettings>();
     if (!settings.clientId) {

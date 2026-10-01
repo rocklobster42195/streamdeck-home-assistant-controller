@@ -108,6 +108,11 @@ The window **closes with the PI** (another key clicked, Stream Deck closed). Set
 
 Idea (to be decided): the PI stays short (device, name, icon, "More settings …"), the window holds the roomy parts (device picker by area, colour ranges, value lines and attributes, MQTT details, the connections). Fallback without the window: collapsed sections, MQTT parts hidden while no broker is set up. A candidate for the kit, as the whole family has long PIs.
 
+## Panorama effects across plugins (grilled 2026-10-01, next)
+
+Grill notes in the kit: `C:\dev\streamdeck-kit
+otes6-10-01-cross-plugin-panorama-grill.md`. HA-C's Slider dials get the kit's Panorama effects behind all looks (scrims behind ring, value and name). One Panorama runs across adjacent dials of different plugins: the plugin with the leftmost dial leads and streams the others their SVG slices over deckbus; its dial's settings apply. Without a partner, HA-C runs its own Panorama over its own dials. HA-C's effects can take their colour from the light and a level from an HA entity. Order: kit, MA-C + XR-C, then HA-C.
+
 ## The deck as a device in Home Assistant (grilled 2026-10-01, to build later)
 
 Grill notes: `notes/2026-10-01-ha-device-grill.md`. In short:

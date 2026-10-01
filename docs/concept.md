@@ -175,6 +175,11 @@ These additions come from the XAC grill: `C:\dev\xair-controller\notes\2026-09-2
 
 Decided 2026-10-01: MQ-C joins deckbus from v1 with `status` (broker reachable, its address) and `actions` (where its keys are). It offers no streams or requests yet; ideas for later are in the kit bus section above (alert overlay, e.g. the doorbell).
 
+## Backup and templates
+
+Decided for the whole plugin family on 2026-10-01 (kit notes `C:\dev\streamdeck-kit
+otes6-10-01-backup-grill.md`): Stream Deck's profile export keeps the layout; the kit backs up connections and plugin data (one file, all plugins over deckbus, secrets encrypted on request) and offers templates (one key's settings without a place, no secrets). MQ-C is the first plugin to use it; its planned device templates become templates shipped with the plugin.
+
 ## Testing
 
 - **Simulator** with a broker running inside the test (`aedes`) and invented devices announced through Home Assistant discovery: a lamp with brightness, a temperature sensor, a fan with levels, a gate. This covers keys, dials, discovery and the Marketplace screenshots without touching a real home.

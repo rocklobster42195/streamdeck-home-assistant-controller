@@ -8,6 +8,7 @@ import { broker, reconnect } from "../mqtt/connection";
 import { jsonFields } from "../mqtt/payload";
 import { suggestForTopic } from "../mqtt/schemes";
 import { shortAddress } from "../mqtt/url";
+import { initExplore } from "./explore";
 import type { ConnectionStatus, PiPush, TopicHit } from "./protocol";
 
 const PI_OWNER = "settings-panel";
@@ -27,6 +28,7 @@ export function initPiBridge(): void {
         const info = { topic, payload, fields: payload ? jsonFields(payload) : [], suggestion: topic ? suggestForTopic(topic, payload) : undefined };
         await piBridge.reply(json({ event: "topic-info-result", requestId: msg.requestId as number, info }));
     });
+    initExplore();
     piBridge.addPusher(() => [json({ event: "status", status: status() })]);
     broker.onState(() => piBridge.schedulePush());
 

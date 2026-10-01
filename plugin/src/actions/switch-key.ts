@@ -48,7 +48,7 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
         const s = inst.settings;
         const shown = this.optimistic.apply(inst.id, { state: this.reported(inst) }).state;
         const turnOn = shown !== "on";
-        const cmd = switchCommand(s, turnOn);
+        const cmd = switchCommand(s, turnOn, this.payload(s.stateTopic));
         if (!cmd) {
             void inst.action.showAlert();
             return;

@@ -80,7 +80,9 @@
 			"min": "Minimum",
 			"max": "Maximum",
 			"colors": "Farben",
-			"icon": "Icon (optional)"
+			"icon": "Icon (optional)",
+			"auto_value": "Automatisch",
+			"auto_value_hint": "Leer: ON/OFF, true/false, 1/0 und open/closed werden erkannt, und die Taste antwortet mit denselben Wörtern."
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis."

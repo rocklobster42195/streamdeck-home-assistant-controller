@@ -80,7 +80,9 @@
 			"min": "Minimum",
 			"max": "Maximum",
 			"colors": "Colours",
-			"icon": "Icon (optional)"
+			"icon": "Icon (optional)",
+			"auto_value": "Automatic",
+			"auto_value_hint": "Empty: ON/OFF, true/false, 1/0 and open/closed are recognised, and the key answers in the same words."
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge."

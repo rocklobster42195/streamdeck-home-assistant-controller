@@ -1,14 +1,25 @@
 // The connection to one Home Assistant over its WebSocket API (home-assistant-js-websocket):
 // connects with a long-lived token, retries with a growing delay until HA answers, keeps every
-// entity's state, and reports its state. Once connected, the library reconnects by itself.
+// entity's state, reads the area/device/entity registries for the picker, calls services, and
+// reports its state. Once connected, the library reconnects by itself.
 // Knows nothing of Stream Deck.
-import { createConnection, createLongLivedTokenAuth, ERR_CANNOT_CONNECT, ERR_INVALID_AUTH, subscribeEntities, type Connection, type HassEntities } from "home-assistant-js-websocket";
+import { callService, createConnection, createLongLivedTokenAuth, ERR_CANNOT_CONNECT, ERR_INVALID_AUTH, subscribeEntities, type Connection, type HassEntities } from "home-assistant-js-websocket";
 import { parseHaUrl, type HaAddress } from "./url";
 
 export type HaConfig = { url?: string; token?: string };
 
 /** The same states as the broker's; "denied": HA refused the token, retrying stops until the settings change. */
 export type HaState = "unconfigured" | "invalid" | "connecting" | "online" | "offline" | "denied";
+
+/** What the picker needs from HA's registries (only the fields HA-C reads). */
+export type HaRegistry = {
+    areas: { area_id: string; name: string }[];
+    devices: { id: string; name: string | null; name_by_user: string | null; area_id: string | null }[];
+    entities: { entity_id: string; device_id: string | null; area_id: string | null; entity_category: string | null; hidden_by: string | null; disabled_by: string | null }[];
+};
+
+/** How long the registries are reused before they are read again. */
+const REGISTRY_MS = 60_000;
 
 type Logger = { info(msg: string): void; warn(msg: string): void };
 
@@ -31,6 +42,7 @@ export class HaConnection {
     /** HA's version, once connected ("2026.9.4"). */
     version: string | undefined;
     entities: HassEntities = {};
+    private registryCache: { at: number; value: Promise<HaRegistry> } | undefined;
 
     constructor(private readonly log: Logger = console) {}
 
@@ -42,6 +54,7 @@ export class HaConnection {
         this.close();
         this.entities = {};
         this.version = undefined;
+        this.registryCache = undefined;
         this.address = parseHaUrl(config.url);
         this.lastError = undefined;
         if (!config.url?.trim() && !config.token?.trim()) return this.setState("unconfigured");
@@ -67,6 +80,34 @@ export class HaConnection {
 
     get entityCount(): number {
         return Object.keys(this.entities).length;
+    }
+
+    /** Areas, devices and entity entries; read once a minute at most. */
+    registry(): Promise<HaRegistry> {
+        const conn = this.connection;
+        if (!conn) return Promise.resolve({ areas: [], devices: [], entities: [] });
+        if (this.registryCache && Date.now() - this.registryCache.at < REGISTRY_MS) return this.registryCache.value;
+        const value = Promise.all([
+            conn.sendMessagePromise<HaRegistry["areas"]>({ type: "config/area_registry/list" }),
+            conn.sendMessagePromise<HaRegistry["devices"]>({ type: "config/device_registry/list" }),
+            conn.sendMessagePromise<HaRegistry["entities"]>({ type: "config/entity_registry/list" }),
+        ]).then(([areas, devices, entities]) => ({ areas, devices, entities }));
+        this.registryCache = { at: Date.now(), value };
+        value.catch(() => (this.registryCache = undefined));
+        return value;
+    }
+
+    /** Call a service on one entity ("light", "turn_on", "light.desk"); false when not connected or HA refused. */
+    async call(domain: string, service: string, entityId: string): Promise<boolean> {
+        const conn = this.connection;
+        if (!conn) return false;
+        try {
+            await callService(conn, domain, service, undefined, { entity_id: entityId });
+            return true;
+        } catch (e) {
+            this.log.warn(`[ha] ${domain}.${service} ${entityId}: ${JSON.stringify(e)}`);
+            return false;
+        }
     }
 
     onState(fn: () => void): () => void {

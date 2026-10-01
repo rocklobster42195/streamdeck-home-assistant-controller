@@ -10,7 +10,9 @@
 			"choose_topic": "Choose a topic",
 			"press_again": "Press again",
 			"add_states": "Add states",
-			"off": "Off"
+			"off": "Off",
+			"no_ha": "Set up HA",
+			"choose_device": "Choose a device"
 		},
 		"pi": {
 			"switch_help": "Press: switch on or off. The key shows the state the device reports.",
@@ -169,11 +171,15 @@
 			"test_reported": "The state topic says: {value}",
 			"test_no_topic": "Choose a state or command topic first.",
 			"test_offline": "Not connected to the MQTT broker.",
-			"ha_device": "MQTT device",
-			"ha_search": "Search a device, e.g. living room",
-			"ha_hint": "From Home Assistant's MQTT discovery: picking one fills in all topics below.",
-			"ha_none": "No fitting device found.",
-			"ha_no_device": "Without a device"
+			"mqtt_topics": "MQTT topics",
+			"pick_device": "Device",
+			"device_search": "Search, e.g. living room",
+			"device_hint": "From Home Assistant (by area) and your broker's MQTT discovery. Picking one fills in everything below.",
+			"device_none": "No fitting device found.",
+			"by_hand": "Topic by hand",
+			"by_hand_sub": "Enter state and command topics yourself",
+			"no_area": "No area",
+			"no_device": "No device"
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

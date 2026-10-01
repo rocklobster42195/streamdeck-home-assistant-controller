@@ -52,18 +52,18 @@ try {
         return replies.find((m) => m.requestId === msg.requestId);
     };
     sim.piOpen(key);
-    const sw = await ask(key, { event: "ha-entities", requestId: 1, action: "switch", query: "" });
-    check("the switch list has the light only", sw.items.length === 1 && sw.items[0].name === "Flurlicht" && sw.total === 3, JSON.stringify(sw.items.map((i) => i.name)));
-    const vs = await ask(val, { event: "ha-entities", requestId: 2, action: "value", query: "" });
+    const sw = await ask(key, { event: "devices", requestId: 1, action: "switch", query: "" });
+    check("the switch list has the light only", sw.items.length === 1 && sw.items[0].name === "Flurlicht" && sw.total === 1 && sw.items[0].source === "mqtt", JSON.stringify(sw.items.map((i) => i.name)));
+    const vs = await ask(val, { event: "devices", requestId: 2, action: "value", query: "" });
     check("the value list is grouped by device, diagnostics marked", vs.items.map((i) => i.name).join(",") === "Linkquality,Temperatur" && vs.items[0].extra, JSON.stringify(vs.items));
-    const found = await ask(val, { event: "ha-entities", requestId: 3, action: "value", query: "bad" });
+    const found = await ask(val, { event: "devices", requestId: 3, action: "value", query: "bad" });
     check("searching finds by device name", found.items.length === 1 && found.items[0].name === "Temperatur");
 
-    const applied = await ask(key, { event: "ha-apply", requestId: 4, action: "switch", id: "0x01_light" });
+    const applied = await ask(key, { event: "device-apply", requestId: 4, action: "switch", source: "mqtt", id: "0x01_light" });
     sim.setSettings(key, applied.settings);
-    const temp = await ask(val, { event: "ha-apply", requestId: 5, action: "value", id: "0x02_temp" });
+    const temp = await ask(val, { event: "device-apply", requestId: 5, action: "value", source: "mqtt", id: "0x02_temp" });
     sim.setSettings(val, temp.settings);
-    const bri = await ask(dial, { event: "ha-apply", requestId: 6, action: "slider", id: "0x01_light" });
+    const bri = await ask(dial, { event: "device-apply", requestId: 6, action: "slider", source: "mqtt", id: "0x01_light" });
     sim.setSettings(dial, bri.settings);
     off();
     await sim.sleep(600);

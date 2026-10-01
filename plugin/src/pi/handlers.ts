@@ -14,6 +14,7 @@ import { jsonFields } from "../mqtt/payload";
 import { suggestForTopic } from "../mqtt/schemes";
 import { shortAddress } from "../mqtt/url";
 import { initHaDiscovery } from "../discovery/ha-discovery";
+import { initDevicePicker } from "./devices";
 import { initExplore } from "./explore";
 import type { ConnectionStatus, HaStatus, PiPush, TopicHit } from "./protocol";
 
@@ -41,6 +42,7 @@ export function initPiBridge(): void {
     });
     initExplore();
     initHaDiscovery();
+    initDevicePicker();
     piBridge.addPusher(() => [json({ event: "ha-status", status: haStatus() }), json({ event: "status", status: status() })]);
     broker.onState(() => piBridge.schedulePush());
     ha.onState(() => piBridge.schedulePush());

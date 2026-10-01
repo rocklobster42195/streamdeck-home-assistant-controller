@@ -10,7 +10,9 @@
 			"choose_topic": "Topic wählen",
 			"press_again": "Nochmal drücken",
 			"add_states": "Stufen hinzufügen",
-			"off": "Aus"
+			"off": "Aus",
+			"no_ha": "HA einrichten",
+			"choose_device": "Gerät wählen"
 		},
 		"pi": {
 			"switch_help": "Drücken: ein- oder ausschalten. Die Taste zeigt den Zustand, den das Gerät meldet.",
@@ -169,11 +171,15 @@
 			"test_reported": "Das Status-Topic sagt: {value}",
 			"test_no_topic": "Wähle zuerst ein Status- oder Befehls-Topic.",
 			"test_offline": "Nicht mit dem MQTT-Broker verbunden.",
-			"ha_device": "MQTT-Gerät",
-			"ha_search": "Gerät suchen, z. B. wohnzimmer",
-			"ha_hint": "Aus der MQTT-Discovery von Home Assistant: die Auswahl füllt alle Topics darunter aus.",
-			"ha_none": "Kein passendes Gerät gefunden.",
-			"ha_no_device": "Ohne Gerät"
+			"mqtt_topics": "MQTT-Topics",
+			"pick_device": "Gerät",
+			"device_search": "Suchen, z. B. wohnzimmer",
+			"device_hint": "Aus Home Assistant (nach Bereich) und der MQTT-Discovery deines Brokers. Die Auswahl füllt alles darunter aus.",
+			"device_none": "Kein passendes Gerät gefunden.",
+			"by_hand": "Topic von Hand",
+			"by_hand_sub": "Status- und Befehls-Topic selbst eintragen",
+			"no_area": "Ohne Bereich",
+			"no_device": "Ohne Gerät"
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

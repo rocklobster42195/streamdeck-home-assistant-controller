@@ -1,17 +1,31 @@
-// Base for HAC's keys: instances, the topics each one listens to (subscribed through the shared
-// broker and released when the key goes away), a redraw when one of them or the broker's state
-// changes, and the device's availability. Subclasses draw the key and react to a press.
+// Base for HAC's keys: instances, their source (a Home Assistant entity or MQTT topics), the topics
+// each one listens to (subscribed through the shared broker and released when the key goes away),
+// a redraw when its entity, one of its topics or a connection changes, and the device's
+// availability. Subclasses draw the key and react to a press.
 import streamDeck, { type DidReceiveSettingsEvent, type KeyAction, type KeyDownEvent, SingletonAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
+import type { HassEntity } from "home-assistant-js-websocket";
+import { ha } from "../ha/connection";
+import { isUnavailable as entityUnavailable } from "../ha/entities";
 import { broker } from "../mqtt/connection";
 import { isUnavailable } from "../mqtt/schemes";
+import { renderKeyHint } from "../render/switch-key";
+import { sourceOf, type Source, type SourceSettings } from "../source";
 
-export type TopicKeySettings = {
+export type TopicKeySettings = SourceSettings & {
     /** Topic that reports whether the device is reachable ("online"/"offline"). */
     availabilityTopic?: string;
 } & JsonObject;
 
-export type KeyInstance<S extends JsonObject> = { id: string; action: KeyAction<S>; settings: S; topics: Set<string>; lastImage?: string };
+export type KeyInstance<S extends JsonObject> = {
+    id: string;
+    action: KeyAction<S>;
+    settings: S;
+    topics: Set<string>;
+    lastImage?: string;
+    /** The HA entity last drawn, to redraw only when it changes. */
+    lastEntity?: HassEntity;
+};
 
 export abstract class TopicKey<S extends TopicKeySettings> extends SingletonAction<S> {
     protected readonly instances = new Map<string, KeyInstance<S>>();
@@ -20,6 +34,16 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
         super();
         broker.onState(() => {
             for (const inst of this.instances.values()) this.render(inst);
+        });
+        ha.onState(() => {
+            for (const inst of this.instances.values()) this.render(inst);
+        });
+        ha.onEntities((entities) => {
+            for (const inst of this.instances.values()) {
+                if (this.source(inst) !== "ha") continue;
+                const e = entities[inst.settings.entityId ?? ""];
+                if (e !== inst.lastEntity) this.render(inst);
+            }
         });
         broker.onMessage((topic) => {
             for (const inst of this.instances.values()) if (inst.topics.has(topic)) this.changed(inst, topic);
@@ -36,8 +60,34 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
     }
     protected disappeared(_inst: KeyInstance<S>): void {}
 
-    /** The broker is offline, or the device says it is unavailable. */
+    /** Whether this action can show HA entities yet (so far the Switch and Value keys). */
+    protected readonly haCapable: boolean = false;
+
+    protected source(inst: KeyInstance<S>): Source {
+        return this.haCapable ? sourceOf(inst.settings, ha.state !== "unconfigured") : "mqtt";
+    }
+
+    /** The key's HA entity (remembered, so only its own changes redraw the key). */
+    protected entity(inst: KeyInstance<S>): HassEntity | undefined {
+        inst.lastEntity = ha.entities[inst.settings.entityId ?? ""];
+        return inst.lastEntity;
+    }
+
+    /** "Set up …" or "Choose a device" while the key's source can't show anything yet. */
+    protected sourceHint(inst: KeyInstance<S>, icon: string): string | undefined {
+        const t = (k: string) => streamDeck.i18n.t(k);
+        if (this.source(inst) === "ha") {
+            if (ha.state === "unconfigured" || ha.state === "invalid") return renderKeyHint(t("key.no_ha"), icon, true);
+            if (!inst.settings.entityId?.trim()) return renderKeyHint(t("key.choose_device"), icon);
+            return undefined;
+        }
+        if (broker.state === "unconfigured" || broker.state === "invalid") return renderKeyHint(t("key.no_broker"), icon, true);
+        return undefined;
+    }
+
+    /** The key's source is offline, or the device says it is unavailable. */
     protected isOffline(inst: KeyInstance<S>): boolean {
+        if (this.source(inst) === "ha") return ha.state !== "online" || entityUnavailable(this.entity(inst));
         if (broker.state !== "online") return true;
         const avail = inst.settings.availabilityTopic?.trim();
         return !!avail && isUnavailable(broker.value(avail)?.payload);
@@ -75,7 +125,7 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
     override onKeyDown(ev: KeyDownEvent<S>): void {
         const inst = this.instances.get(ev.action.id);
         if (!inst) return;
-        if (broker.state !== "online") {
+        if ((this.source(inst) === "ha" ? ha.state : broker.state) !== "online") {
             void ev.action.showAlert();
             return;
         }
@@ -90,7 +140,8 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
     }
 
     private listen(inst: KeyInstance<S>): void {
-        inst.topics = syncTopics(inst.id, inst.topics, [...this.topicsOf(inst.settings), inst.settings.availabilityTopic]);
+        const mqtt = this.source(inst) === "mqtt";
+        inst.topics = syncTopics(inst.id, inst.topics, mqtt ? [...this.topicsOf(inst.settings), inst.settings.availabilityTopic] : []);
     }
 }
 

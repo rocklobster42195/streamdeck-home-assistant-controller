@@ -1,10 +1,10 @@
 # HA-C — Home Assistant Controller for Stream Deck
 
-Switch and show your smart home on your Stream Deck: lights, plugs, sensors, scenes, thermostats. HA-C works with **any MQTT broker** today — devices from zigbee2mqtt, Tasmota, Shelly or ESPHome, from Home Assistant through its MQTT discovery, ioBroker or Node-RED. A direct **Home Assistant** connection is set up already; using all your HA entities on keys, by room, is coming next. You don't need to know topic names by heart: pick a device, or let HA-C search and recognise your topics.
+Switch and show your smart home on your Stream Deck: lights, plugs, sensors, scenes, thermostats. HA-C works with **any MQTT broker** today — devices from zigbee2mqtt, Tasmota, Shelly or ESPHome, from Home Assistant through its MQTT discovery, ioBroker or Node-RED. With a direct **Home Assistant** connection, Switch and Value keys show your HA entities, picked by room; the other actions follow. You don't need to know topic names by heart: pick a device, or let HA-C search and recognise your topics.
 
 > Unofficial community plugin. Not affiliated with Elgato or Home Assistant / the Open Home Foundation.
 
-**Status:** early. All actions work with MQTT: Switch, Value, Publish and Multi-state keys and the Slider dial. HA-C connects to Home Assistant; the keys learn HA entities next.
+**Status:** early. All actions work with MQTT: Switch, Value, Publish and Multi-state keys and the Slider dial. Switch and Value keys also work with Home Assistant entities; the other actions follow.
 
 ## Contents
 
@@ -93,7 +93,7 @@ Everything can be changed by hand under **Advanced**: command topic, a payload t
 
 ## Connecting to Home Assistant
 
-HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Keys can't use HA entities yet; that comes next.
+HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Switch and Value keys can then show your HA entities (pick them under **Device**); Publish, Multi-state and the Slider dial still use MQTT.
 
 - **Address:** a host (`192.168.1.20` means `http://192.168.1.20:8123`) or a URL with `http://` or `https://`. **Search the network** finds Home Assistant when it announces itself (zeroconf); over a VPN that usually fails, so type the address.
 - **Token:** a long-lived access token. In Home Assistant, open your profile → **Security** → **Long-lived access tokens** → **Create token**, and paste it here.
@@ -131,7 +131,7 @@ HA-C works the same without other plugins.
 
 ## Planned
 
-- **Home Assistant entities on keys:** every HA entity by room and device, with HA's names and icons; the same keys and dials.
+- **Home Assistant entities on the other actions:** scenes, scripts and buttons on Publish, selects on Multi-state, brightness, climate and covers on the Slider dial.
 
 
 ## Development

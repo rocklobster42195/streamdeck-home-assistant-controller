@@ -9,7 +9,9 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
-- **Home Assistant connection** (card in every key's settings): address and long-lived token, search on the network (zeroconf), status with HA's version and the number of entities; reconnects by itself, a refused token stops retrying. The WebSocket API through `home-assistant-js-websocket`. Keys don't use HA entities yet.
+- **Every key has a source:** a Home Assistant entity or MQTT topics. Switch and Value keys can show HA entities: lights, switches, input booleans, fans, sirens, humidifiers, locks and covers on the Switch key (turned on and off through HA's services, shown at once, back after 3 s without confirmation), sensors, binary sensors, numbers and the like on the Value key (with HA's unit). Name and icon come from HA unless set on the key; unavailable entities look offline. Keys with topics stay on MQTT; a new key starts with HA when it is set up.
+- **One device picker for both sources:** HA entities by area (with their device) and MQTT discovery entities by device, each with an HA or MQTT badge, plus "Topic by hand". For an HA key the MQTT sections are hidden.
+- **Home Assistant connection** (card in every key's settings): address and long-lived token, search on the network (zeroconf), status with HA's version and the number of entities; reconnects by itself, a refused token stops retrying. The WebSocket API through `home-assistant-js-websocket`.
 - A source that isn't set up while the other one is folds away to one line ("Not set up · Optional").
 - deckbus `status` covers both sources: online when Home Assistant or the broker is.
 - zigbee2mqtt devices show their state right away: zigbee2mqtt keeps no state on the broker, so HA-C asks such a device once (`…/get`) when nothing is known about it.

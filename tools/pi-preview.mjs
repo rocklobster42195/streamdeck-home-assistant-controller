@@ -113,19 +113,31 @@ wss.on("connection", (ws) => {
                     ] }), 1500);
                 } else if (p.event === "test-switch") {
                     setTimeout(() => toPi({ event: "test-result", requestId: p.requestId, result: { outcome: "no-answer", sent: { topic: "cmnd/plug1/POWER", payload: "OFF" }, reported: "ON" } }), 1200);
-                } else if (p.event === "ha-entities") {
+                } else if (p.event === "devices") {
+                    const haUp = scenario.ha.state === "online";
                     const all = [
-                        { id: "0x01_light", name: "Flurlicht", device: "Flurlicht", component: "light", extra: false, icon: mdi.mdiCeilingLight, kinds: ["switch", "slider"] },
-                        { id: "0x03_light", name: "Stehlampe", device: "Stehlampe", component: "light", extra: false, icon: mdi.mdiFloorLamp, kinds: ["switch", "slider"] },
-                        { id: "0x04_plug", name: "Steckdose", device: "Kaffeemaschine", component: "switch", extra: false, kinds: ["switch"] },
-                        { id: "0x04_led", name: "LED-Anzeige", device: "Kaffeemaschine", component: "switch", extra: true, kinds: ["switch"] },
-                        { id: "0x02_temp", name: "Temperatur", device: "Klima Bad", component: "sensor", extra: false, icon: mdi.mdiThermometer, kinds: ["value"] },
+                        ...(haUp ? [
+                            { id: "light.flur", source: "ha", name: "Flur Deckenlicht", group: "Flur", sub: "light.flur", extra: false, icon: mdi.mdiCeilingLight, kinds: ["switch"] },
+                            { id: "switch.kaffee", source: "ha", name: "Kaffeemaschine", group: "Küche", sub: "Steckdose Küche · switch.kaffee", extra: false, icon: mdi.mdiCoffeeMaker, kinds: ["switch"] },
+                            { id: "lock.haustuer", source: "ha", name: "Haustür", group: "Flur", sub: "lock.haustuer", extra: false, icon: mdi.mdiLock, kinds: ["switch"] },
+                            { id: "sensor.bad_temperatur", source: "ha", name: "Bad Temperatur", group: "Bad", sub: "Klima Bad · sensor.bad_temperatur", extra: false, icon: mdi.mdiThermometer, kinds: ["value"] },
+                        ] : []),
+                        ...(scenario.status.state === "online" ? [
+                            { id: "0x01_light", source: "mqtt", name: "Flurlicht", group: "Flurlicht", sub: "light", extra: false, icon: mdi.mdiCeilingLight, kinds: ["switch", "slider"] },
+                            { id: "0x04_plug", source: "mqtt", name: "Steckdose", group: "Kaffeemaschine", sub: "switch", extra: false, kinds: ["switch"] },
+                            { id: "0x02_temp", source: "mqtt", name: "Temperatur", group: "Klima Bad", sub: "sensor", extra: false, icon: mdi.mdiThermometer, kinds: ["value"] },
+                        ] : []),
                     ];
                     const words = String(p.query ?? "").toLowerCase().split(/\s+/).filter(Boolean);
-                    const items = all.filter((e) => e.kinds.includes(p.action) && words.every((w) => `${e.name} ${e.device}`.toLowerCase().includes(w)));
-                    toPi({ event: "ha-entities-result", requestId: p.requestId, items, total: online ? all.length : 0, matching: items.length, current: all.find((e) => e.id === p.current) });
-                } else if (p.event === "ha-apply") {
-                    toPi({ event: "ha-apply-result", requestId: p.requestId, settings: { haEntity: p.id, label: "Flurlicht", stateTopic: "zigbee2mqtt/Wohnzimmer Lampe", commandTopic: "zigbee2mqtt/Wohnzimmer Lampe/set", field: "state", template: '{"state":"{value}"}' } });
+                    const fitting = all.filter((e) => e.kinds.includes(p.action));
+                    const items = fitting.filter((e) => words.every((w) => `${e.name} ${e.group} ${e.sub}`.toLowerCase().includes(w)));
+                    const current = fitting.find((e) => e.source === p.current?.source && e.id === p.current?.id);
+                    toPi({ event: "devices-result", requestId: p.requestId, items, total: fitting.length, matching: items.length, current, sources: { ha: haUp, mqtt: scenario.status.state !== "unconfigured" } });
+                } else if (p.event === "device-apply") {
+                    const settings = p.source === "ha"
+                        ? { source: "ha", entityId: p.id, haEntity: "", label: "" }
+                        : { source: "mqtt", entityId: "", haEntity: p.id, label: "Flurlicht", stateTopic: "zigbee2mqtt/Wohnzimmer Lampe", commandTopic: "zigbee2mqtt/Wohnzimmer Lampe/set", field: "state", template: '{"state":"{value}"}' };
+                    toPi({ event: "device-apply-result", requestId: p.requestId, settings });
                 } else if (p.event === "topic-info") {
                     const payload = online ? topics[p.topic] : undefined;
                     toPi({ event: "topic-info-result", requestId: p.requestId, info: { topic: p.topic, payload, fields: payload ? fields(payload) : [], suggestion: suggestions[p.topic] } });

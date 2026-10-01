@@ -16,7 +16,7 @@
 
   <hac-device action="value"></hac-device>
 
-  <pi-section title="pi.device">
+  <pi-section title="pi.mqtt_topics" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic setting="stateTopic" label="pi.state_topic" placeholder="pi.topic_search_placeholder" hint="pi.value_topic_hint"></hac-topic>
     <hac-json-field setting="field" topic-setting="stateTopic" label="pi.field"></hac-json-field>
     <pi-field setting="unit" label="pi.unit" placeholder="pi.unit_placeholder"></pi-field>
@@ -38,7 +38,7 @@
     <pi-thresholds setting="thresholds" base-setting="color" base-default="#FFFFFF" unit-setting="unit" min-setting="min" max-setting="max" default-min="0" default-max="100"></pi-thresholds>
   </pi-section>
 
-  <pi-section title="pi.on_press">
+  <pi-section title="pi.on_press" data-show-when="source=mqtt" data-show-default="mqtt">
     <pi-choice setting="pressAction" default="none" columns="3" data-options='[
       {"value":"none","label":"pi.press_none","icon":"none"},
       {"value":"toggle","label":"pi.press_toggle","icon":"toggle"},
@@ -60,7 +60,7 @@
     </div>
   </pi-section>
 
-  <pi-section title="pi.advanced">
+  <pi-section title="pi.advanced" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></hac-topic>
   </pi-section>
 

@@ -5,6 +5,7 @@ import type { HaState } from "../ha/ha-connection";
 import type { BrokerState } from "../mqtt/broker";
 import type { TopicSuggestion } from "../mqtt/schemes";
 import type { SwitchTopics } from "../mqtt/switch-state";
+import type { Source } from "../source";
 
 export type ConnectionStatus = {
     state: BrokerState;
@@ -67,16 +68,22 @@ export type TestResult = {
     ms?: number;
 };
 
-/** A Home Assistant entity in the device picker. */
-export type HaItem = {
+/** An entity in the device picker: from Home Assistant, or announced through MQTT discovery. */
+export type DeviceItem = {
+    /** The HA entity id ("light.desk"), or the MQTT discovery entity's unique id. */
     id: string;
+    source: Source;
     name: string;
-    device?: string;
-    component: string;
+    /** The heading it is listed under: the HA area, or the MQTT device ("" for none). */
+    group: string;
+    /** Second line: the HA device and entity id, or the MQTT component. */
+    sub: string;
     /** A config/diagnostic entity (listed after the main ones). */
     extra: boolean;
     /** MDI path of its icon. */
     icon?: string;
+    /** Lower-case text the search looks in. */
+    search: string;
 };
 
 /** PI → plugin */
@@ -89,8 +96,8 @@ export type PiRequest =
     | { event: "topic-tree"; requestId: number; prefix: string }
     | { event: "listen"; requestId: number; ms: number }
     | { event: "test-switch"; requestId: number; settings: SwitchTopics }
-    | { event: "ha-entities"; requestId: number; action: string; query: string; current?: string }
-    | { event: "ha-apply"; requestId: number; action: string; id: string };
+    | { event: "devices"; requestId: number; action: string; query: string; current?: { source: Source; id: string } }
+    | { event: "device-apply"; requestId: number; action: string; source: Source; id: string };
 
 /** Plugin → PI */
 export type PiPush =
@@ -102,5 +109,5 @@ export type PiPush =
     | { event: "topic-tree-result"; requestId: number; prefix: string; nodes: TreeNode[] }
     | { event: "listen-result"; requestId: number; heard: Heard[] }
     | { event: "test-result"; requestId: number; result: TestResult }
-    | { event: "ha-entities-result"; requestId: number; items: HaItem[]; total: number; matching: number; current?: HaItem }
-    | { event: "ha-apply-result"; requestId: number; settings?: Record<string, unknown> };
+    | { event: "devices-result"; requestId: number; items: DeviceItem[]; total: number; matching: number; current?: DeviceItem; sources: { ha: boolean; mqtt: boolean } }
+    | { event: "device-apply-result"; requestId: number; settings?: Record<string, unknown> };

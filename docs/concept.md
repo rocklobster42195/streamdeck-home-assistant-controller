@@ -134,7 +134,7 @@ These additions come from the XAC grill: `C:\dev\xair-controller\notes\2026-09-2
 - **Input:** dial acceleration and catch points (e.g. at 0 dB), and press gestures: tap, arm then confirm, long press. There is also an offline look and a global frame budget (an fps cap, with redraws only when something changed).
 - **New color picker** `<pi-color>` replaces the native input field. It keeps the same API and adds an `auto` attribute. It opens a popover with:
   - "Auto / from device", stored as `"auto"`;
-  - the house palette from `C:\dev\komuh\docs\cd-farben.md`;
+  - 17 standard colours (built 2026-10-01: `STANDARD_COLORS` in the kit; started from a city CI palette, renamed with "Name that Color" names and completed with orange, violet, brown and dark grey);
   - 8 recent colors;
   - an HSV field, a hue slider and a hex field, without alpha.
 

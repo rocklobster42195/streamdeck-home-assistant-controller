@@ -42,7 +42,7 @@ export function initDevicePicker(): void {
         const id = String(msg.id ?? "");
         let settings: Record<string, unknown> | undefined;
         if (msg.source === "ha") {
-            if (ha.entities[id] && haFits(id).includes(action)) settings = haSettings(id, action);
+            if (ha.entities[id] && haFits(id, ha.entities[id]).includes(action)) settings = haSettings(id, action);
         } else {
             const e = mqttEntities().find((x) => x.id === id);
             if (e && fits(e).includes(action)) settings = { ...settingsFor(e, action), source: "mqtt", entityId: "" };
@@ -57,6 +57,8 @@ function haSettings(entityId: string, action: ActionKind): Record<string, unknow
     if (action === "switch") return { ...common, iconOn: "", iconOff: "" };
     // A select's options become the states, each with a colour; names and icons can be added after
     if (action === "multi-state") return { ...common, states: haOptions(ha.entities[entityId]).map((value, i) => ({ value, color: PALETTE[i % PALETTE.length] })) };
+    // The dial takes range, step and unit from HA; own values would override them
+    if (action === "slider") return { ...common, icon: "", unit: "", step: "", decimals: "" };
     return action === "value" ? { ...common, icon: "", unit: "" } : { ...common, icon: "" };
 }
 
@@ -73,7 +75,7 @@ async function haItems(action: ActionKind): Promise<DeviceItem[]> {
     const entries = new Map(reg.entities.map((e) => [e.entity_id, e]));
     const items: (DeviceItem & { sortArea: string; sortDevice: string })[] = [];
     for (const e of Object.values(ha.entities)) {
-        if (!haFits(e.entity_id).includes(action)) continue;
+        if (!haFits(e.entity_id, e).includes(action)) continue;
         const entry = entries.get(e.entity_id);
         if (entry?.hidden_by || entry?.disabled_by) continue;
         const device = entry?.device_id ? devices.get(entry.device_id) : undefined;

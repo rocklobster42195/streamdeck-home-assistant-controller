@@ -1,6 +1,6 @@
 // The settings window's menu: the visible sections (device, the pi-sections, the connections), as a
-// bar at the top that stays while scrolling, or a fixed column on the left in a wide window. A click scrolls to one; the one in view is highlighted
-// (scroll spy). Sections hidden for this key (e.g. MQTT topics of an HA key) are left out.
+// bar at the top that stays while scrolling, or a fixed column on the left in a wide window. A click
+// scrolls to one; the one in view is highlighted (scroll spy). Sections hidden for this key (e.g. MQTT topics of an HA key) are left out.
 import { escapeHtml, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
 
 type Entry = { el: HTMLElement; title: string };

@@ -9,6 +9,8 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- **Slider dial with Home Assistant:** lights (brightness in %, 0 % switches off), fans (speed), covers (position) with push to switch on and off; thermostats (setpoint within HA's limits, room temperature on the arc); `number` / `input_number` with their own range, step and unit. Lights that can only switch stay off the dial.
+- The half circle on the dial sits a little higher, so the range under its ends is easy to read.
 - **Multi-state key with Home Assistant:** steps through the options of a select or input select (`select_option`); picking one fills in the states from its options, each with a colour.
 - The settings window has a menu on the left with the sections this key shows; the one in view is highlighted, a click scrolls to it.
 - The **Publish** key is now called **Trigger** ("Auslösen" in German); existing keys keep working.

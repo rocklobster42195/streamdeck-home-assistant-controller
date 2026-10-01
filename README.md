@@ -6,7 +6,7 @@ Switch and show your smart home on your Stream Deck: lights, plugs, sensors, sce
 
 **Looking for something simpler?** If you only use Home Assistant and want a lean, proven plugin, have a look at the [Home Assistant plugin by cgiesche](https://github.com/cgiesche/streamdeck-homeassistant): it has been around for years and does the basics very well. HA-C's focus is different: Home Assistant and MQTT side by side, gauges and dials, and working together with the other plugins of its family.
 
-**Status:** early. All actions work with MQTT: Switch, Value, Trigger and Multi-state keys and the Slider dial. All keys also work with Home Assistant entities; the Slider dial follows.
+**Status:** early. All actions work with MQTT: Switch, Value, Trigger and Multi-state keys and the Slider dial. All keys and the Slider dial also work with Home Assistant entities.
 
 ## Contents
 
@@ -77,6 +77,7 @@ Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's
 - **Thermostat:** with an actual-value topic (the room temperature), the arc shows the actual value large, and a marker and "→ 21.5 °C" show the setpoint. While you turn, the setpoint is shown large.
 - **Light:** rotate for brightness, push to switch on and off; while the light is off, the dial is dimmed and shows "Off".
 - **In percent:** devices count brightness differently (zigbee2mqtt 0–254, Homematic 0–255, others 0–100). Enter the device's range as minimum and maximum and switch on "Show in percent": the dial shows 0–100 % and sends in the device's range.
+- **With Home Assistant:** pick a light, fan, cover, thermostat or number. Range, step and unit come from HA, so there is nothing to set up. *How it works:* a light turns its brightness in percent (`light.turn_on` with `brightness_pct`; 0 % switches it off), a fan its speed (`fan.set_percentage`), a cover its position (`cover.set_cover_position`); a push switches them on and off (open and close). A thermostat turns its setpoint (`climate.set_temperature`) within HA's limits and steps, and the arc shows the room temperature. `number` and `input_number` entities use `set_value` with their own range. A step of your own (e.g. 1 %) replaces HA's.
 
 ## Setting up a key
 
@@ -97,7 +98,7 @@ Everything can be changed by hand under **Advanced**: command topic, a payload t
 
 ## Connecting to Home Assistant
 
-HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Switch, Value, Trigger and Multi-state keys can then use your HA entities (pick them under **Device**); the Slider dial still uses MQTT.
+HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Every key and the Slider dial can then use your HA entities (pick them under **Device**).
 
 - **Address:** a host (`192.168.1.20` means `http://192.168.1.20:8123`) or a URL with `http://` or `https://`. **Search the network** finds Home Assistant when it announces itself (zeroconf); over a VPN that usually fails, so type the address.
 - **Token:** a long-lived access token. In Home Assistant, open your profile → **Security** → **Long-lived access tokens** → **Create token**, and paste it here.
@@ -135,7 +136,6 @@ HA-C works the same without other plugins.
 
 ## Planned
 
-- **Home Assistant entities on the Slider dial:** brightness, climate, covers and numbers.
 
 
 ## Development

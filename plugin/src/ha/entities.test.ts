@@ -7,7 +7,7 @@ const entity = (entity_id: string, state: string, attributes: Record<string, unk
 
 describe("HA entities on keys", () => {
     it("fits switchable domains to the Switch key and readable ones to the Value key", () => {
-        expect(haFits("light.desk")).toEqual(["switch"]);
+        expect(haFits("light.desk")).toEqual(["switch", "slider"]);
         expect(haFits("lock.door")).toEqual(["switch"]);
         expect(haFits("sensor.temp")).toEqual(["value"]);
         expect(haFits("binary_sensor.window")).toEqual(["value"]);

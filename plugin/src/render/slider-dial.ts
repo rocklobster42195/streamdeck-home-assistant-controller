@@ -55,9 +55,10 @@ function shown(v: SliderView): { fill?: number; big: string; small?: string } {
 function half(v: SliderView): string[] {
     const dim = v.offline || v.off;
     const s = shown(v);
+    // The arc's ends sit a little above the bottom, so the range labels under them stay readable
     const cx = 100;
-    const cy = 86;
-    const r = 62;
+    const cy = 78;
+    const r = 60;
     const color = dim ? DIM : s.fill !== undefined ? zoneColor(s.fill, v.zones) : SOFT;
     const parts = halfArc({
         cx,
@@ -78,7 +79,7 @@ function half(v: SliderView): string[] {
     if (v.label?.trim()) parts.push(text(4, 14, v.label.trim(), { size: 13, color: dim ? DIM : SOFT, maxWidth: 66 }));
     else if (v.icon) parts.push(mdi(v.icon, 4, 2, 20, dim ? DIM : SOFT));
     // Range at the ends of the arc
-    parts.push(text(cx - r, 99, v.rangeLabels?.[0] ?? short(v.min), { size: 11, color: DIM, anchor: "middle" }), text(cx + r, 99, v.rangeLabels?.[1] ?? short(v.max), { size: 11, color: DIM, anchor: "middle" }));
+    parts.push(text(cx - r, 96, v.rangeLabels?.[0] ?? short(v.min), { size: 11, color: DIM, anchor: "middle" }), text(cx + r, 96, v.rangeLabels?.[1] ?? short(v.max), { size: 11, color: DIM, anchor: "middle" }));
     return parts;
 }
 

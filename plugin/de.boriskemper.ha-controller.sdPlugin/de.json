@@ -200,7 +200,9 @@
 			"second_topic": "Topic",
 			"second_line_hint": "Ein zweiter, kleinerer Wert unter dem ersten, z. B. die Luftfeuchte unter der Temperatur.",
 			"value_line_ha_hint": "Steht unter dem Icon, z. B. die Helligkeit der Lampe oder die Leistung der Steckdose (andere Entity).",
-			"connections": "Verbindungen"
+			"connections": "Verbindungen",
+			"step_from_ha": "Von Home Assistant",
+			"slider_ha_hint": "Bereich, Schrittweite und Einheit kommen aus Home Assistant: Licht, Ventilator und Rollladen in % (Drücken schaltet an und aus), ein Thermostat mit seinem Sollwert und der Raumtemperatur im Bogen, Zahlen mit ihrem eigenen Bereich. Eine eigene Schrittweite, z. B. 1, ersetzt die von HA."
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

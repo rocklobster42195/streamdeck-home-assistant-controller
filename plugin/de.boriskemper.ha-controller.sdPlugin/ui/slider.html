@@ -17,7 +17,12 @@
 
   <hac-device action="slider"></hac-device>
 
-  <pi-section class="hac-win" title="pi.mqtt_topics">
+  <pi-section title="pi.value" data-show-when="source=ha" data-show-default="mqtt">
+    <pi-field setting="step" label="pi.step" placeholder="pi.step_from_ha" hint="pi.slider_ha_hint"></pi-field>
+    <pi-field setting="unit" label="pi.unit" placeholder="pi.unit_from_ha"></pi-field>
+  </pi-section>
+
+  <pi-section class="hac-win" title="pi.mqtt_topics" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic setting="stateTopic" label="pi.state_topic" placeholder="pi.topic_search_placeholder" hint="pi.slider_topic_hint"></hac-topic>
     <hac-json-field setting="field" topic-setting="stateTopic" label="pi.field"></hac-json-field>
     <hac-topic no-explore setting="commandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder" hint="pi.command_topic_hint"></hac-topic>
@@ -29,7 +34,7 @@
     <pi-toggle setting="percent" label="pi.percent" hint="pi.percent_hint"></pi-toggle>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.actual">
+  <pi-section class="hac-win" title="pi.actual" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic setting="actualTopic" label="pi.actual_topic" placeholder="pi.topic_search_placeholder" hint="pi.actual_hint"></hac-topic>
     <hac-json-field setting="actualField" topic-setting="actualTopic" label="pi.field"></hac-json-field>
   </pi-section>
@@ -48,7 +53,7 @@
     <pi-thresholds setting="thresholds" base-setting="color" base-default="#F7A600" unit-setting="unit" min-setting="min" max-setting="max" default-min="0" default-max="100"></pi-thresholds>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.on_push">
+  <pi-section class="hac-win" title="pi.on_push" data-show-when="source=mqtt" data-show-default="mqtt">
     <pi-choice setting="pressAction" default="none" columns="3" data-options='[
       {"value":"none","label":"pi.press_none","icon":"none"},
       {"value":"toggle","label":"pi.press_toggle","icon":"toggle"},
@@ -69,12 +74,12 @@
     </div>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.advanced">
+  <pi-section class="hac-win" title="pi.advanced" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></hac-topic>
     <pi-toggle setting="retain" label="pi.retain" hint="pi.retain_hint"></pi-toggle>
   </pi-section>
 
-  <hac-more class="hac-pi-only" ready-when="stateTopic,commandTopic"></hac-more>
+  <hac-more class="hac-pi-only" ready-when="entityId,stateTopic,commandTopic"></hac-more>
   <hac-sources class="hac-pi-only"></hac-sources>
 
   <div id="connections" class="hac-win hac-connections">

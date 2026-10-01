@@ -6,6 +6,7 @@ import type { HassEntity } from "home-assistant-js-websocket";
 import { mdiName } from "../discovery/ha-config";
 import type { ActionKind } from "../discovery/ha-entities";
 import type { SwitchState } from "../mqtt/switch-state";
+import { dimmable } from "./dial";
 
 /** Per domain: the state that counts as "on" and the services for on and off. */
 const SWITCHABLE: Record<string, { on: string; turnOn: string; turnOff: string }> = {
@@ -37,10 +38,16 @@ export function domainOf(entityId: string): string {
     return entityId.split(".")[0];
 }
 
-/** The actions an entity fits (so far Switch, Value and Publish use HA entities). */
-export function haFits(entityId: string): ActionKind[] {
+/** Domains the Slider dial turns (see dial.ts); lights only when they can dim. */
+const DIALS = new Set(["light", "fan", "cover", "climate", "number", "input_number"]);
+
+/** The actions an entity fits, the best one first; `e` lets lights without brightness skip the dial. */
+export function haFits(entityId: string, e?: HassEntity): ActionKind[] {
     const d = domainOf(entityId);
-    if (SWITCHABLE[d]) return ["switch"];
+    const dial = DIALS.has(d) && !(d === "light" && e && !dimmable(e));
+    if (SWITCHABLE[d]) return dial ? ["switch", "slider"] : ["switch"];
+    if (d === "climate") return ["slider"];
+    if (d === "number" || d === "input_number") return ["slider", "value"];
     if (TRIGGERABLE[d]) return ["publish"];
     if (SELECTABLE.has(d)) return ["multi-state", "value"];
     if (VALUE_DOMAINS.has(d)) return ["value"];

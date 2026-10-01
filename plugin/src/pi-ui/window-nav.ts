@@ -35,7 +35,8 @@ export function initWindowNav(): void {
 
     /** The last section whose top has passed a line a little below the window's top. */
     const spy = () => {
-        const line = 80;
+        // Just under the menu bar when it sits on top (narrow window), else near the top
+        const line = (getComputedStyle(nav).position === "sticky" ? nav.getBoundingClientRect().bottom : 0) + 40;
         let current = entries[0];
         for (const e of entries) if (e.el.getBoundingClientRect().top <= line) current = e;
         // At the very bottom, the last section counts even if its top never reaches the line

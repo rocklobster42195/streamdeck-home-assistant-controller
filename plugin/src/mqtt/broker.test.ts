@@ -71,6 +71,22 @@ describe("Broker", () => {
         b.close();
     });
 
+    it("keeps one connection when settings change while connecting", async () => {
+        const id = newClientId();
+        const b = new Broker(quiet);
+        const config = { url: `127.0.0.1:${port}`, clientId: id };
+        // The settings panel's Connect button: a field saves (new settings), then "reconnect" 50 ms later
+        b.configure({ ...config, user: "" });
+        b.configure({ ...config, password: "" , user: undefined }, true);
+        b.configure(config, true);
+        await until(() => b.state === "online");
+        await new Promise((r) => setTimeout(r, 1500));
+        const sessions = Object.values(aedes.clients).filter((c) => c.id === id);
+        expect(sessions.length).toBe(1);
+        expect(b.state).toBe("online");
+        b.close();
+    });
+
     it("knows unconfigured and invalid addresses", () => {
         const b = new Broker(quiet);
         b.configure({ url: "", clientId: "x" });

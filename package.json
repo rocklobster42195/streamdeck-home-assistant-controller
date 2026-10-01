@@ -1,0 +1,30 @@
+{
+    "name": "mqc",
+    "private": true,
+    "description": "MQ-C — MQTT Controller for Elgato Stream Deck (monorepo)",
+    "license": "MIT",
+    "author": "Boris Kemper",
+    "type": "module",
+    "workspaces": [
+        "plugin"
+    ],
+    "scripts": {
+        "build": "npm run build -w mqc-plugin",
+        "watch": "npm run watch -w mqc-plugin",
+        "test": "vitest run",
+        "lint": "eslint plugin/src",
+        "icons": "node tools/generate-icons.mjs",
+        "check": "npm run build && npm test && npm run lint && npm run validate -w mqc-plugin",
+        "sim:switch": "node tools/sd-sim/switch.mjs sim-out"
+    },
+    "devDependencies": {
+        "@tsconfig/node24": "^24.0.5",
+        "@types/node": "~24.3.0",
+        "aedes": "^1.2.0",
+        "eslint": "^10.6.0",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.62.1",
+        "vitest": "^4.1.10",
+        "ws": "^8.21.3"
+    }
+}

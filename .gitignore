@@ -1,4 +1,18 @@
 .env
 .env.*
 node_modules/
+notes/
 CLAUDE.md
+.claude/
+
+# Build output
+**/*.sdPlugin/bin/
+**/*.sdPlugin/logs/
+*.streamDeckPlugin
+**/*.sdPlugin/ui/locales.generated.js
+**/*.sdPlugin/ui/pi.js
+**/*.sdPlugin/ui/pi-theme.css
+logs/
+sim-out/
+.vscode/
+**/*.sdPlugin/cache/

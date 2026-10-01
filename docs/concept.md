@@ -1,6 +1,6 @@
 # MQTT Controller (MQC): Concept
 
-Status: agreed 2026-09-26, nothing built yet. Decisions and their reasons are in [`notes/2026-09-26-mqtt-controller-grill.md`](../notes/2026-09-26-mqtt-controller-grill.md).
+Status: agreed 2026-09-26; building since 2026-10-01 (Switch key, broker connection, topic help, deckbus). Decisions and their reasons are in [`notes/2026-09-26-mqtt-controller-grill.md`](../notes/2026-09-26-mqtt-controller-grill.md).
 
 ## What it is
 
@@ -42,6 +42,7 @@ Later: a Value dial with a sparkline.
 - Example thermostat: rotating moves the marker to 21.5 °C, the arc shows 19.8 °C, the text shows the actual value large and the setpoint small.
 - Home Assistant `climate` entities map onto it (`current_temperature_topic`, `temperature_state_topic`, `temperature_command_topic`, `min_temp`, `max_temp`, `temp_step`).
 - The gauge goes into the kit (`render/gauge/half-arc`), so other plugins can use it.
+- The **Value key** offers the half-circle too, display only (temperature, power), with the same colour ranges (decided 2026-10-01).
 
 **Icons:** every action uses the kit's MDI icon picker (`pi-icon-picker`, catalog `/mdi`): one icon per state for Switch, one per value for Multi-state, one for Value and Publish. If Home Assistant discovery brings an `icon` (`mdi:lightbulb`), it becomes the default.
 
@@ -169,6 +170,10 @@ These additions come from the XAC grill: `C:\dev\xair-controller\notes\2026-09-2
   - The protocol version is negotiated.
   - The pipe is open only to the current Windows user.
   - Actions that write (such as ducking) must be allowed explicitly in both plugins.
+
+## deckbus in v1
+
+Decided 2026-10-01: MQ-C joins deckbus from v1 with `status` (broker reachable, its address) and `actions` (where its keys are). It offers no streams or requests yet; ideas for later are in the kit bus section above (alert overlay, e.g. the doorbell).
 
 ## Testing
 

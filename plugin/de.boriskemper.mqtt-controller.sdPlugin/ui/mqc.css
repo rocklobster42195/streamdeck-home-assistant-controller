@@ -1,0 +1,28 @@
+/* MQ-C additions to the kit's pi-theme.css */
+:root { --pi-accent: #F7A600; --pi-accent-strong: #c98700; }
+.mqc-help { padding: 8px 12px 0; }
+.mqc-mono { font-family: Consolas, "SF Mono", monospace; font-size: 12px; overflow-wrap: anywhere; }
+
+/* Connection card */
+mqc-connection-card { display: flex; flex-direction: column; gap: 6px; }
+.mqc-conn-head { display: flex; align-items: center; gap: 10px; }
+.mqc-conn-body { display: flex; flex-direction: column; gap: 2px; padding: 10px 0 12px; }
+.mqc-conn-actions { display: flex; flex-direction: column; gap: 8px; padding: 4px 12px 0; }
+
+/* Topic field with live search */
+.mqc-topic { position: relative; display: flex; flex-direction: column; gap: 4px; }
+.mqc-hits { position: absolute; top: 58px; left: 12px; right: 12px; z-index: 10; background: var(--pi-control); border: 1px solid var(--pi-control-border); border-radius: var(--pi-radius); padding: 6px; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55); display: flex; flex-direction: column; gap: 2px; max-height: 300px; overflow-y: auto; }
+.mqc-hit .pi-label { font-family: Consolas, "SF Mono", monospace; font-size: 12px; }
+.mqc-topic-value { overflow-wrap: anywhere; }
+
+/* Scheme suggestion */
+.mqc-suggestion { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding: 10px; border: 1px dashed var(--pi-accent-strong); border-radius: 8px; }
+.mqc-suggestion-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mqc-badge { background: var(--pi-accent-strong); color: #111; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.mqc-suggestion-rows { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; align-items: baseline; }
+
+/* JSON field picker */
+.mqc-fields { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; max-height: 220px; overflow-y: auto; }
+.mqc-field-row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 6px 8px; background: transparent; border: 1px solid transparent; border-radius: 7px; cursor: pointer; text-align: left; }
+.mqc-field-row:hover { background: #34343a; }
+.mqc-field-row[aria-pressed="true"] { border-color: var(--pi-accent); background: var(--pi-selected); }

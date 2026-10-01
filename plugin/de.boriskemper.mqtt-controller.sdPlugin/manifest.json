@@ -1,0 +1,47 @@
+{
+    "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+    "Name": "MQTT Controller",
+    "Version": "0.1.0.0",
+    "Author": "Boris Kemper",
+    "Category": "MQTT Controller",
+    "CategoryIcon": "imgs/plugin/category-icon",
+    "CodePath": "bin/plugin.js",
+    "Description": "Switch and show anything on your MQTT broker: Home Assistant, zigbee2mqtt, Tasmota, Shelly, ESPHome, ioBroker, Node-RED.\nUnofficial community plugin, not affiliated with Elgato.\n\nIcons by https://pictogrammers.com",
+    "Icon": "imgs/plugin/marketplace",
+    "SDKVersion": 3,
+    "Software": {
+        "MinimumVersion": "7.1"
+    },
+    "OS": [
+        {
+            "Platform": "windows",
+            "MinimumVersion": "10"
+        },
+        {
+            "Platform": "mac",
+            "MinimumVersion": "12"
+        }
+    ],
+    "Nodejs": {
+        "Version": "24",
+        "Debug": "enabled"
+    },
+    "UUID": "de.boriskemper.mqtt-controller",
+    "Actions": [
+        {
+            "Name": "Switch",
+            "UUID": "de.boriskemper.mqtt-controller.switch",
+            "Icon": "imgs/actions/switch/icon",
+            "Tooltip": "Switch a light or plug on and off, and see its state.",
+            "PropertyInspectorPath": "ui/switch.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/switch/key"
+                }
+            ]
+        }
+    ]
+}

@@ -28,9 +28,9 @@
   </pi-section>
 
   <pi-section title="pi.advanced">
-    <mqc-topic setting="commandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder" hint="pi.command_topic_hint"></mqc-topic>
+    <mqc-topic no-explore setting="commandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder" hint="pi.command_topic_hint"></mqc-topic>
     <pi-field setting="template" label="pi.template" placeholder='{"fan_mode":"{value}"}' hint="pi.multi_template_hint"></pi-field>
-    <mqc-topic setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
+    <mqc-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
     <pi-toggle setting="retain" label="pi.retain" hint="pi.retain_hint"></pi-toggle>
     <pi-choice setting="qos" default="0" columns="3" data-options='[
       {"value":"0","label":"QoS 0"},

@@ -45,10 +45,11 @@
     <div data-show-when="pressAction=toggle" data-show-default="none">
       <mqc-topic setting="pressStateTopic" suggest suggest-prefix="press" label="pi.press_state_topic" placeholder="pi.topic_search_placeholder" hint="pi.press_state_topic_hint"></mqc-topic>
       <mqc-json-field setting="pressField" topic-setting="pressStateTopic" label="pi.field"></mqc-json-field>
-      <mqc-topic setting="pressCommandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder"></mqc-topic>
+      <mqc-topic no-explore setting="pressCommandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder"></mqc-topic>
       <pi-field setting="pressOnValue" label="pi.on_value" placeholder="pi.auto_value"></pi-field>
       <pi-field setting="pressOffValue" label="pi.off_value" placeholder="pi.auto_value" hint="pi.auto_value_hint"></pi-field>
       <pi-field setting="pressTemplate" label="pi.template" placeholder='{"state":"{value}"}'></pi-field>
+      <mqc-test prefix="press"></mqc-test>
       <pi-color setting="pressColor" default="#F7A600" label="pi.frame_color"></pi-color>
     </div>
     <div data-show-when="pressAction=send" data-show-default="none">
@@ -58,7 +59,7 @@
   </pi-section>
 
   <pi-section title="pi.advanced">
-    <mqc-topic setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
+    <mqc-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
   </pi-section>
 
   <mqc-connection-card></mqc-connection-card>

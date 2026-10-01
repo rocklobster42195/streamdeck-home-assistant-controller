@@ -75,9 +75,14 @@ Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's
 
 ## Setting up a key
 
-1. Start typing in **State topic**, e.g. "lamp". The list shows every matching topic on your broker with its current value. Click the right one.
+1. Find the **State topic** in one of three ways:
+   - **Type** part of it, e.g. "lamp": the list shows every matching topic on your broker with its current value.
+   - **Browse:** all topics as a tree, one level at a time, with their values.
+   - **Listen:** press it, then switch the device by hand or in its app within 10 seconds. MQ-C lists the topics that changed; the most likely first, topics that report all the time (power meters) greyed out at the end.
 2. If MQ-C recognises the device, it offers to **fill in the rest**: where commands go, the JSON field, the on/off values and the availability topic. Recognised today: zigbee2mqtt, Tasmota, Shelly (Gen1 and Gen2+), ESPHome, and topics ending in `/state`.
 3. For JSON payloads, click the **field** that holds the state (e.g. `state`); MQ-C shows the current value of each.
+
+4. **Test** (Switch key, and the press action of Value and Slider): "Switch once" switches the device to the other state and shows whether it confirmed within 3 seconds, or what was sent and what the state topic says, so you know what to fix.
 
 Everything can be changed by hand under **Advanced**: command topic, a payload template like `{"state":"{value}"}`, separate values to send, retain and QoS.
 
@@ -111,7 +116,6 @@ MQ-C works the same without other plugins.
 ## Planned
 
 - **Home Assistant MQTT discovery:** pick "Living room light" instead of a topic.
-- A topic **browser** (tree), **Listen** (operate the device and see which topic changes) and **Test** (send once and see whether the device answers).
 
 ## Development
 

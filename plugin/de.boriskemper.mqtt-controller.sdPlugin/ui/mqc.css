@@ -39,3 +39,25 @@ mqc-connection-card { display: flex; flex-direction: column; gap: 6px; }
 .mqc-state-picker { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 8px; }
 .mqc-state-picker .pi-icon-grid { padding: 0; }
 .mqc-state-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 4px; }
+
+/* Browse and Listen under a topic field */
+.mqc-explore { display: flex; flex-direction: column; gap: 6px; }
+.mqc-explore-buttons { display: flex; gap: 6px; }
+.mqc-explore-buttons .pi-button[aria-pressed="true"] { border-color: var(--pi-accent); color: var(--pi-accent); }
+.mqc-tree { display: flex; flex-direction: column; gap: 4px; background: var(--pi-control); border: 1px solid var(--pi-control-border); border-radius: var(--pi-radius); padding: 6px; }
+.mqc-crumbs { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; font-size: 11px; color: var(--pi-text-3); padding: 2px 4px 4px; }
+.mqc-crumb { background: none; border: none; color: var(--pi-accent); cursor: pointer; padding: 0 2px; font-size: 12px; font-family: Consolas, "SF Mono", monospace; }
+.mqc-tree-list { display: flex; flex-direction: column; gap: 2px; max-height: 280px; overflow-y: auto; }
+.mqc-tree-row { display: flex; gap: 4px; align-items: center; }
+.mqc-tree-row .pi-option { flex: 1 1 auto; min-width: 0; }
+.mqc-tree-row .pi-label { font-family: Consolas, "SF Mono", monospace; font-size: 12px; }
+.mqc-pick { flex: none; }
+.mqc-listen { display: flex; gap: 8px; align-items: center; padding: 6px 2px; }
+.mqc-heard-head { padding: 2px 4px; }
+.mqc-busy { opacity: 0.55; }
+
+/* Test button */
+.mqc-test { display: flex; flex-direction: column; }
+.mqc-test .pi-row { padding: 6px 12px; }
+.mqc-test-result { display: flex; gap: 8px; align-items: flex-start; padding: 0 12px 10px; }
+.mqc-test-result .pi-dot { margin-top: 4px; }

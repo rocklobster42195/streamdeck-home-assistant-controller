@@ -1,12 +1,14 @@
-// <mqc-topic setting="stateTopic" label="…" [placeholder="…"] [hint="…"] [suggest [suggest-prefix="press"]]>
+// <mqc-topic setting="stateTopic" label="…" [placeholder="…"] [hint="…"] [suggest [suggest-prefix="press"]] [no-explore]>
 // A topic field with a live search over every topic on the broker (with its current value), and
 // below it the topic's current payload. With `suggest`, a recognised scheme (zigbee2mqtt, Tasmota,
 // Shelly, ESPHome, …) is offered as a card that fills the command topic, field, values and
 // availability in one click. With `suggest-prefix`, the card fills prefixed settings instead
-// ("pressCommandTopic", …; no availability), e.g. for the Value key's press action.
+// ("pressCommandTopic", …; no availability), e.g. for the Value key's press action. Below the
+// input, "Browse" and "Listen" (topic-explore.ts) help to find the topic; `no-explore` hides them.
 import { escapeHtml, nextRequestId, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
 import type { TopicSuggestion } from "../mqtt/schemes";
 import type { PiPush, TopicHit, TopicInfo } from "../pi/protocol";
+import { TopicExplorer } from "./topic-explore";
 
 /** Settings a suggestion fills; missing ones are cleared so nothing stale stays. */
 const SUGGESTED_KEYS = ["commandTopic", "field", "onValue", "offValue", "commandOn", "commandOff", "template", "availabilityTopic"] as const;
@@ -21,6 +23,7 @@ export class MqcTopic extends HTMLElement {
     private infoFor: string | undefined;
     private timer: ReturnType<typeof setTimeout> | undefined;
     private offs: (() => void)[] = [];
+    private explorer: TopicExplorer | undefined;
     private readonly onDocClick = (e: MouseEvent) => {
         if (this.open && !e.composedPath().includes(this)) this.setOpen(false);
     };
@@ -44,6 +47,7 @@ export class MqcTopic extends HTMLElement {
                 <span class="pi-input-row"><input class="pi-input mqc-topic-input" type="text" spellcheck="false" autocomplete="off" ${placeholder ? `placeholder="${escapeHtml(t(placeholder))}"` : ""}/></span>
             </label>
             <div class="mqc-hits" role="listbox" hidden></div>
+            ${this.hasAttribute("no-explore") ? "" : `<div class="mqc-explore"></div>`}
             <span class="pi-hint mqc-topic-value"></span>
             ${hint ? `<span class="pi-hint">${escapeHtml(t(hint))}</span>` : ""}
             <div class="mqc-suggestion" hidden></div>`;
@@ -82,10 +86,13 @@ export class MqcTopic extends HTMLElement {
         );
         input.value = this.value;
         this.requestInfo();
+        const explore = this.querySelector<HTMLElement>(".mqc-explore");
+        if (explore) this.explorer = new TopicExplorer(explore, (topic) => this.choose(topic));
     }
 
     disconnectedCallback(): void {
         for (const off of this.offs) off();
+        this.explorer?.destroy();
         document.removeEventListener("click", this.onDocClick);
     }
 

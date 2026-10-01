@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Message } from "./broker";
-import { Listener, treeLevel } from "./topic-tree";
+import { isCommandTopic, Listener, treeLevel } from "./topic-tree";
 
 const m = (payload: string, at = 0, retained = true): Message => ({ payload, at, retained });
 const id = (p: string) => p;
@@ -40,9 +40,21 @@ describe("Listener", () => {
         l.add("lamp", m("ON", 102_000, false));
         l.add("old", m("x", 99_000, false));
         l.add("retained/late", m("y", 104_000, true));
+        l.add("lamp/set", m('{"state":"ON"}', 102_000, false));
         expect(l.result(id)).toEqual([
             { topic: "lamp", value: "ON", count: 1, busy: false },
             { topic: "sensor/power", value: "14", count: 2, busy: true },
         ]);
+    });
+});
+
+describe("isCommandTopic", () => {
+    it("knows the usual command topics", () => {
+        expect(isCommandTopic("zigbee2mqtt/Lampe/set")).toBe(true);
+        expect(isCommandTopic("cmnd/plug1/POWER")).toBe(true);
+        expect(isCommandTopic("shellies/x/relay/0/command")).toBe(true);
+        expect(isCommandTopic("shellyplus1/command/switch:0")).toBe(true);
+        expect(isCommandTopic("zigbee2mqtt/Lampe")).toBe(false);
+        expect(isCommandTopic("home/settings/state")).toBe(false);
     });
 });

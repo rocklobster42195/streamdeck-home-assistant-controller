@@ -41,7 +41,7 @@ export class Listener {
 
     /** Feed every message that arrives while listening. */
     add(topic: string, msg: Message): void {
-        if (msg.at < this.startedAt || msg.retained) return;
+        if (msg.at < this.startedAt || msg.retained || isCommandTopic(topic)) return;
         const h = this.heard.get(topic);
         if (h) {
             h.count++;
@@ -55,4 +55,9 @@ export class Listener {
             .map(([topic, h]) => ({ topic, value: preview(h.value), count: h.count, busy: (this.before.get(topic) ?? 0) > this.startedAt - this.busyWindowMs }))
             .sort((a, b) => Number(a.busy) - Number(b.busy) || a.count - b.count || a.topic.localeCompare(b.topic));
     }
+}
+
+/** Topics that carry commands, not states (zigbee2mqtt …/set, Tasmota cmnd/…, Shelly …/command). */
+export function isCommandTopic(topic: string): boolean {
+    return /\/(set|command)$/.test(topic) || /^cmnd\//.test(topic) || /\/command\/[^/]+$/.test(topic);
 }

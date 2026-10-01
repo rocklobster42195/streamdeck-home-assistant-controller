@@ -18,7 +18,7 @@
   <pi-section title="pi.device">
     <mqc-topic setting="stateTopic" label="pi.state_topic" placeholder="pi.topic_search_placeholder" hint="pi.slider_topic_hint"></mqc-topic>
     <mqc-json-field setting="field" topic-setting="stateTopic" label="pi.field"></mqc-json-field>
-    <mqc-topic setting="commandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder" hint="pi.command_topic_hint"></mqc-topic>
+    <mqc-topic no-explore setting="commandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder" hint="pi.command_topic_hint"></mqc-topic>
     <pi-field setting="template" label="pi.template" placeholder='{"brightness":{value}}' hint="pi.slider_template_hint"></pi-field>
     <pi-field setting="min" label="pi.min" placeholder="0"></pi-field>
     <pi-field setting="max" label="pi.max" placeholder="100"></pi-field>
@@ -55,10 +55,11 @@
     <div data-show-when="pressAction=toggle" data-show-default="none">
       <mqc-topic setting="pressStateTopic" suggest suggest-prefix="press" label="pi.press_state_topic" placeholder="pi.topic_search_placeholder" hint="pi.push_state_topic_hint"></mqc-topic>
       <mqc-json-field setting="pressField" topic-setting="pressStateTopic" label="pi.field"></mqc-json-field>
-      <mqc-topic setting="pressCommandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder"></mqc-topic>
+      <mqc-topic no-explore setting="pressCommandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder"></mqc-topic>
       <pi-field setting="pressOnValue" label="pi.on_value" placeholder="pi.auto_value"></pi-field>
       <pi-field setting="pressOffValue" label="pi.off_value" placeholder="pi.auto_value" hint="pi.auto_value_hint"></pi-field>
       <pi-field setting="pressTemplate" label="pi.template" placeholder='{"state":"{value}"}'></pi-field>
+      <mqc-test prefix="press"></mqc-test>
     </div>
     <div data-show-when="pressAction=send" data-show-default="none">
       <mqc-topic setting="sendTopic" label="pi.send_topic" placeholder="pi.topic_search_placeholder"></mqc-topic>
@@ -67,7 +68,7 @@
   </pi-section>
 
   <pi-section title="pi.advanced">
-    <mqc-topic setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
+    <mqc-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
     <pi-toggle setting="retain" label="pi.retain" hint="pi.retain_hint"></pi-toggle>
   </pi-section>
 

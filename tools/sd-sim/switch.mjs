@@ -124,6 +124,30 @@ try {
     const status = sim.state.piMessages.find((m) => m.event === "status");
     check("the panel gets the connection status", status?.status?.state === "online", JSON.stringify(status?.status));
 
+    // Browse, Listen and Test against the real plugin
+    const more = [];
+    const off2 = sim.onPiMessage((m) => more.push(m));
+    sim.piSend(lamp, { event: "topic-tree", requestId: 11, prefix: "" });
+    sim.piSend(lamp, { event: "topic-tree", requestId: 12, prefix: "zigbee2mqtt" });
+    sim.piSend(lamp, { event: "listen", requestId: 13, ms: 1500 });
+    await sim.sleep(300);
+    await publish("zigbee2mqtt/Wohnzimmer Lampe", JSON.stringify({ state: "OFF", brightness: 180, linkquality: 120 }), false);
+    await sim.waitFor(() => more.some((m) => m.requestId === 13), 4000, "listen result");
+    sim.piSend(lamp, { event: "test-switch", requestId: 14, settings: { stateTopic: "zigbee2mqtt/Wohnzimmer Lampe", commandTopic: "zigbee2mqtt/Wohnzimmer Lampe/set", field: "state", template: '{"state":"{value}"}' } });
+    sim.piSend(lamp, { event: "test-switch", requestId: 15, settings: { stateTopic: "stat/plug1/POWER", commandTopic: "cmnd/plug1/POWER" } });
+    await sim.waitFor(() => [11, 12, 13, 14, 15].every((id) => more.some((m) => m.requestId === id)), 6000, "explore replies");
+    off2();
+    const roots = more.find((m) => m.requestId === 11)?.nodes?.map((n) => n.name) ?? [];
+    check("the tree lists the roots", ["zigbee2mqtt", "stat", "shellyplus1-a8"].every((r) => roots.includes(r)), roots.join(","));
+    const z = more.find((m) => m.requestId === 12)?.nodes ?? [];
+    check("a tree level shows its topics with values", z.some((n) => n.name === "Wohnzimmer Lampe" && n.value?.includes("state")), JSON.stringify(z[0]));
+    const heard = more.find((m) => m.requestId === 13)?.heard ?? [];
+    check("listening hears the lamp", heard[0]?.topic === "zigbee2mqtt/Wohnzimmer Lampe", JSON.stringify(heard));
+    const t1 = more.find((m) => m.requestId === 14)?.result;
+    check("test: the lamp confirms", t1?.outcome === "confirmed" && t1.sent?.payload === '{"state":"ON"}', JSON.stringify(t1));
+    const t2 = more.find((m) => m.requestId === 15)?.result;
+    check("test: the silent plug gets no answer", t2?.outcome === "no-answer" && t2.sent?.topic === "cmnd/plug1/POWER", JSON.stringify(t2));
+
     // deckbus
     await sim.waitFor(() => simMqc()?.state.status, 10000, "MQ-C on the bus");
     const mqc = simMqc();

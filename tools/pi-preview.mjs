@@ -86,6 +86,26 @@ wss.on("connection", (ws) => {
                     const words = String(p.query ?? "").toLowerCase().split(/\s+/).filter(Boolean);
                     const hits = online ? Object.entries(topics).filter(([t]) => words.every((w) => t.toLowerCase().includes(w))).map(([topic, value]) => ({ topic, value, retained: true })) : [];
                     toPi({ event: "topics-result", requestId: p.requestId, hits, total: hits.length });
+                } else if (p.event === "topic-tree") {
+                    const base = p.prefix ? `${p.prefix}/` : "";
+                    const nodes = new Map();
+                    for (const [topic, value] of Object.entries(online ? topics : {})) {
+                        if (!topic.startsWith(base)) continue;
+                        const rest = topic.slice(base.length);
+                        const name = rest.split("/")[0];
+                        const node = nodes.get(name) ?? { name, topic: base + name, count: 0 };
+                        if (rest.includes("/")) node.count++;
+                        else node.value = value;
+                        nodes.set(name, node);
+                    }
+                    toPi({ event: "topic-tree-result", requestId: p.requestId, prefix: p.prefix, nodes: [...nodes.values()] });
+                } else if (p.event === "listen") {
+                    setTimeout(() => toPi({ event: "listen-result", requestId: p.requestId, heard: [
+                        { topic: "zigbee2mqtt/Wohnzimmer Lampe", value: '{"state":"OFF","brightness":180}', count: 1, busy: false },
+                        { topic: "shellies/plug-kitchen/relay/0/power", value: "1234.5", count: 4, busy: true },
+                    ] }), 1500);
+                } else if (p.event === "test-switch") {
+                    setTimeout(() => toPi({ event: "test-result", requestId: p.requestId, result: { outcome: "no-answer", sent: { topic: "cmnd/plug1/POWER", payload: "OFF" }, reported: "ON" } }), 1200);
                 } else if (p.event === "topic-info") {
                     const payload = online ? topics[p.topic] : undefined;
                     toPi({ event: "topic-info-result", requestId: p.requestId, info: { topic: p.topic, payload, fields: payload ? fields(payload) : [], suggestion: suggestions[p.topic] } });

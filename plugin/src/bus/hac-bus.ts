@@ -1,5 +1,5 @@
-// MQ-C on deckbus (see the kit's docs/deckbus-protocol.md): tells the other plugins whether the
-// broker is reachable ("status") and where MQ-C's actions are visible ("actions"). MQ-C works the
+// HA-C on deckbus (see the kit's docs/deckbus-protocol.md): tells the other plugins whether the
+// broker is reachable ("status") and where HA-C's actions are visible ("actions"). HA-C works the
 // same without the bus.
 import streamDeck from "@elgato/streamdeck";
 import { trackActions } from "@rocklobster42195/streamdeck-kit/bridge";
@@ -13,17 +13,17 @@ let lastStatus = "";
 const actions = new ActionsState({ setState: (key, value) => bus?.setState(key, value) });
 
 /** Call before streamDeck.connect(), so no willAppear is missed. */
-export function trackMqcActions(): void {
+export function trackHacActions(): void {
     trackActions(actions);
 }
 
 /** Call after streamDeck.connect() (the plugin version comes from there). */
-export async function startMqcBus(): Promise<void> {
-    bus = new DeckBus({ id: "de.boriskemper.mqtt-controller", name: "MQ-C", version: streamDeck.info.plugin.version, caps: [] });
+export async function startHacBus(): Promise<void> {
+    bus = new DeckBus({ id: "de.boriskemper.ha-controller", name: "HA-C", version: streamDeck.info.plugin.version, caps: [] });
     bus.setState("actions", actions.list());
     shareStatus();
     if (!(await bus.start())) return;
-    streamDeck.logger.info(`[deckbus] MQ-C in slot ${bus.slot}`);
+    streamDeck.logger.info(`[deckbus] HA-C in slot ${bus.slot}`);
     broker.onState(shareStatus);
 }
 
@@ -36,6 +36,6 @@ function shareStatus(): void {
     bus?.setState("status", status);
 }
 
-export function stopMqcBus(): void {
+export function stopHacBus(): void {
     bus?.stop();
 }

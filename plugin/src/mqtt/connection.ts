@@ -10,7 +10,7 @@ export type GlobalSettings = {
     brokerUser?: string;
     brokerPassword?: string;
     allowSelfSigned?: boolean;
-    /** Generated once ("mqc-1a2b3c4d") so the broker recognises the plugin. */
+    /** Generated once ("hac-1a2b3c4d") so the broker recognises the plugin. */
     clientId?: string;
 } & JsonObject;
 

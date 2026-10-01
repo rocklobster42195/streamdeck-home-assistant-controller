@@ -1,4 +1,4 @@
-// Home Assistant entities from discovery configs, and the MQ-C actions they fit: switch/light →
+// Home Assistant entities from discovery configs, and the HA-C actions they fit: switch/light →
 // Switch, sensor/binary_sensor → Value, button/scene → Publish, select → Multi-state, number,
 // light brightness and climate → Slider. settingsFor() turns an entity into an action's settings.
 import { availabilityTopic, expandConfig, fieldFromTemplate, mdiName, num, str, templateFromHa, type HaConfig } from "./ha-config";
@@ -20,7 +20,7 @@ export type HaEntity = {
 
 const COMPONENTS = new Set(["switch", "light", "sensor", "binary_sensor", "button", "scene", "select", "number", "climate"]);
 
-/** The entity a config topic announces; undefined for removed configs and components MQ-C can't use. */
+/** The entity a config topic announces; undefined for removed configs and components HA-C can't use. */
 export function parseDiscovery(topic: string, payload: string): HaEntity | undefined {
     const parts = topic.split("/");
     const component = parts[1];

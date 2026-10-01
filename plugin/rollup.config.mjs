@@ -9,7 +9,7 @@ import url from "node:url";
 import { createRequire } from "node:module";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "de.boriskemper.mqtt-controller.sdPlugin";
+const sdPlugin = "de.boriskemper.ha-controller.sdPlugin";
 const require = createRequire(import.meta.url);
 
 const sourcemapPathTransform = (relativeSourcePath, sourcemapPath) =>

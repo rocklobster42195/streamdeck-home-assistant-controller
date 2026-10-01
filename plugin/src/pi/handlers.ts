@@ -1,6 +1,6 @@
-// MQC's part of the kit's PI bridge: the connection status, the topic search for the topic fields,
-// and what MQC knows about one topic (its payload, JSON fields, a scheme suggestion). While a
-// settings panel is open, MQC listens to every topic ("#"), so the search sees the whole broker.
+// HAC's part of the kit's PI bridge: the connection status, the topic search for the topic fields,
+// and what HAC knows about one topic (its payload, JSON fields, a scheme suggestion). While a
+// settings panel is open, HAC listens to every topic ("#"), so the search sees the whole broker.
 import streamDeck from "@elgato/streamdeck";
 import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";

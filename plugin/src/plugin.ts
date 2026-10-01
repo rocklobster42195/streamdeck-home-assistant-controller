@@ -5,7 +5,7 @@ import { MultiStateKey } from "./actions/multi-state-key";
 import { PublishKey } from "./actions/publish-key";
 import { SliderDial } from "./actions/slider-dial";
 import { ValueKey } from "./actions/value-key";
-import { startMqcBus, trackMqcActions } from "./bus/mqc-bus";
+import { startHacBus, trackHacActions } from "./bus/hac-bus";
 import { startConnection } from "./mqtt/connection";
 import { initPiBridge } from "./pi/handlers";
 
@@ -19,10 +19,10 @@ streamDeck.actions.registerAction(new PublishKey());
 streamDeck.actions.registerAction(new MultiStateKey());
 streamDeck.actions.registerAction(new SliderDial());
 initPiBridge();
-trackMqcActions();
+trackHacActions();
 
 await streamDeck.connect();
 await startConnection();
-streamDeck.logger.info("MQ-C started");
+streamDeck.logger.info("HA-C started");
 // deckbus: tell other plugins whether the broker is reachable (works without it if the bus can't start)
-void startMqcBus();
+void startHacBus();

@@ -1,27 +1,38 @@
-# MQTT Controller (MQC): Concept
+# Home Assistant Controller (HA-C): Concept
 
-Status: agreed 2026-09-26; v1 actions, topic help (search, schemes, Browse, Listen, Test), Home Assistant discovery and deckbus built on 2026-10-01. Decisions and their reasons are in [`notes/2026-09-26-mqtt-controller-grill.md`](../notes/2026-09-26-mqtt-controller-grill.md).
+Status: the MQTT side was agreed on 2026-09-26 as MQ-C (MQTT Controller) and built on 2026-10-01 (v1 actions, topic help, MQTT discovery, deckbus). On 2026-10-01 MQ-C and the planned HA-C were merged into **one plugin, Home Assistant first, MQTT as the second source** ([`notes/2026-10-01-ha-c-merge-grill.md`](../notes/2026-10-01-ha-c-merge-grill.md)). The HA source is next; its ideas are in [`docs/ideas.md`](ideas.md). The MQTT decisions and their reasons are in [`notes/2026-09-26-mqtt-controller-grill.md`](../notes/2026-09-26-mqtt-controller-grill.md).
 
 ## What it is
 
-A Stream Deck plugin that controls and shows anything on an **MQTT broker**, independent of the system behind it: Home Assistant, ioBroker, Node-RED, Tasmota or zigbee2mqtt on their own. It is meant for the Elgato Marketplace, free, as an unofficial community plugin.
+A Stream Deck plugin that controls and shows your smart home: **Home Assistant** entities through its WebSocket API, and anything on an **MQTT broker**, also without Home Assistant (ioBroker, Node-RED, Tasmota or zigbee2mqtt on their own). Every key has a source: an HA entity or an MQTT topic. Users with only one of the two set up only that one. It is meant for the Elgato Marketplace, free, as an unofficial community plugin.
 
-What sets it apart from existing MQTT plugins:
-- **No typing of topics.** A live topic browser and Home Assistant MQTT discovery let you pick "Living room light" instead of `zigbee2mqtt/0x00158d…/set`.
-- **JSON handled properly.** Read a field from a JSON payload by clicking it, and publish with templates.
-- **MAC-quality looks and settings.** Any Material Design icon per state, colors, thresholds, a ring on dials, a connection card, live key preview. All of it comes from the shared kit.
+What sets it apart:
+- **Looks and settings in MA-C quality:** any Material Design icon per state, colours, colour ranges, half-circle gauges, a Slider dial with setpoint and actual value, a connection card. All from the shared kit.
+- **No typing:** pick "Living room light" by area and device (HA), or from MQTT discovery; for plain MQTT a live topic search, recognised schemes, Browse and Listen.
+- **MQTT as a second source:** JSON fields by click, publish templates, works straight on the broker.
 
-It is deliberately **not** a Home Assistant API plugin. In Home Assistant it reaches only MQTT-based entities (zigbee2mqtt, Tasmota, …), and Home Assistant's API is already covered by another plugin. The code keeps the value source swappable, so a Home Assistant source could be added later.
+The existing Home Assistant plugin by Christoph Giesche is free and widespread but plain (generic dials, keys with an icon and two lines); HA-C competes on looks, gauges and MQTT.
 
 ## Identity
 
 | | |
 |---|---|
-| Display name | **MQTT Controller**, public short name **MQ-C** (internally MQC; pattern <system>-C, decided 2026-09-27) |
-| UUID | `de.boriskemper.mqtt-controller` (the old internal project, never public) |
-| Repository | `rocklobster42195/streamdeck-mqtt-controller`, private until release |
-| Folder | `C:\dev\mqtt-controller` (fresh start, without the 2024 history) |
-| Logo | the Rocklobster lobster on **Yellow Sea `#F7A600`** from the house palette (decided 2026-09-27: logo colors come from the house palette `C:\dev\komuh\docs\cd-farben.md`; Sage `#87AE73` is the company color) |
+| Display name | **Home Assistant Controller**, public short name **HA-C** (internally HAC; pattern <system>-C) |
+| UUID | `de.boriskemper.ha-controller` (MQ-C's `de.boriskemper.mqtt-controller` was never public) |
+| Repository | `rocklobster42195/streamdeck-ha-controller`, private until release |
+| Folder | `C:\dev\ha-controller` (moved from `C:\dev\mqtt-controller` with its history on 2026-10-01) |
+| Logo | the Rocklobster lobster on **Endeavour `#005DA0`** from the house palette |
+| Disclaimer | unofficial; not affiliated with Elgato or Home Assistant / the Open Home Foundation; no third-party logos |
+
+## Home Assistant source (next)
+
+Decided in the merge grill (Q4):
+- Connection: URL + long-lived token; the connection card finds HA through zeroconf (`_home-assistant._tcp`). WebSocket API via `home-assistant-js-websocket`: subscribe to states, call services, read areas and devices.
+- The same five actions, a source per key. Switch: `light`, `switch`, `input_boolean`, `fan`, `lock` … (toggle). Value: `sensor`, `binary_sensor`, any state or attribute. Publish/trigger: `scene`, `script`, `button`, `automation`. Multi-state: `select`, `input_select`, fan speeds. Slider: brightness, `climate` (target + current), `cover` position, `number`/`input_number`.
+- One device picker by area and device with HA's names and icons, listing HA entities, MQTT-discovery devices and "topic by hand", each with a badge for its source.
+- Later: colour temperature/colour on the dial, sparkline, camera snapshot, key events to HA (`ha_c_key_pressed`), the deck as an HA device (JSA mini-integration), the JSA key (see `docs/ideas.md`).
+
+The sections below describe the MQTT source as built.
 
 ## Actions in v1
 

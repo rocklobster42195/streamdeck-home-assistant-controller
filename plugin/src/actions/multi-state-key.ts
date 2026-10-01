@@ -28,7 +28,7 @@ export type MultiStateKeySettings = TopicKeySettings & {
 
 const CONFIRM_MS = 3000;
 
-@action({ UUID: "de.boriskemper.mqtt-controller.multi-state" })
+@action({ UUID: "de.boriskemper.ha-controller.multi-state" })
 export class MultiStateKey extends TopicKey<MultiStateKeySettings> {
     private readonly optimistic = new OptimisticStore<{ index: number }>();
     private readonly revertTimers = new Map<string, ReturnType<typeof setTimeout>>();

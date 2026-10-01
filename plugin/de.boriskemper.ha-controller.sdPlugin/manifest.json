@@ -1,9 +1,9 @@
 {
     "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-    "Name": "MQTT Controller",
+    "Name": "Home Assistant Controller",
     "Version": "0.1.0.0",
     "Author": "Boris Kemper",
-    "Category": "MQTT Controller",
+    "Category": "Home Assistant Controller",
     "CategoryIcon": "imgs/plugin/category-icon",
     "CodePath": "bin/plugin.js",
     "Description": "Switch and show anything on your MQTT broker: Home Assistant, zigbee2mqtt, Tasmota, Shelly, ESPHome, ioBroker, Node-RED.\nUnofficial community plugin, not affiliated with Elgato.\n\nIcons by https://pictogrammers.com",
@@ -26,11 +26,11 @@
         "Version": "24",
         "Debug": "enabled"
     },
-    "UUID": "de.boriskemper.mqtt-controller",
+    "UUID": "de.boriskemper.ha-controller",
     "Actions": [
         {
             "Name": "Switch",
-            "UUID": "de.boriskemper.mqtt-controller.switch",
+            "UUID": "de.boriskemper.ha-controller.switch",
             "Icon": "imgs/actions/switch/icon",
             "Tooltip": "Switch a light or plug on and off, and see its state.",
             "PropertyInspectorPath": "ui/switch.html",
@@ -45,7 +45,7 @@
         },
         {
             "Name": "Value",
-            "UUID": "de.boriskemper.mqtt-controller.value",
+            "UUID": "de.boriskemper.ha-controller.value",
             "Icon": "imgs/actions/value/icon",
             "Tooltip": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",
             "PropertyInspectorPath": "ui/value.html",
@@ -60,7 +60,7 @@
         },
         {
             "Name": "Publish",
-            "UUID": "de.boriskemper.mqtt-controller.publish",
+            "UUID": "de.boriskemper.ha-controller.publish",
             "Icon": "imgs/actions/publish/icon",
             "Tooltip": "Send a fixed payload, e.g. a scene or opening a gate.",
             "PropertyInspectorPath": "ui/publish.html",
@@ -75,7 +75,7 @@
         },
         {
             "Name": "Multi-state",
-            "UUID": "de.boriskemper.mqtt-controller.multi-state",
+            "UUID": "de.boriskemper.ha-controller.multi-state",
             "Icon": "imgs/actions/multi-state/icon",
             "Tooltip": "Step through several values, e.g. fan off, 1, 2, 3, and see the current one.",
             "PropertyInspectorPath": "ui/multi-state.html",
@@ -90,7 +90,7 @@
         },
         {
             "Name": "Slider",
-            "UUID": "de.boriskemper.mqtt-controller.slider",
+            "UUID": "de.boriskemper.ha-controller.slider",
             "Icon": "imgs/actions/slider/icon",
             "Tooltip": "Set a value with a dial: brightness, a thermostat's setpoint, a blind. Push switches on and off.",
             "PropertyInspectorPath": "ui/slider.html",

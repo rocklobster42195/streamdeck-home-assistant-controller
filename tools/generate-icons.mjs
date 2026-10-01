@@ -7,7 +7,7 @@ import { createRequire } from "node:module";
 const require = createRequire(path.resolve("plugin/package.json"));
 const mdi = require("@mdi/js");
 const sharp = require("sharp");
-const root = "plugin/de.boriskemper.mqtt-controller.sdPlugin/imgs";
+const root = "plugin/de.boriskemper.ha-controller.sdPlugin/imgs";
 
 // Action list icon: white on transparent (Stream Deck tints it). Key: the default key image.
 const actions = {
@@ -34,7 +34,7 @@ for (const [name, d] of Object.entries(actions)) {
 }
 
 // Category and plugin icon: the Rocklobster lobster (shared by all Rocklobster plugins).
-const LOGO = "#F7A600"; // Yellow Sea from the house palette (komuh/docs/cd-farben.md)
+const LOGO = "#005DA0"; // Endeavour from the house palette (komuh/docs/cd-farben.md)
 const lobsterSvg = fs.readFileSync("docs/brand/lobster.svg", "utf8");
 const viewBox = lobsterSvg.match(/viewBox="([^"]+)"/)[1];
 const lobsterPath = lobsterSvg.match(/ d="([^"]+)"/)[1];

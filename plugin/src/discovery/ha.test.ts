@@ -48,7 +48,7 @@ describe("ha-config", () => {
         expect(fieldFromTemplate("{{ now().strftime('%Y') }}")).toBeUndefined();
         expect(fieldFromTemplate(undefined)).toBeUndefined();
     });
-    it("turns command templates into MQ-C templates", () => {
+    it("turns command templates into HA-C templates", () => {
         expect(templateFromHa('{"options": {"log_level": "{{ value }}"}}')).toBe('{"options": {"log_level": "{value}"}}');
         expect(templateFromHa("{{ value | int }}")).toBeUndefined();
     });

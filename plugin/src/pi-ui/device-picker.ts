@@ -1,11 +1,11 @@
-// <mqc-device action="switch">
+// <hac-device action="switch">
 // Pick a Home Assistant device instead of topics: a search over the entities announced through
 // MQTT discovery that fit this action, grouped by device. Picking one fills in all topics, values
 // and the name (the plugin builds the settings). Hidden when the broker has no discovery configs.
 import { escapeHtml, nextRequestId, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
 import type { HaItem, PiPush } from "../pi/protocol";
 
-export class MqcDevice extends HTMLElement {
+export class HacDevice extends HTMLElement {
     private items: HaItem[] = [];
     private current: HaItem | undefined;
     private total = -1;
@@ -27,14 +27,14 @@ export class MqcDevice extends HTMLElement {
     }
 
     connectedCallback(): void {
-        this.classList.add("mqc-device");
+        this.classList.add("hac-device");
         this.hidden = true;
         this.innerHTML = `
             <div class="pi-section-title">${escapeHtml(t("pi.ha_device"))}</div>
             <div class="pi-card"><div class="pi-padded">
-                <div class="mqc-device-current"></div>
-                <input class="pi-input mqc-device-search" type="search" spellcheck="false" placeholder="${escapeHtml(t("pi.ha_search"))}"/>
-                <div class="mqc-device-list" hidden></div>
+                <div class="hac-device-current"></div>
+                <input class="pi-input hac-device-search" type="search" spellcheck="false" placeholder="${escapeHtml(t("pi.ha_search"))}"/>
+                <div class="hac-device-list" hidden></div>
                 <span class="pi-hint">${escapeHtml(t("pi.ha_hint"))}</span>
             </div></div>`;
         const input = this.querySelector<HTMLInputElement>("input")!;
@@ -92,10 +92,10 @@ export class MqcDevice extends HTMLElement {
         this.hidden = this.total <= 0;
         if (this.hidden) return;
         const cur = sd.settings.haEntity && this.current?.id === sd.settings.haEntity ? this.current : undefined;
-        this.querySelector<HTMLElement>(".mqc-device-current")!.innerHTML = cur
-            ? `<div class="mqc-device-chosen">${svg(cur.icon)}<span class="pi-select-text"><span class="pi-strong">${escapeHtml(cur.name)}</span><span class="pi-option-sub">${escapeHtml([cur.device !== cur.name ? cur.device : "", cur.component].filter(Boolean).join(" · "))}</span></span></div>`
+        this.querySelector<HTMLElement>(".hac-device-current")!.innerHTML = cur
+            ? `<div class="hac-device-chosen">${svg(cur.icon)}<span class="pi-select-text"><span class="pi-strong">${escapeHtml(cur.name)}</span><span class="pi-option-sub">${escapeHtml([cur.device !== cur.name ? cur.device : "", cur.component].filter(Boolean).join(" · "))}</span></span></div>`
             : "";
-        const list = this.querySelector<HTMLElement>(".mqc-device-list")!;
+        const list = this.querySelector<HTMLElement>(".hac-device-list")!;
         list.hidden = !this.open;
         if (!this.open) return;
         if (!this.items.length) {
@@ -111,13 +111,13 @@ export class MqcDevice extends HTMLElement {
                 lastDevice = device;
             }
             rows.push(
-                `<button type="button" class="pi-option mqc-device-item${it.extra ? " mqc-busy" : ""}" data-n="${n}">${svg(it.icon)}<span class="pi-select-text"><span class="pi-label">${escapeHtml(it.name)}</span><span class="pi-option-sub">${escapeHtml(it.component)}</span></span></button>`,
+                `<button type="button" class="pi-option hac-device-item${it.extra ? " hac-busy" : ""}" data-n="${n}">${svg(it.icon)}<span class="pi-select-text"><span class="pi-label">${escapeHtml(it.name)}</span><span class="pi-option-sub">${escapeHtml(it.component)}</span></span></button>`,
             );
         });
         if (this.matching > this.items.length) rows.push(`<div class="pi-hint pi-select-note">${escapeHtml(t("pi.topics_more", { n: this.matching - this.items.length }))}</div>`);
         list.innerHTML = rows.join("");
         // mousedown: picking must not lose against the input's blur
-        list.querySelectorAll<HTMLElement>(".mqc-device-item").forEach((el) =>
+        list.querySelectorAll<HTMLElement>(".hac-device-item").forEach((el) =>
             el.addEventListener("mousedown", (e) => {
                 e.preventDefault();
                 this.pick(this.items[Number(el.dataset.n)]);
@@ -127,5 +127,5 @@ export class MqcDevice extends HTMLElement {
 }
 
 function svg(path: string | undefined): string {
-    return `<span class="mqc-device-icon">${path ? `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="${escapeHtml(path)}"/></svg>` : ""}</span>`;
+    return `<span class="hac-device-icon">${path ? `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="${escapeHtml(path)}"/></svg>` : ""}</span>`;
 }

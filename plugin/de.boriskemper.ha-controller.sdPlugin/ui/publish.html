@@ -6,18 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Publish</title>
   <link rel="stylesheet" href="pi-theme.css" />
-  <link rel="stylesheet" href="mqc.css" />
+  <link rel="stylesheet" href="hac.css" />
   <script src="locales.generated.js"></script>
   <script src="pi.js"></script>
 </head>
 
 <body hidden>
-  <div class="pi-hint mqc-help" data-i18n="pi.publish_help"></div>
+  <div class="pi-hint hac-help" data-i18n="pi.publish_help"></div>
 
-  <mqc-device action="publish"></mqc-device>
+  <hac-device action="publish"></hac-device>
 
   <pi-section title="pi.send">
-    <mqc-topic setting="topic" label="pi.send_topic" placeholder="pi.topic_search_placeholder"></mqc-topic>
+    <hac-topic setting="topic" label="pi.send_topic" placeholder="pi.topic_search_placeholder"></hac-topic>
     <pi-field setting="payload" label="pi.send_payload" placeholder="pi.send_payload_placeholder" hint="pi.send_payload_hint"></pi-field>
     <pi-toggle setting="confirm" label="pi.confirm" hint="pi.confirm_hint"></pi-toggle>
   </pi-section>
@@ -29,7 +29,7 @@
   </pi-section>
 
   <pi-section title="pi.advanced">
-    <mqc-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
+    <hac-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></hac-topic>
     <pi-toggle setting="retain" label="pi.retain" hint="pi.retain_hint"></pi-toggle>
     <pi-choice setting="qos" default="0" columns="3" data-options='[
       {"value":"0","label":"QoS 0"},
@@ -38,9 +38,9 @@
     ]'></pi-choice>
   </pi-section>
 
-  <mqc-connection-card></mqc-connection-card>
+  <hac-connection-card></hac-connection-card>
 
-  <div class="pi-footer"><span data-plugin-version>MQ-C</span></div>
+  <div class="pi-footer"><span data-plugin-version>HA-C</span></div>
 </body>
 
 </html>

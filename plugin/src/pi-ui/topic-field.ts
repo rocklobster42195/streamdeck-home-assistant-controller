@@ -1,4 +1,4 @@
-// <mqc-topic setting="stateTopic" label="…" [placeholder="…"] [hint="…"] [suggest [suggest-prefix="press"]] [no-explore]>
+// <hac-topic setting="stateTopic" label="…" [placeholder="…"] [hint="…"] [suggest [suggest-prefix="press"]] [no-explore]>
 // A topic field with a live search over every topic on the broker (with its current value), and
 // below it the topic's current payload. With `suggest`, a recognised scheme (zigbee2mqtt, Tasmota,
 // Shelly, ESPHome, …) is offered as a card that fills the command topic, field, values and
@@ -13,7 +13,7 @@ import { TopicExplorer } from "./topic-explore";
 /** Settings a suggestion fills; missing ones are cleared so nothing stale stays. */
 const SUGGESTED_KEYS = ["commandTopic", "field", "onValue", "offValue", "commandOn", "commandOff", "template", "availabilityTopic"] as const;
 
-export class MqcTopic extends HTMLElement {
+export class HacTopic extends HTMLElement {
     private hits: TopicHit[] = [];
     private total = 0;
     private open = false;
@@ -40,17 +40,17 @@ export class MqcTopic extends HTMLElement {
         const label = this.getAttribute("label");
         const hint = this.getAttribute("hint");
         const placeholder = this.getAttribute("placeholder");
-        this.classList.add("pi-field", "mqc-topic");
+        this.classList.add("pi-field", "hac-topic");
         this.innerHTML = `
             <label>
                 ${label ? `<span class="pi-field-label">${escapeHtml(t(label))}</span>` : ""}
-                <span class="pi-input-row"><input class="pi-input mqc-topic-input" type="text" spellcheck="false" autocomplete="off" ${placeholder ? `placeholder="${escapeHtml(t(placeholder))}"` : ""}/></span>
+                <span class="pi-input-row"><input class="pi-input hac-topic-input" type="text" spellcheck="false" autocomplete="off" ${placeholder ? `placeholder="${escapeHtml(t(placeholder))}"` : ""}/></span>
             </label>
-            <div class="mqc-hits" role="listbox" hidden></div>
-            ${this.hasAttribute("no-explore") ? "" : `<div class="mqc-explore"></div>`}
-            <span class="pi-hint mqc-topic-value"></span>
+            <div class="hac-hits" role="listbox" hidden></div>
+            ${this.hasAttribute("no-explore") ? "" : `<div class="hac-explore"></div>`}
+            <span class="pi-hint hac-topic-value"></span>
             ${hint ? `<span class="pi-hint">${escapeHtml(t(hint))}</span>` : ""}
-            <div class="mqc-suggestion" hidden></div>`;
+            <div class="hac-suggestion" hidden></div>`;
         const input = this.querySelector<HTMLInputElement>("input")!;
         input.addEventListener("input", () => {
             clearTimeout(this.timer);
@@ -86,7 +86,7 @@ export class MqcTopic extends HTMLElement {
         );
         input.value = this.value;
         this.requestInfo();
-        const explore = this.querySelector<HTMLElement>(".mqc-explore");
+        const explore = this.querySelector<HTMLElement>(".hac-explore");
         if (explore) this.explorer = new TopicExplorer(explore, (topic) => this.choose(topic));
     }
 
@@ -124,7 +124,7 @@ export class MqcTopic extends HTMLElement {
     }
 
     private renderHits(): void {
-        const list = this.querySelector<HTMLElement>(".mqc-hits")!;
+        const list = this.querySelector<HTMLElement>(".hac-hits")!;
         list.hidden = !this.open || !this.hits.length;
         if (list.hidden) return;
         const more = this.total > this.hits.length ? `<div class="pi-hint pi-select-note">${escapeHtml(t("pi.topics_more", { n: this.total - this.hits.length }))}</div>` : "";
@@ -132,12 +132,12 @@ export class MqcTopic extends HTMLElement {
             this.hits
                 .map(
                     (h, n) =>
-                        `<button type="button" class="pi-option mqc-hit" data-n="${n}"><span class="pi-select-text"><span class="pi-label">${escapeHtml(h.topic)}</span><span class="pi-option-sub">${escapeHtml(h.value || "—")}</span></span></button>`,
+                        `<button type="button" class="pi-option hac-hit" data-n="${n}"><span class="pi-select-text"><span class="pi-label">${escapeHtml(h.topic)}</span><span class="pi-option-sub">${escapeHtml(h.value || "—")}</span></span></button>`,
                 )
                 .join("") + more;
         // mousedown, not click: a click first blurs the input, whose change event would save the
         // typed search text and close the list before the click lands
-        list.querySelectorAll<HTMLElement>(".mqc-hit").forEach((el) =>
+        list.querySelectorAll<HTMLElement>(".hac-hit").forEach((el) =>
             el.addEventListener("mousedown", (e) => {
                 e.preventDefault();
                 this.choose(this.hits[Number(el.dataset.n)].topic);
@@ -147,10 +147,10 @@ export class MqcTopic extends HTMLElement {
     }
 
     private renderInfo(): void {
-        const value = this.querySelector<HTMLElement>(".mqc-topic-value")!;
+        const value = this.querySelector<HTMLElement>(".hac-topic-value")!;
         const info = this.info?.topic === this.value ? this.info : undefined;
         value.textContent = !this.value ? "" : info?.payload !== undefined ? t("pi.current_value", { value: short(info.payload) }) : info ? t("pi.no_value_yet") : "";
-        const card = this.querySelector<HTMLElement>(".mqc-suggestion")!;
+        const card = this.querySelector<HTMLElement>(".hac-suggestion")!;
         const s = this.hasAttribute("suggest") ? info?.suggestion : undefined;
         card.hidden = !s;
         if (!s) return;
@@ -163,16 +163,16 @@ export class MqcTopic extends HTMLElement {
             ["pi.availability_topic", prefix ? undefined : s.availabilityTopic],
         ];
         card.innerHTML = `
-            <div class="mqc-suggestion-head">
-                <span class="mqc-badge">${escapeHtml(t(`pi.scheme_${s.scheme}`))}</span>
+            <div class="hac-suggestion-head">
+                <span class="hac-badge">${escapeHtml(t(`pi.scheme_${s.scheme}`))}</span>
                 <span class="pi-hint">${escapeHtml(t(applied ? "pi.scheme_applied" : "pi.scheme_found"))}</span>
             </div>
-            ${applied ? "" : `<div class="mqc-suggestion-rows">${rows
+            ${applied ? "" : `<div class="hac-suggestion-rows">${rows
                 .filter(([, v]) => v)
-                .map(([k, v]) => `<span class="pi-hint">${escapeHtml(t(k))}</span><span class="mqc-mono">${escapeHtml(v!)}</span>`)
+                .map(([k, v]) => `<span class="pi-hint">${escapeHtml(t(k))}</span><span class="hac-mono">${escapeHtml(v!)}</span>`)
                 .join("")}</div>
-            <button type="button" class="pi-button pi-button-small mqc-apply">${escapeHtml(t("pi.scheme_apply"))}</button>`}`;
-        card.querySelector(".mqc-apply")?.addEventListener("click", () => apply(s, prefix));
+            <button type="button" class="pi-button pi-button-small hac-apply">${escapeHtml(t("pi.scheme_apply"))}</button>`}`;
+        card.querySelector(".hac-apply")?.addEventListener("click", () => apply(s, prefix));
     }
 }
 

@@ -1,4 +1,4 @@
-// <mqc-states setting="states" topic-setting="stateTopic" field-setting="field">
+// <hac-states setting="states" topic-setting="stateTopic" field-setting="field">
 // The Multi-state key's list: one row per state with its value, a name, a colour and an icon
 // (searched like the kit's icon picker). Rows can be added empty, or from the value the device
 // reports right now, and moved up. Stored as [{ value, label?, icon?, color? }].
@@ -9,7 +9,7 @@ import type { PiPush } from "../pi/protocol";
 const COLORS = ["#F7A600", "#3ddc84", "#6cc4ff", "#ff4d4d", "#E14190", "#f5c542"];
 const svg = (path: string | undefined, size = 22) => (path ? `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true"><path fill="currentColor" d="${escapeHtml(path)}"/></svg>` : "");
 
-export class MqcStates extends HTMLElement {
+export class HacStates extends HTMLElement {
     /** Icon name → path ("" when unknown), filled from the plugin's icon catalog. */
     private readonly paths = new Map<string, string>();
     private readonly pending = new Map<number, string>();
@@ -32,7 +32,7 @@ export class MqcStates extends HTMLElement {
     }
 
     connectedCallback(): void {
-        this.classList.add("mqc-states");
+        this.classList.add("hac-states");
         this.offs.push(
             sd.onMessage((msg: KitPiPush | PiPush) => {
                 if (msg?.event === "options-result") {
@@ -98,38 +98,38 @@ export class MqcStates extends HTMLElement {
             ${rows
                 .map(
                     (r, i) => `
-                <div class="mqc-state-row" data-i="${i}">
-                    <button type="button" class="pi-icon-button mqc-state-icon" title="${escapeHtml(t("pi.state_icon"))}" style="color:${escapeHtml(r.color || "#F7A600")}">${svg(r.icon ? this.paths.get(r.icon) || undefined : undefined) || "+"}</button>
-                    <input class="pi-input mqc-state-value" type="text" spellcheck="false" placeholder="${escapeHtml(t("pi.state_value"))}" value="${escapeHtml(r.value ?? "")}"/>
-                    <input class="pi-input mqc-state-label" type="text" placeholder="${escapeHtml(t("pi.state_label"))}" value="${escapeHtml(r.label ?? "")}"/>
+                <div class="hac-state-row" data-i="${i}">
+                    <button type="button" class="pi-icon-button hac-state-icon" title="${escapeHtml(t("pi.state_icon"))}" style="color:${escapeHtml(r.color || "#F7A600")}">${svg(r.icon ? this.paths.get(r.icon) || undefined : undefined) || "+"}</button>
+                    <input class="pi-input hac-state-value" type="text" spellcheck="false" placeholder="${escapeHtml(t("pi.state_value"))}" value="${escapeHtml(r.value ?? "")}"/>
+                    <input class="pi-input hac-state-label" type="text" placeholder="${escapeHtml(t("pi.state_label"))}" value="${escapeHtml(r.label ?? "")}"/>
                     <input class="pi-color" type="color" value="${escapeHtml(r.color || "#F7A600")}"/>
-                    <button type="button" class="pi-icon-button mqc-state-up" title="${escapeHtml(t("pi.state_up"))}" ${i === 0 ? "disabled" : ""}>↑</button>
-                    <button type="button" class="pi-icon-button mqc-state-remove" title="${escapeHtml(t("kit.threshold_remove"))}">×</button>
+                    <button type="button" class="pi-icon-button hac-state-up" title="${escapeHtml(t("pi.state_up"))}" ${i === 0 ? "disabled" : ""}>↑</button>
+                    <button type="button" class="pi-icon-button hac-state-remove" title="${escapeHtml(t("kit.threshold_remove"))}">×</button>
                 </div>
-                ${this.picking === i ? `<div class="mqc-state-picker"><input class="pi-input mqc-state-search" type="search" placeholder="${escapeHtml(t("kit.icon_search"))}"/><div class="pi-icon-grid mqc-state-results"></div></div>` : ""}`,
+                ${this.picking === i ? `<div class="hac-state-picker"><input class="pi-input hac-state-search" type="search" placeholder="${escapeHtml(t("kit.icon_search"))}"/><div class="pi-icon-grid hac-state-results"></div></div>` : ""}`,
                 )
                 .join("")}
-            <div class="mqc-state-actions">
-                <button type="button" class="pi-button pi-button-small mqc-state-add">${escapeHtml(t("pi.state_add"))}</button>
-                ${hasCurrent ? `<button type="button" class="pi-button pi-button-small mqc-state-add-current">${escapeHtml(t("pi.state_add_current", { value: cur! }))}</button>` : ""}
+            <div class="hac-state-actions">
+                <button type="button" class="pi-button pi-button-small hac-state-add">${escapeHtml(t("pi.state_add"))}</button>
+                ${hasCurrent ? `<button type="button" class="pi-button pi-button-small hac-state-add-current">${escapeHtml(t("pi.state_add_current", { value: cur! }))}</button>` : ""}
             </div>`;
 
-        const rowOf = (el: Element) => Number((el.closest(".mqc-state-row") as HTMLElement).dataset.i);
+        const rowOf = (el: Element) => Number((el.closest(".hac-state-row") as HTMLElement).dataset.i);
         const edit = (el: Element, patch: Partial<StateOption>) => {
             const next = this.rows;
             Object.assign(next[rowOf(el)], patch);
             this.save(next);
         };
-        this.querySelectorAll<HTMLInputElement>(".mqc-state-value").forEach((el) => el.addEventListener("change", () => edit(el, { value: el.value.trim() })));
-        this.querySelectorAll<HTMLInputElement>(".mqc-state-label").forEach((el) => el.addEventListener("change", () => edit(el, { label: el.value.trim() || undefined })));
-        this.querySelectorAll<HTMLInputElement>(".mqc-state-row .pi-color").forEach((el) => el.addEventListener("change", () => edit(el, { color: el.value })));
-        this.querySelectorAll<HTMLElement>(".mqc-state-remove").forEach((el) =>
+        this.querySelectorAll<HTMLInputElement>(".hac-state-value").forEach((el) => el.addEventListener("change", () => edit(el, { value: el.value.trim() })));
+        this.querySelectorAll<HTMLInputElement>(".hac-state-label").forEach((el) => el.addEventListener("change", () => edit(el, { label: el.value.trim() || undefined })));
+        this.querySelectorAll<HTMLInputElement>(".hac-state-row .pi-color").forEach((el) => el.addEventListener("change", () => edit(el, { color: el.value })));
+        this.querySelectorAll<HTMLElement>(".hac-state-remove").forEach((el) =>
             el.addEventListener("click", () => {
                 this.picking = -1;
                 this.save(this.rows.filter((_, i) => i !== rowOf(el)));
             }),
         );
-        this.querySelectorAll<HTMLElement>(".mqc-state-up").forEach((el) =>
+        this.querySelectorAll<HTMLElement>(".hac-state-up").forEach((el) =>
             el.addEventListener("click", () => {
                 const i = rowOf(el);
                 const next = this.rows;
@@ -138,16 +138,16 @@ export class MqcStates extends HTMLElement {
                 this.save(next);
             }),
         );
-        this.querySelectorAll<HTMLElement>(".mqc-state-icon").forEach((el) =>
+        this.querySelectorAll<HTMLElement>(".hac-state-icon").forEach((el) =>
             el.addEventListener("click", () => {
                 const i = rowOf(el);
                 this.picking = this.picking === i ? -1 : i;
                 this.results = [];
                 this.render();
-                this.querySelector<HTMLInputElement>(".mqc-state-search")?.focus();
+                this.querySelector<HTMLInputElement>(".hac-state-search")?.focus();
             }),
         );
-        const search = this.querySelector<HTMLInputElement>(".mqc-state-search");
+        const search = this.querySelector<HTMLInputElement>(".hac-state-search");
         search?.addEventListener("input", () => {
             clearTimeout(this.timer);
             this.timer = setTimeout(() => {
@@ -155,12 +155,12 @@ export class MqcStates extends HTMLElement {
                 sd.sendToPlugin({ event: "options", requestId: this.searchId, source: "mdi-icons", params: { q: search.value.trim() } });
             }, 250);
         });
-        this.querySelector(".mqc-state-add")!.addEventListener("click", () => this.save([...this.rows, { value: "", color: COLORS[this.rows.length % COLORS.length] }]));
-        this.querySelector(".mqc-state-add-current")?.addEventListener("click", () => this.save([...this.rows, { value: cur!, color: COLORS[this.rows.length % COLORS.length] }]));
+        this.querySelector(".hac-state-add")!.addEventListener("click", () => this.save([...this.rows, { value: "", color: COLORS[this.rows.length % COLORS.length] }]));
+        this.querySelector(".hac-state-add-current")?.addEventListener("click", () => this.save([...this.rows, { value: cur!, color: COLORS[this.rows.length % COLORS.length] }]));
     }
 
     private renderResults(): void {
-        const grid = this.querySelector<HTMLElement>(".mqc-state-results");
+        const grid = this.querySelector<HTMLElement>(".hac-state-results");
         if (!grid) return;
         grid.innerHTML = this.results.map((r, n) => `<button type="button" class="pi-icon-tile" data-n="${n}" title="${escapeHtml(r.label)}">${svg(r.icon)}</button>`).join("");
         grid.querySelectorAll<HTMLElement>(".pi-icon-tile").forEach((el) =>

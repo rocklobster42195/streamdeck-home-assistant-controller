@@ -57,7 +57,7 @@ try {
         },
         { column: 3 },
     );
-    const door = sim.add("value", { stateTopic: "home/door/state", label: "Haustür", icon: "mdiDoor", pressAction: "send", sendTopic: "mqc/test/door/open", sendPayload: '{"open":true}' }, { column: 0, row: 1 });
+    const door = sim.add("value", { stateTopic: "home/door/state", label: "Haustür", icon: "mdiDoor", pressAction: "send", sendTopic: "hac/test/door/open", sendPayload: '{"open":true}' }, { column: 0, row: 1 });
     const missing = sim.add("value", { stateTopic: "nothing/here", label: "Leer", unit: "°C" }, { column: 1, row: 1 });
     sim.add("value", {}, { column: 2, row: 1 });
     await sim.sleep(1500);
@@ -74,7 +74,7 @@ try {
     check("the frame goes when the plug is off", sim.state.slots.get(power).image !== framed);
     sim.press(door);
     await sim.sleep(300);
-    check("the door key sends its payload", received.some((m) => m.topic === "mqc/test/door/open" && m.payload === '{"open":true}'));
+    check("the door key sends its payload", received.some((m) => m.topic === "hac/test/door/open" && m.payload === '{"open":true}'));
     check("the door key confirms", sim.state.slots.get(door).oks === 1);
     sim.press(power);
     await sim.sleep(500);

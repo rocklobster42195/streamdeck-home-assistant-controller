@@ -1,0 +1,70 @@
+/* HA-C additions to the kit's pi-theme.css */
+:root { --pi-accent: #4a9be0; --pi-accent-strong: #005DA0; }
+.hac-help { padding: 8px 12px 0; }
+.hac-mono { font-family: Consolas, "SF Mono", monospace; font-size: 12px; overflow-wrap: anywhere; }
+
+/* Connection card */
+hac-connection-card { display: flex; flex-direction: column; gap: 6px; }
+.hac-conn-head { display: flex; align-items: center; gap: 10px; }
+.hac-conn-body { display: flex; flex-direction: column; gap: 2px; padding: 10px 0 12px; }
+.hac-conn-actions { display: flex; flex-direction: column; gap: 8px; padding: 4px 12px 0; }
+
+/* Topic field with live search */
+.hac-topic { position: relative; display: flex; flex-direction: column; gap: 4px; }
+.hac-hits { position: absolute; top: 58px; left: 12px; right: 12px; z-index: 10; background: var(--pi-control); border: 1px solid var(--pi-control-border); border-radius: var(--pi-radius); padding: 6px; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55); display: flex; flex-direction: column; gap: 2px; max-height: 300px; overflow-y: auto; }
+.hac-hit .pi-label { font-family: Consolas, "SF Mono", monospace; font-size: 12px; }
+.hac-topic-value { overflow-wrap: anywhere; }
+
+/* Scheme suggestion */
+.hac-suggestion { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding: 10px; border: 1px dashed var(--pi-accent-strong); border-radius: 8px; }
+.hac-suggestion-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hac-badge { background: var(--pi-accent-strong); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.hac-suggestion-rows { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; align-items: baseline; }
+
+/* JSON field picker */
+.hac-fields { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; max-height: 220px; overflow-y: auto; }
+.hac-field-row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 6px 8px; background: transparent; border: 1px solid transparent; border-radius: 7px; cursor: pointer; text-align: left; }
+.hac-field-row:hover { background: #34343a; }
+.hac-field-row[aria-pressed="true"] { border-color: var(--pi-accent); background: var(--pi-selected); }
+
+/* Multi-state list */
+.hac-states { display: flex; flex-direction: column; gap: 4px; padding: 8px 12px 10px; }
+.hac-state-row { display: flex; gap: 6px; align-items: center; }
+.hac-state-row .pi-input { padding: 6px 8px; min-width: 0; }
+.hac-state-value { flex: 0 0 64px; font-family: Consolas, "SF Mono", monospace; font-size: 12px; }
+.hac-state-label { flex: 1 1 auto; }
+.hac-state-row .pi-color { width: 34px; height: 30px; }
+.hac-state-row .pi-icon-button { height: 30px; width: 30px; flex: none; font-size: 15px; }
+.hac-state-row .pi-icon-button:disabled { opacity: 0.3; cursor: default; }
+.hac-state-picker { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 8px; }
+.hac-state-picker .pi-icon-grid { padding: 0; }
+.hac-state-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 4px; }
+
+/* Browse and Listen under a topic field */
+.hac-explore { display: flex; flex-direction: column; gap: 6px; }
+.hac-explore-buttons { display: flex; gap: 6px; }
+.hac-explore-buttons .pi-button[aria-pressed="true"] { border-color: var(--pi-accent); color: var(--pi-accent); }
+.hac-tree { display: flex; flex-direction: column; gap: 4px; background: var(--pi-control); border: 1px solid var(--pi-control-border); border-radius: var(--pi-radius); padding: 6px; }
+.hac-crumbs { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; font-size: 11px; color: var(--pi-text-3); padding: 2px 4px 4px; }
+.hac-crumb { background: none; border: none; color: var(--pi-accent); cursor: pointer; padding: 0 2px; font-size: 12px; font-family: Consolas, "SF Mono", monospace; }
+.hac-tree-list { display: flex; flex-direction: column; gap: 2px; max-height: 280px; overflow-y: auto; }
+.hac-tree-row { display: flex; gap: 4px; align-items: center; }
+.hac-tree-row .pi-option { flex: 1 1 auto; min-width: 0; }
+.hac-tree-row .pi-label { font-family: Consolas, "SF Mono", monospace; font-size: 12px; }
+.hac-pick { flex: none; }
+.hac-listen { display: flex; gap: 8px; align-items: center; padding: 6px 2px; }
+.hac-heard-head { padding: 2px 4px; }
+.hac-busy { opacity: 0.55; }
+
+/* Test button */
+.hac-test { display: flex; flex-direction: column; }
+.hac-test .pi-row { padding: 6px 12px; }
+.hac-test-result { display: flex; gap: 8px; align-items: flex-start; padding: 0 12px 10px; }
+.hac-test-result .pi-dot { margin-top: 4px; }
+
+/* Home Assistant device picker */
+hac-device { display: flex; flex-direction: column; gap: 6px; }
+.hac-device .pi-padded { position: relative; }
+.hac-device-chosen { display: flex; gap: 10px; align-items: center; }
+.hac-device-icon { width: 22px; height: 22px; color: var(--pi-accent); display: flex; align-items: center; justify-content: center; flex: none; }
+.hac-device-list { background: var(--pi-control); border: 1px solid var(--pi-control-border); border-radius: var(--pi-radius); padding: 6px; display: flex; flex-direction: column; gap: 2px; max-height: 320px; overflow-y: auto; }

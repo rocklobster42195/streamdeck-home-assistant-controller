@@ -16,7 +16,7 @@ const { WebSocketServer } = require("ws");
 
 import { renderDeck } from "./sim-render.mjs";
 
-const PLUGIN_UUID = "de.boriskemper.mqtt-controller";
+const PLUGIN_UUID = "de.boriskemper.ha-controller";
 const SD_PLUGIN = path.join(root, "plugin", `${PLUGIN_UUID}.sdPlugin`);
 const DEVICE = { id: "sim-device", name: "Simulated Stream Deck +", size: { columns: 4, rows: 2 }, type: 7 };
 

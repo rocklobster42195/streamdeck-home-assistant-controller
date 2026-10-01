@@ -1,17 +1,17 @@
 {
-    "name": "mqc-plugin",
+    "name": "hac-plugin",
     "version": "0.1.0",
     "private": true,
-    "description": "MQ-C — MQTT Controller: the Stream Deck plugin",
+    "description": "HA-C — Home Assistant Controller: the Stream Deck plugin",
     "license": "MIT",
     "author": "Boris Kemper",
     "type": "module",
     "scripts": {
         "build": "rollup -c",
-        "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart de.boriskemper.mqtt-controller\"",
-        "link": "streamdeck link de.boriskemper.mqtt-controller.sdPlugin",
-        "validate": "streamdeck validate de.boriskemper.mqtt-controller.sdPlugin",
-        "pack": "streamdeck pack de.boriskemper.mqtt-controller.sdPlugin --force"
+        "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart de.boriskemper.ha-controller\"",
+        "link": "streamdeck link de.boriskemper.ha-controller.sdPlugin",
+        "validate": "streamdeck validate de.boriskemper.ha-controller.sdPlugin",
+        "pack": "streamdeck pack de.boriskemper.ha-controller.sdPlugin --force"
     },
     "dependencies": {
         "@elgato/streamdeck": "^2.1.0",

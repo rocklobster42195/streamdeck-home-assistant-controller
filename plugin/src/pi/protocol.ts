@@ -1,4 +1,4 @@
-// MQC's messages between the plugin and its property inspectors (shared by both sides). The kit
+// HAC's messages between the plugin and its property inspectors (shared by both sides). The kit
 // handles "pi-ready", "options" and "options-result" itself.
 import type { BrokerState } from "../mqtt/broker";
 import type { TopicSuggestion } from "../mqtt/schemes";

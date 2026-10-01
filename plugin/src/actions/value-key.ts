@@ -31,7 +31,7 @@ export type ValueKeySettings = TopicKeySettings &
         label?: string;
     };
 
-@action({ UUID: "de.boriskemper.mqtt-controller.value" })
+@action({ UUID: "de.boriskemper.ha-controller.value" })
 export class ValueKey extends TopicKey<ValueKeySettings> {
     private readonly toggle = new Toggle((id) => {
         const inst = this.instances.get(id);

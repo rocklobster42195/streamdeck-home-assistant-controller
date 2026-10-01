@@ -25,7 +25,7 @@ const mdiOptions = (q = "") => {
 
 const HTTP_PORT = Number(process.env.PORT ?? 5399);
 const WS_PORT = HTTP_PORT + 1;
-const UUID = "de.boriskemper.mqtt-controller";
+const UUID = "de.boriskemper.ha-controller";
 const UI = path.resolve(`plugin/${UUID}.sdPlugin/ui`);
 
 // Invented topics (screenshots go public)
@@ -57,9 +57,9 @@ const fields = (payload) => {
 };
 
 const scenarios = {
-    online: { global: { brokerUrl: "192.168.1.10", brokerUser: "mqc" }, status: { state: "online", address: "192.168.1.10", topics: Object.keys(topics).length } },
+    online: { global: { brokerUrl: "192.168.1.10", brokerUser: "hac" }, status: { state: "online", address: "192.168.1.10", topics: Object.keys(topics).length } },
     setup: { global: {}, status: { state: "unconfigured" } },
-    denied: { global: { brokerUrl: "192.168.1.10", brokerUser: "mqc" }, status: { state: "denied", address: "192.168.1.10" } },
+    denied: { global: { brokerUrl: "192.168.1.10", brokerUser: "hac" }, status: { state: "denied", address: "192.168.1.10" } },
 };
 
 const wss = new WebSocketServer({ port: WS_PORT });

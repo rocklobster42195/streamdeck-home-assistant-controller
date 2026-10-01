@@ -11,13 +11,13 @@ const quiet = { info: () => {}, warn: () => {} };
 
 beforeAll(async () => {
     aedes = await Aedes.createBroker({
-        authenticate: (_client, user, password, done) => done(null, !user || (user === "mqc" && password?.toString() === "secret")),
+        authenticate: (_client, user, password, done) => done(null, !user || (user === "hac" && password?.toString() === "secret")),
     });
     server = createServer(aedes.handle);
     await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
     port = (server.address() as { port: number }).port;
     // A retained state like a real device's
-    await new Promise<void>((r) => aedes.publish({ cmd: "publish", topic: "mqc/test/lamp", payload: Buffer.from('{"state":"ON"}'), qos: 0, retain: true, dup: false }, () => r()));
+    await new Promise<void>((r) => aedes.publish({ cmd: "publish", topic: "hac/test/lamp", payload: Buffer.from('{"state":"ON"}'), qos: 0, retain: true, dup: false }, () => r()));
 });
 
 afterAll(async () => {
@@ -36,18 +36,18 @@ const until = async (check: () => boolean, ms = 3000) => {
 describe("Broker", () => {
     it("connects, gets retained values and shares subscriptions", async () => {
         const b = new Broker(quiet);
-        b.subscribe("mqc/test/lamp", "key1");
-        b.subscribe("mqc/test/lamp", "key2");
+        b.subscribe("hac/test/lamp", "key1");
+        b.subscribe("hac/test/lamp", "key2");
         b.configure({ url: `127.0.0.1:${port}`, clientId: newClientId() });
         expect(b.state).toBe("connecting");
         await until(() => b.state === "online");
-        await until(() => !!b.value("mqc/test/lamp"));
-        expect(b.value("mqc/test/lamp")).toMatchObject({ payload: '{"state":"ON"}', retained: true });
+        await until(() => !!b.value("hac/test/lamp"));
+        expect(b.value("hac/test/lamp")).toMatchObject({ payload: '{"state":"ON"}', retained: true });
 
         // Publishing reaches subscribers; one owner leaving keeps the subscription
-        b.unsubscribe("mqc/test/lamp", "key1");
-        expect(b.publish("mqc/test/lamp", '{"state":"OFF"}')).toBe(true);
-        await until(() => b.value("mqc/test/lamp")?.payload === '{"state":"OFF"}');
+        b.unsubscribe("hac/test/lamp", "key1");
+        expect(b.publish("hac/test/lamp", '{"state":"OFF"}')).toBe(true);
+        await until(() => b.value("hac/test/lamp")?.payload === '{"state":"OFF"}');
         b.close();
     });
 
@@ -55,18 +55,18 @@ describe("Broker", () => {
         const b = new Broker(quiet);
         b.configure({ url: `mqtt://127.0.0.1:${port}`, clientId: newClientId() });
         await until(() => b.state === "online");
-        b.subscribe("mqc/test/later", "k");
+        b.subscribe("hac/test/later", "k");
         await new Promise((r) => setTimeout(r, 100));
-        b.publish("mqc/test/later", "21.5");
-        await until(() => b.value("mqc/test/later")?.payload === "21.5");
+        b.publish("hac/test/later", "21.5");
+        await until(() => b.value("hac/test/later")?.payload === "21.5");
         b.close();
     });
 
     it("reports a refused login as denied and stops", async () => {
         const b = new Broker(quiet);
-        b.configure({ url: `127.0.0.1:${port}`, user: "mqc", password: "wrong", clientId: newClientId() });
+        b.configure({ url: `127.0.0.1:${port}`, user: "hac", password: "wrong", clientId: newClientId() });
         await until(() => b.state === "denied");
-        b.configure({ url: `127.0.0.1:${port}`, user: "mqc", password: "secret", clientId: newClientId() });
+        b.configure({ url: `127.0.0.1:${port}`, user: "hac", password: "secret", clientId: newClientId() });
         await until(() => b.state === "online");
         b.close();
     });

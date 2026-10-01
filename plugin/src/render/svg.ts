@@ -1,9 +1,9 @@
-// Small SVG helpers for MQC's key images (144×144).
+// Small SVG helpers for HAC's key images (144×144).
 import { escapeXml, wrap } from "@rocklobster42195/streamdeck-kit";
 
 export const SIZE = 144;
 export const FONT = `font-family="Segoe UI, Arial, sans-serif"`;
-/** House palette Yellow Sea: MQ-C's colour, and the default "on" colour. */
+/** House palette Yellow Sea: HA-C's colour, and the default "on" colour. */
 export const ACCENT = "#F7A600";
 export const BG = "#101010";
 

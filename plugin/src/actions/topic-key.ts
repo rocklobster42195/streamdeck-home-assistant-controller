@@ -1,4 +1,4 @@
-// Base for MQC's keys: instances, the topics each one listens to (subscribed through the shared
+// Base for HAC's keys: instances, the topics each one listens to (subscribed through the shared
 // broker and released when the key goes away), a redraw when one of them or the broker's state
 // changes, and the device's availability. Subclasses draw the key and react to a press.
 import streamDeck, { type DidReceiveSettingsEvent, type KeyAction, type KeyDownEvent, SingletonAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";

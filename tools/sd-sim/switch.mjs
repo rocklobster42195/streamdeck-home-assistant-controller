@@ -1,7 +1,7 @@
 // Switch keys against an in-process broker (aedes) with invented devices: a zigbee2mqtt lamp that
 // confirms commands, a Tasmota plug that never answers (the key goes back after 3 s), a Shelly
 // that goes offline, and a key without a state topic. Also checks the settings panel's topic
-// search and scheme suggestion, and MQ-C's status on deckbus. Does not touch a real broker.
+// search and scheme suggestion, and HA-C's status on deckbus. Does not touch a real broker.
 //   node tools/sd-sim/switch.mjs [outDir]
 import { createServer } from "node:net";
 import path from "node:path";
@@ -43,7 +43,7 @@ const peer = new DeckBus({ id: "sim-listener", name: "Listener", version: "1", s
 await peer.start();
 await new Promise((r) => setTimeout(r, 1200));
 const before = new Set(peer.peers().map((p) => p.slot));
-const simMqc = () => peer.peers().find((p) => p.name === "MQ-C" && !before.has(p.slot));
+const simHac = () => peer.peers().find((p) => p.name === "HA-C" && !before.has(p.slot));
 
 const sim = await startSim({ language: "de", globalSettings: { brokerUrl: `127.0.0.1:${port}` } });
 try {
@@ -65,7 +65,7 @@ try {
         { stateTopic: "shellyplus1-a8/status/switch:0", commandTopic: "shellyplus1-a8/command/switch:0", field: "output", onValue: "true", offValue: "false", commandOn: "on", commandOff: "off", availabilityTopic: "shellyplus1-a8/online", label: "Shelly", colorOn: "#87AE73" },
         { column: 2 },
     );
-    const blind = sim.add("switch", { commandTopic: "mqc/test/gate", label: "Tor", iconOn: "mdiGarageOpen", iconOff: "mdiGarage" }, { column: 3 });
+    const blind = sim.add("switch", { commandTopic: "hac/test/gate", label: "Tor", iconOn: "mdiGarageOpen", iconOff: "mdiGarage" }, { column: 3 });
     const empty = sim.add("switch", {}, { column: 0, row: 1 });
     await sim.sleep(1500);
     await sim.snapshot(out, "1-start");
@@ -100,7 +100,7 @@ try {
     await sim.sleep(300);
     sim.press(blind);
     await sim.sleep(300);
-    const gate = received.filter((m) => m.topic === "mqc/test/gate").map((m) => m.payload);
+    const gate = received.filter((m) => m.topic === "hac/test/gate").map((m) => m.payload);
     check("the gate toggles without a state topic", gate.join(",") === "ON,OFF", gate.join(","));
     await sim.snapshot(out, "3-offline");
 
@@ -149,10 +149,10 @@ try {
     check("test: the silent plug gets no answer", t2?.outcome === "no-answer" && t2.sent?.topic === "cmnd/plug1/POWER", JSON.stringify(t2));
 
     // deckbus
-    await sim.waitFor(() => simMqc()?.state.status, 10000, "MQ-C on the bus");
-    const mqc = simMqc();
-    check("MQ-C reports the broker on deckbus", mqc.state.status.online === true, JSON.stringify(mqc.state.status));
-    check("MQ-C shares its visible keys", mqc.state.actions?.length === 5, JSON.stringify(mqc.state.actions?.length));
+    await sim.waitFor(() => simHac()?.state.status, 10000, "HA-C on the bus");
+    const hac = simHac();
+    check("HA-C reports the broker on deckbus", hac.state.status.online === true, JSON.stringify(hac.state.status));
+    check("HA-C shares its visible keys", hac.state.actions?.length === 5, JSON.stringify(hac.state.actions?.length));
 
     // Broker gone: every key greys out
     for (const c of aedes.connectedClients ? Object.values(aedes.clients) : []) c.close();

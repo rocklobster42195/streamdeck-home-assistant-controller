@@ -32,7 +32,7 @@ export type SwitchKeySettings = TopicKeySettings &
         valueThresholds?: JsonObject[];
     };
 
-@action({ UUID: "de.boriskemper.mqtt-controller.switch" })
+@action({ UUID: "de.boriskemper.ha-controller.switch" })
 export class SwitchKey extends TopicKey<SwitchKeySettings> {
     private readonly toggle = new Toggle((id) => {
         const inst = this.instances.get(id);

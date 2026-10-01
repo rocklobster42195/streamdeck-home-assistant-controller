@@ -1,7 +1,7 @@
 {
 	"Description": "Switch and show anything on your MQTT broker.",
-	"Name": "MQTT Controller",
-	"Category": "MQTT Controller",
+	"Name": "Home Assistant Controller",
+	"Category": "Home Assistant Controller",
 	"Localization": {
 		"Switch": "Switch",
 		"Switch a light or plug on and off, and see its state.": "Switch a light or plug on and off, and see its state.",

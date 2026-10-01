@@ -32,8 +32,8 @@ await publish("zigbee2mqtt/Ventilator", JSON.stringify({ fan_mode: "off", linkqu
 
 const sim = await startSim({ language: "de", globalSettings: { brokerUrl: `127.0.0.1:${port}` } });
 try {
-    const scene = sim.add("publish", { topic: "mqc/test/scene", payload: '{"scene":"Kino"}', label: "Kino", icon: "mdiMovieOpen", color: "#E14190" }, { column: 0 });
-    const gate = sim.add("publish", { topic: "mqc/test/gate", payload: "OPEN", label: "Tor", icon: "mdiGate", confirm: true }, { column: 1 });
+    const scene = sim.add("publish", { topic: "hac/test/scene", payload: '{"scene":"Kino"}', label: "Kino", icon: "mdiMovieOpen", color: "#E14190" }, { column: 0 });
+    const gate = sim.add("publish", { topic: "hac/test/gate", payload: "OPEN", label: "Tor", icon: "mdiGate", confirm: true }, { column: 1 });
     const fan = sim.add(
         "multi-state",
         {
@@ -57,19 +57,19 @@ try {
 
     sim.press(scene);
     await sim.sleep(300);
-    check("the scene key sends its payload", received.some((m) => m.topic === "mqc/test/scene" && m.payload === '{"scene":"Kino"}'));
+    check("the scene key sends its payload", received.some((m) => m.topic === "hac/test/scene" && m.payload === '{"scene":"Kino"}'));
     check("the scene key confirms", sim.state.slots.get(scene).oks === 1);
 
     sim.press(gate);
     await sim.sleep(300);
-    check("the gate does not send on the first press", !received.some((m) => m.topic === "mqc/test/gate"));
+    check("the gate does not send on the first press", !received.some((m) => m.topic === "hac/test/gate"));
     await sim.snapshot(out, "2-armed");
     sim.press(gate);
     await sim.sleep(300);
-    check("the gate sends on the second press", received.filter((m) => m.topic === "mqc/test/gate").length === 1);
+    check("the gate sends on the second press", received.filter((m) => m.topic === "hac/test/gate").length === 1);
     sim.press(gate);
     await sim.sleep(3300);
-    check("an armed gate disarms after 3 s", received.filter((m) => m.topic === "mqc/test/gate").length === 1);
+    check("an armed gate disarms after 3 s", received.filter((m) => m.topic === "hac/test/gate").length === 1);
 
     for (const want of ["low", "medium", "high", "off"]) {
         sim.press(fan);

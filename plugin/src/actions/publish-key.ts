@@ -23,7 +23,7 @@ export type PublishKeySettings = TopicKeySettings & {
 
 const ARM_MS = 3000;
 
-@action({ UUID: "de.boriskemper.mqtt-controller.publish" })
+@action({ UUID: "de.boriskemper.ha-controller.publish" })
 export class PublishKey extends TopicKey<PublishKeySettings> {
     /** Keys waiting for the confirming press, with the timer that disarms them. */
     private readonly armed = new Map<string, ReturnType<typeof setTimeout>>();

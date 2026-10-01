@@ -1,4 +1,4 @@
-// Home Assistant discovery on the broker: MQ-C listens to the (retained) config topics from the
+// Home Assistant discovery on the broker: HA-C listens to the (retained) config topics from the
 // start, and answers the settings panel's device picker: the entities that fit an action, grouped
 // by device, and the settings for the one the user picks.
 import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";

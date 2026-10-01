@@ -1,7 +1,7 @@
 {
-    "name": "mqc",
+    "name": "hac",
     "private": true,
-    "description": "MQ-C — MQTT Controller for Elgato Stream Deck (monorepo)",
+    "description": "HA-C — Home Assistant Controller for Elgato Stream Deck (monorepo)",
     "license": "MIT",
     "author": "Boris Kemper",
     "type": "module",
@@ -9,12 +9,12 @@
         "plugin"
     ],
     "scripts": {
-        "build": "npm run build -w mqc-plugin",
-        "watch": "npm run watch -w mqc-plugin",
+        "build": "npm run build -w hac-plugin",
+        "watch": "npm run watch -w hac-plugin",
         "test": "vitest run",
         "lint": "eslint plugin/src",
         "icons": "node tools/generate-icons.mjs",
-        "check": "npm run build && npm test && npm run lint && npm run validate -w mqc-plugin",
+        "check": "npm run build && npm test && npm run lint && npm run validate -w hac-plugin",
         "sim:switch": "node tools/sd-sim/switch.mjs sim-out",
         "sim:value": "node tools/sd-sim/value.mjs sim-out",
         "pi:preview": "node tools/pi-preview.mjs",

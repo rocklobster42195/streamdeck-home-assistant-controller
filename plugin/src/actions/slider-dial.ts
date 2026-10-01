@@ -70,7 +70,7 @@ type Instance = {
 const CONFIRM_MS = 3000;
 const ADJUST_MS = 1500;
 
-@action({ UUID: "de.boriskemper.mqtt-controller.slider" })
+@action({ UUID: "de.boriskemper.ha-controller.slider" })
 export class SliderDial extends SingletonAction<SliderDialSettings> {
     private readonly instances = new Map<string, Instance>();
     private readonly optimistic = new OptimisticStore<{ value: number | undefined }>();

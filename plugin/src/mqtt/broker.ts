@@ -12,7 +12,7 @@ export type BrokerConfig = {
     clientId: string;
 };
 
-/** "denied": the broker refused the login; MQC stops retrying until the settings change. */
+/** "denied": the broker refused the login; HAC stops retrying until the settings change. */
 export type BrokerState = "unconfigured" | "invalid" | "connecting" | "online" | "offline" | "denied";
 
 export type Message = { payload: string; retained: boolean; at: number };
@@ -173,7 +173,7 @@ export class Broker {
     }
 }
 
-/** A client id for this installation: "mqc-" and 8 random hex digits. */
+/** A client id for this installation: "hac-" and 8 random hex digits. */
 export function newClientId(): string {
-    return `mqc-${Math.random().toString(16).slice(2, 10).padEnd(8, "0")}`;
+    return `hac-${Math.random().toString(16).slice(2, 10).padEnd(8, "0")}`;
 }

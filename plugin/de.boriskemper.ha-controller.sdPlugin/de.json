@@ -1,7 +1,7 @@
 {
 	"Description": "Schalte und zeige alles auf deinem MQTT-Broker.",
-	"Name": "MQTT Controller",
-	"Category": "MQTT Controller",
+	"Name": "Home Assistant Controller",
+	"Category": "Home Assistant Controller",
 	"Localization": {
 		"Switch": "Schalter",
 		"Switch a light or plug on and off, and see its state.": "Schaltet eine Lampe oder Steckdose ein und aus und zeigt ihren Zustand.",
@@ -138,7 +138,7 @@
 			"no_topics": "Hier gibt es keine Topics.",
 			"pick": "Nehmen",
 			"listening": "Lausche: schalte das Gerät jetzt, von Hand oder in seiner App … {n} s",
-			"heard_nothing": "Nichts hat sich geändert. Versuch es noch einmal und schalte das Gerät, während MQ-C lauscht.",
+			"heard_nothing": "Nichts hat sich geändert. Versuch es noch einmal und schalte das Gerät, während HA-C lauscht.",
 			"heard": "Beim Lauschen geändert, das Wahrscheinlichste zuerst:",
 			"busy": "meldet ständig",
 			"test": "Testen",

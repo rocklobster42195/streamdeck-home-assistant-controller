@@ -1,6 +1,6 @@
 // Home Assistant entities on HA-C's keys, without Stream Deck: which domains fit which action, what
-// an entity's state means for the Switch key (on, off, unknown) and which service switches it,
-// what the Value key shows, and the icon HA would use.
+// an entity's state means for the Switch key (on, off, unknown) and which service switches it, which
+// service the Publish key calls, what the Value key shows, and the icon HA would use.
 import type { HassEntity } from "home-assistant-js-websocket";
 import { mdiName } from "../discovery/ha-config";
 import type { ActionKind } from "../discovery/ha-entities";
@@ -21,6 +21,9 @@ const SWITCHABLE: Record<string, { on: string; turnOn: string; turnOff: string }
 /** The "off" states per domain (anything else but "on" and these is unknown). */
 const OFF: Record<string, string[]> = { lock: ["unlocked"], cover: ["closed"] };
 
+/** Per domain: the service that runs it once (the Publish key). */
+const TRIGGERABLE: Record<string, string> = { scene: "turn_on", script: "turn_on", button: "press", input_button: "press", automation: "trigger" };
+
 const VALUE_DOMAINS = new Set(["sensor", "binary_sensor", "number", "input_number", "counter", "input_text", "input_select", "select", "weather", "sun"]);
 
 /** States meaning HA can't reach the device. */
@@ -30,10 +33,11 @@ export function domainOf(entityId: string): string {
     return entityId.split(".")[0];
 }
 
-/** The actions an entity fits (so far only Switch and Value use HA entities). */
+/** The actions an entity fits (so far Switch, Value and Publish use HA entities). */
 export function haFits(entityId: string): ActionKind[] {
     const d = domainOf(entityId);
     if (SWITCHABLE[d]) return ["switch"];
+    if (TRIGGERABLE[d]) return ["publish"];
     if (VALUE_DOMAINS.has(d)) return ["value"];
     return [];
 }
@@ -57,6 +61,12 @@ export function haSwitchService(entityId: string, turnOn: boolean): { domain: st
     const domain = domainOf(entityId);
     const sw = SWITCHABLE[domain];
     return sw ? { domain, service: turnOn ? sw.turnOn : sw.turnOff } : undefined;
+}
+
+/** The service that runs a scene, script, button or automation once; undefined for other domains. */
+export function haTriggerService(entityId: string): { domain: string; service: string } | undefined {
+    const domain = domainOf(entityId);
+    return TRIGGERABLE[domain] ? { domain, service: TRIGGERABLE[domain] } : undefined;
 }
 
 /**

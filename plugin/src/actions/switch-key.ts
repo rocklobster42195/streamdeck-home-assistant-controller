@@ -8,7 +8,8 @@ import { zoneColor } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiLightbulbOnOutline, mdiLightbulbOutline, mdiToggleSwitchOffOutline } from "@mdi/js";
 import { ha } from "../ha/connection";
-import { haIcon, haName, haRead } from "../ha/entities";
+import { haName, haRead } from "../ha/entities";
+import { haIconPath } from "../ha/icons";
 import type { SwitchTopics } from "../mqtt/switch-state";
 import { shownValue, zonesOf } from "../mqtt/value-state";
 import { ACCENT } from "../render/svg";
@@ -105,12 +106,13 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
         // The on colour follows the value's range, with the chosen on colour as the base
         const base = s.colorOn || ACCENT;
         const colorOn = value?.number !== undefined && s.valueThresholds?.length ? zoneColor(value.number, zonesOf(base, s.valueThresholds)) : base;
-        const haIconPath = fromHa ? mdiPath(haIcon(e)) : undefined;
+        // Lights keep the bulb that lights up; other domains get their own icon
+        const fromHaIcon = fromHa ? haIconPath(e, ["light"]) : undefined;
         return renderSwitchKey({
             state: fromHa ? this.haToggle.state(inst.id, s.entityId!) : this.toggle.state(inst.id, s),
             offline: this.isOffline(inst),
-            iconOn: mdiPath(s.iconOn) ?? haIconPath ?? mdiLightbulbOnOutline,
-            iconOff: mdiPath(s.iconOff) ?? mdiPath(s.iconOn) ?? haIconPath ?? mdiLightbulbOutline,
+            iconOn: mdiPath(s.iconOn) ?? fromHaIcon ?? mdiLightbulbOnOutline,
+            iconOff: mdiPath(s.iconOff) ?? mdiPath(s.iconOn) ?? fromHaIcon ?? mdiLightbulbOutline,
             colorOn,
             label: s.label?.trim() || (fromHa ? haName(e) : undefined),
             value: value ? `${value.text ?? "–"}${value.unit ? ` ${value.unit}` : ""}` : undefined,

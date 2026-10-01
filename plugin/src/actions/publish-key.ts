@@ -1,8 +1,12 @@
-// Publish key: sends a fixed payload (a scene, opening a gate, a JSON command) on every press.
-// With "confirm", the first press arms the key for 3 s and only a second press sends.
+// Publish key: runs something once on every press: an HA scene, script, button or automation, or a
+// fixed MQTT payload (a scene, opening a gate, a JSON command). With "confirm", the first press arms
+// the key for 3 s and only a second press sends.
 import streamDeck, { action } from "@elgato/streamdeck";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiGestureTapButton, mdiSend } from "@mdi/js";
+import { ha } from "../ha/connection";
+import { haName, haTriggerService } from "../ha/entities";
+import { haIconPath } from "../ha/icons";
 import { broker } from "../mqtt/connection";
 import { ACCENT } from "../render/svg";
 import { renderPublishKey } from "../render/publish-key";
@@ -28,6 +32,8 @@ export class PublishKey extends TopicKey<PublishKeySettings> {
     /** Keys waiting for the confirming press, with the timer that disarms them. */
     private readonly armed = new Map<string, ReturnType<typeof setTimeout>>();
 
+    protected override readonly haCapable = true;
+
     constructor() {
         super("publish");
     }
@@ -38,8 +44,10 @@ export class PublishKey extends TopicKey<PublishKeySettings> {
 
     protected override press(inst: KeyInstance<PublishKeySettings>): void {
         const s = inst.settings;
+        const fromHa = this.source(inst) === "ha";
         const topic = s.topic?.trim();
-        if (!topic) return void inst.action.showAlert();
+        const call = fromHa ? haTriggerService(s.entityId ?? "") : undefined;
+        if (fromHa ? !call : !topic) return void inst.action.showAlert();
         if (s.confirm && !this.armed.has(inst.id)) {
             this.armed.set(
                 inst.id,
@@ -52,9 +60,14 @@ export class PublishKey extends TopicKey<PublishKeySettings> {
             return;
         }
         this.disarm(inst);
-        if (!broker.publish(topic, s.payload ?? "", { retain: s.retain, qos: Number(s.qos ?? 0) as 0 | 1 | 2 })) return void inst.action.showAlert();
-        streamDeck.logger.info(`[publish] ${topic} ← ${s.payload ?? ""}`);
         this.render(inst);
+        if (call) {
+            streamDeck.logger.info(`[ha] ${call.domain}.${call.service} ${s.entityId}`);
+            void ha.call(call.domain, call.service, s.entityId!).then((ok) => void (ok ? inst.action.showOk() : inst.action.showAlert()));
+            return;
+        }
+        if (!broker.publish(topic!, s.payload ?? "", { retain: s.retain, qos: Number(s.qos ?? 0) as 0 | 1 | 2 })) return void inst.action.showAlert();
+        streamDeck.logger.info(`[publish] ${topic} ← ${s.payload ?? ""}`);
         void inst.action.showOk();
     }
 
@@ -65,12 +78,15 @@ export class PublishKey extends TopicKey<PublishKeySettings> {
     protected override image(inst: KeyInstance<PublishKeySettings>): string {
         const s = inst.settings;
         const t = (k: string) => streamDeck.i18n.t(k);
-        if (broker.state === "unconfigured" || broker.state === "invalid") return renderKeyHint(t("key.no_broker"), mdiSend, true);
-        if (!s.topic?.trim()) return renderKeyHint(t("key.choose_topic"), mdiSend);
+        const hint = this.sourceHint(inst, mdiSend);
+        if (hint) return hint;
+        const fromHa = this.source(inst) === "ha";
+        if (!fromHa && !s.topic?.trim()) return renderKeyHint(t("key.choose_topic"), mdiSend);
+        const e = fromHa ? this.entity(inst) : undefined;
         return renderPublishKey({
-            icon: mdiPath(s.icon) ?? mdiGestureTapButton,
+            icon: mdiPath(s.icon) ?? (fromHa ? haIconPath(e) : undefined) ?? mdiGestureTapButton,
             color: s.color || ACCENT,
-            label: s.label,
+            label: s.label?.trim() || (fromHa ? haName(e) : undefined),
             armed: this.armed.has(inst.id),
             armedText: t("key.press_again"),
             offline: this.isOffline(inst),

@@ -4,19 +4,16 @@
 // user picks.
 import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
-import { mdiEye, mdiFan, mdiGarage, mdiLightbulb, mdiLock, mdiPlaylistPlay, mdiRobot, mdiToggleSwitch, mdiWeatherPartlyCloudy } from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
 import { entities as mqttEntities } from "../discovery/ha-discovery";
 import { fits, settingsFor, type ActionKind, type HaEntity } from "../discovery/ha-entities";
 import { ha } from "../ha/connection";
 import type { HaRegistry } from "../ha/ha-connection";
-import { domainOf, haFits, haIcon, haName } from "../ha/entities";
+import { haFits, haName } from "../ha/entities";
+import { haListIcon } from "../ha/icons";
 import { broker } from "../mqtt/connection";
 import type { DeviceItem, PiPush } from "./protocol";
 
 const MAX_ITEMS = 80;
-
-const DOMAIN_ICONS: Record<string, string> = { light: mdiLightbulb, switch: mdiToggleSwitch, input_boolean: mdiToggleSwitch, fan: mdiFan, lock: mdiLock, cover: mdiGarage, automation: mdiRobot, weather: mdiWeatherPartlyCloudy, input_select: mdiPlaylistPlay, select: mdiPlaylistPlay };
 
 export function initDevicePicker(): void {
     piBridge.handle("devices", async (msg) => {
@@ -57,7 +54,8 @@ export function initDevicePicker(): void {
 /** A Home Assistant entity on a key: name, icon and unit come from HA live, so they are cleared. */
 function haSettings(entityId: string, action: ActionKind): Record<string, unknown> {
     const common = { source: "ha", entityId, haEntity: "", label: "" };
-    return action === "switch" ? { ...common, iconOn: "", iconOff: "" } : { ...common, icon: "", unit: "" };
+    if (action === "switch") return { ...common, iconOn: "", iconOff: "" };
+    return action === "value" ? { ...common, icon: "", unit: "" } : { ...common, icon: "" };
 }
 
 async function haItems(action: ActionKind): Promise<DeviceItem[]> {
@@ -87,7 +85,7 @@ async function haItems(action: ActionKind): Promise<DeviceItem[]> {
             group: area,
             sub: [deviceName && !name.startsWith(deviceName) ? deviceName : "", e.entity_id].filter(Boolean).join(" · "),
             extra: !!entry?.entity_category,
-            icon: haIconPath(e),
+            icon: haListIcon(e),
             search: `${name} ${e.entity_id} ${deviceName} ${area}`.toLowerCase(),
             sortArea: area,
             sortDevice: deviceName,
@@ -97,10 +95,6 @@ async function haItems(action: ActionKind): Promise<DeviceItem[]> {
     // Areas alphabetically, entities without an area last; then device, main entities first, name
     items.sort((a, b) => Number(!a.sortArea) - Number(!b.sortArea) || cmp(a.sortArea, b.sortArea) || cmp(a.sortDevice, b.sortDevice) || Number(a.extra) - Number(b.extra) || cmp(a.name, b.name));
     return items.map(({ sortArea: _a, sortDevice: _d, ...it }) => it);
-}
-
-function haIconPath(e: HassEntity): string | undefined {
-    return mdiPath(haIcon(e)) ?? DOMAIN_ICONS[domainOf(e.entity_id)] ?? mdiEye;
 }
 
 /** Devices alphabetically; within one, the main entities before config/diagnostic ones. */

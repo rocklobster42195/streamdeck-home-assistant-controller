@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { sourceOf } from "../source";
-import { haFits, haIcon, haName, haSwitchService, haAttributes, haRead, haSwitchState, isUnavailable } from "./entities";
+import { haFits, haIcon, haName, haSwitchService, haAttributes, haRead, haSwitchState, haTriggerService, isUnavailable } from "./entities";
 
 const entity = (entity_id: string, state: string, attributes: Record<string, unknown> = {}): HassEntity => ({ entity_id, state, attributes, last_changed: "", last_updated: "", context: { id: "", user_id: null, parent_id: null } });
 
@@ -11,8 +11,9 @@ describe("HA entities on keys", () => {
         expect(haFits("lock.door")).toEqual(["switch"]);
         expect(haFits("sensor.temp")).toEqual(["value"]);
         expect(haFits("binary_sensor.window")).toEqual(["value"]);
-        expect(haFits("scene.evening")).toEqual([]);
-        expect(haFits("automation.morning")).toEqual([]);
+        expect(haFits("scene.evening")).toEqual(["publish"]);
+        expect(haFits("automation.morning")).toEqual(["publish"]);
+        expect(haFits("person.boris")).toEqual([]);
     });
 
     it("reads on, off and unknown per domain", () => {
@@ -33,6 +34,15 @@ describe("HA entities on keys", () => {
         expect(haSwitchService("lock.door", true)).toEqual({ domain: "lock", service: "lock" });
         expect(haSwitchService("cover.garage", false)).toEqual({ domain: "cover", service: "close_cover" });
         expect(haSwitchService("sensor.temp", true)).toBeUndefined();
+    });
+
+    it("runs scenes, scripts, buttons and automations once", () => {
+        expect(haTriggerService("scene.evening")).toEqual({ domain: "scene", service: "turn_on" });
+        expect(haTriggerService("script.goodnight")).toEqual({ domain: "script", service: "turn_on" });
+        expect(haTriggerService("button.restart")).toEqual({ domain: "button", service: "press" });
+        expect(haTriggerService("input_button.bell")).toEqual({ domain: "input_button", service: "press" });
+        expect(haTriggerService("automation.morning")).toEqual({ domain: "automation", service: "trigger" });
+        expect(haTriggerService("light.desk")).toBeUndefined();
     });
 
     it("shows the value with HA's unit, nothing while unavailable", () => {

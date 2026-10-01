@@ -9,7 +9,7 @@ import { sourceOf } from "../source";
 
 const filled = (v: unknown): boolean => typeof v === "string" && v.trim() !== "";
 /** Actions that can show HA entities yet; the others stay with MQTT. */
-const HA_ACTIONS = new Set(["switch", "value"]);
+const HA_ACTIONS = new Set(["switch", "value", "publish"]);
 
 export class HacDevice extends HTMLElement {
     private items: DeviceItem[] = [];

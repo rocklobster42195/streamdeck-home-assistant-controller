@@ -1,5 +1,6 @@
 // The settings window's menu: the visible sections (device, the pi-sections, the connections), as a
-// bar at the top that stays while scrolling, or a fixed column on the left in a wide window. A click
+// bar at the top that wraps and stays while scrolling, or a fixed column on the left in a window
+// wider than Stream Deck's usual 500 px. A click
 // scrolls to one; the one in view is highlighted (scroll spy). Sections hidden for this key (e.g. MQTT topics of an HA key) are left out.
 import { escapeHtml, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
 
@@ -8,9 +9,7 @@ type Entry = { el: HTMLElement; title: string };
 export function initWindowNav(): void {
     const nav = document.createElement("nav");
     nav.className = "hac-window-nav";
-    const title = document.querySelector(".hac-window-title");
-    if (title) title.after(nav);
-    else document.body.prepend(nav);
+    document.body.prepend(nav);
     let entries: Entry[] = [];
     // Ids stay once given; a counter, as sections appear later (the picker after its first answer)
     let nextId = 0;
@@ -21,7 +20,8 @@ export function initWindowNav(): void {
         document.querySelectorAll<HTMLElement>("hac-device, pi-section, #connections").forEach((el) => {
             if (el.hidden || el.closest("[hidden]") || getComputedStyle(el).display === "none") return;
             const title = el.id === "connections" ? t("pi.connections") : el.tagName === "HAC-DEVICE" ? t("pi.pick_device") : (el.querySelector(":scope > .pi-section-title")?.textContent ?? "");
-            if (title) out.push({ el, title });
+            // Short entries: "Second line (optional)" → "Second line"
+            if (title) out.push({ el, title: title.replace(/\s*\(.*\)\s*$/, "") });
         });
         return out;
     };

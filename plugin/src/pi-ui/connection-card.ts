@@ -97,6 +97,8 @@ abstract class SourceCard<S extends { state: State; address?: string; error?: st
         toggle.hidden = state !== "online" && !aside;
         toggle.textContent = this.expanded ? t("pi.done") : aside ? t("pi.set_up") : t("pi.change");
         this.querySelector<HTMLElement>(".hac-conn-body")!.hidden = (state === "online" || aside) && !this.expanded;
+        // Changed settings connect by themselves; the button is for trying again after a failure
+        this.querySelector<HTMLElement>(".hac-connect")!.parentElement!.hidden = state === "online" || state === "connecting";
     }
 }
 

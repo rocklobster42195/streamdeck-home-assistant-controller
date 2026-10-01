@@ -5,10 +5,13 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- The settings window fits Stream Deck's fixed 500 × 650 window: no page title, the menu is one wrapping bar at the top with short names.
+- The connection cards show "Connect" only to try again after a failure; changed settings connect by themselves.
 - The settings say "MQTT broker" and "MQTT device", to keep MQTT apart from the Home Assistant connection.
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- **No name on a key:** "No name" under the name field hides it, also the one from Home Assistant; an empty name field shows HA's.
 - **Slider dial with Home Assistant:** lights (brightness in %, 0 % switches off), fans (speed), covers (position) with push to switch on and off; thermostats (setpoint within HA's limits, room temperature on the arc); `number` / `input_number` with their own range, step and unit. Lights that can only switch stay off the dial.
 - The half circle on the dial sits a little higher, so the range under its ends is easy to read.
 - **Multi-state key with Home Assistant:** steps through the options of a select or input select (`select_option`); picking one fills in the states from its options, each with a colour.

@@ -33,7 +33,7 @@ import { renderSliderDial, renderSliderMessage } from "../render/slider-dial";
 import { pressListenTopic, pressState, runPress, type PressSettings } from "./press-action";
 import { HaToggle } from "./ha-toggle";
 import { Toggle } from "./toggle";
-import { sourceOf, type SourceSettings } from "../source";
+import { keyLabel, sourceOf, type SourceSettings } from "../source";
 import { syncTopics } from "./topic-key";
 
 export type SliderDialSettings = JsonObject &
@@ -264,7 +264,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             actual: d?.actual,
             actualText: d?.actual === undefined ? undefined : formatNumber(d.actual, 0.1, s.decimals),
             unit: s.unit?.trim() || d?.unit || (d?.actual !== undefined || e?.entity_id.startsWith("climate.") ? "°C" : undefined),
-            label: s.label?.trim() || haName(e),
+            label: keyLabel(s, haName(e)),
             icon: mdiPath(s.icon) ?? haIconPath(e),
             min: r.min,
             max: r.max,
@@ -294,7 +294,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             actual: actual?.number,
             actualText: actual?.text,
             unit: s.percent ? "%" : s.unit,
-            label: s.label,
+            label: keyLabel(s),
             icon: mdiPath(s.icon),
             min: r.min,
             max: r.max,

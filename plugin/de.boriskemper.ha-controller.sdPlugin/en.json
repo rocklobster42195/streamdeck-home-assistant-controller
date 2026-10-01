@@ -26,7 +26,7 @@
 			"off_value": "Value for off",
 			"display": "Display",
 			"label": "Name",
-			"label_placeholder": "Shown under the icon",
+			"label_placeholder": "Empty: the name from Home Assistant",
 			"icon_on": "Icon when on",
 			"icon_off": "Icon when off",
 			"color_on": "Colour when on",
@@ -202,7 +202,8 @@
 			"value_line_ha_hint": "Shown under the icon, e.g. the light's brightness or the plug's power (another entity).",
 			"connections": "Connections",
 			"step_from_ha": "From Home Assistant",
-			"slider_ha_hint": "Range, step and unit come from Home Assistant: lights, fans and covers in % (push switches them on and off), a thermostat with its setpoint and the room temperature on the arc, numbers with their own range. A step of your own, e.g. 1, replaces HA's."
+			"slider_ha_hint": "Range, step and unit come from Home Assistant: lights, fans and covers in % (push switches them on and off), a thermostat with its setpoint and the room temperature on the arc, numbers with their own range. A step of your own, e.g. 1, replaces HA's.",
+			"hide_label": "No name"
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

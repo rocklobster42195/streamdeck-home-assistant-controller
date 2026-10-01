@@ -1,7 +1,7 @@
 // Entry of the property inspector bundle (ui/pi.js): the kit's components plus HA-C's connection
 // cards (Home Assistant, MQTT broker), topic field and JSON field picker. The same page runs as the
 // short PI and, with "?window", as the settings window (see window.ts).
-import { definePiComponents, escapeHtml, initConditionalVisibility, sd, t, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
+import { definePiComponents, initConditionalVisibility, sd, t, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
 import { mdiCancel, mdiChartDonut, mdiFormatText, mdiGauge, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
 import { HacConnectionCard, HacHaCard } from "./connection-card";
 import { HacDevice } from "./device-picker";
@@ -47,10 +47,10 @@ sd.onReady(() => {
     );
     document.body.hidden = false;
     if (isSettingsWindow()) {
-        const title = `HA-C · ${t(document.body.dataset.title ?? "")}`;
-        document.title = title;
-        document.body.insertAdjacentHTML("afterbegin", `<div class="hac-window-title">${escapeHtml(title)}</div>`);
+        // The name goes into the window's title bar; the page itself starts with the menu
+        document.title = `HA-C · ${t(document.body.dataset.title ?? "")}`;
         initWindowNav();
+        // Stream Deck opens windows at 500×650 and ignores sizes and resizeTo; the size is logged
         sd.sendToPlugin({ event: "window-opened", width: window.innerWidth, height: window.innerHeight, scale: window.devicePixelRatio });
         // The section asked for ("#connections") exists only now
         if (location.hash) document.querySelector(location.hash)?.scrollIntoView();

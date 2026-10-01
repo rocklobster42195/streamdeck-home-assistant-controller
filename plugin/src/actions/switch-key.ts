@@ -16,6 +16,7 @@ import { ACCENT } from "../render/svg";
 import { renderKeyHint, renderSwitchKey } from "../render/switch-key";
 import { HaToggle } from "./ha-toggle";
 import { Toggle } from "./toggle";
+import { keyLabel } from "../source";
 import { TopicKey, type KeyInstance, type TopicKeySettings } from "./topic-key";
 
 export type SwitchKeySettings = TopicKeySettings &
@@ -114,7 +115,7 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
             iconOn: mdiPath(s.iconOn) ?? fromHaIcon ?? mdiLightbulbOnOutline,
             iconOff: mdiPath(s.iconOff) ?? mdiPath(s.iconOn) ?? fromHaIcon ?? mdiLightbulbOutline,
             colorOn,
-            label: s.label?.trim() || (fromHa ? haName(e) : undefined),
+            label: keyLabel(s, fromHa ? haName(e) : undefined),
             value: value ? `${value.text ?? "–"}${value.unit ? ` ${value.unit}` : ""}` : undefined,
         });
     }

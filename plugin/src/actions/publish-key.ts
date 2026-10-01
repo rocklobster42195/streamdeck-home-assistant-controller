@@ -11,6 +11,7 @@ import { broker } from "../mqtt/connection";
 import { ACCENT } from "../render/svg";
 import { renderPublishKey } from "../render/publish-key";
 import { renderKeyHint } from "../render/switch-key";
+import { keyLabel } from "../source";
 import { TopicKey, type KeyInstance, type TopicKeySettings } from "./topic-key";
 
 export type PublishKeySettings = TopicKeySettings & {
@@ -86,7 +87,7 @@ export class PublishKey extends TopicKey<PublishKeySettings> {
         return renderPublishKey({
             icon: mdiPath(s.icon) ?? (fromHa ? haIconPath(e) : undefined) ?? mdiGestureTapButton,
             color: s.color || ACCENT,
-            label: s.label?.trim() || (fromHa ? haName(e) : undefined),
+            label: keyLabel(s, fromHa ? haName(e) : undefined),
             armed: this.armed.has(inst.id),
             armedText: t("key.press_again"),
             offline: this.isOffline(inst),

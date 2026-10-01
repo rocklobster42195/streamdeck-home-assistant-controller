@@ -4,6 +4,8 @@ Switch and show your smart home on your Stream Deck: lights, plugs, sensors, sce
 
 > Unofficial community plugin. Not affiliated with Elgato or Home Assistant / the Open Home Foundation.
 
+**Looking for something simpler?** If you only use Home Assistant and want a lean, proven plugin, have a look at the [Home Assistant plugin by cgiesche](https://github.com/cgiesche/streamdeck-homeassistant): it has been around for years and does the basics very well. HA-C's focus is different: Home Assistant and MQTT side by side, gauges and dials, and working together with the other plugins of its family.
+
 **Status:** early. All actions work with MQTT: Switch, Value, Publish and Multi-state keys and the Slider dial. Switch and Value keys also work with Home Assistant entities; the other actions follow.
 
 ## Contents

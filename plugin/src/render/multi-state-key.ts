@@ -1,7 +1,8 @@
 // The Multi-state key: the current state's icon in its colour, its name below, and a row of dots
 // that shows where it is in the list. Unknown: grey with a question mark; offline: dimmed.
+import { keyCaption } from "@rocklobster42195/streamdeck-kit";
 import { mdiCloudOffOutline, mdiHelpCircleOutline } from "@mdi/js";
-import { BG, icon, lines, SIZE, svgUri } from "./svg";
+import { BG, icon, SIZE, svgUri } from "./svg";
 
 export type MultiStateKeyView = {
     /** -1 when the device reports none of the states. */
@@ -21,7 +22,7 @@ export function renderMultiStateKey(v: MultiStateKeyView): string {
     const ink = v.offline || !known ? DIM : v.color;
     const parts = [`<rect width="${SIZE}" height="${SIZE}" fill="${BG}"/>`];
     parts.push(icon(v.icon, 34, 4, 76, ink, v.offline ? 0.35 : 1));
-    if (v.text) parts.push(...lines(v.text, 100, 18, v.offline ? DIM : "#FFFFFF", 1, 700));
+    if (v.text) parts.push(keyCaption(v.text, v.offline || !known ? DIM : v.color, { y: 104, max: 22, min: 13 }));
     // One dot per state, the current one filled in its colour
     const n = Math.min(v.count, 8);
     const gap = 14;

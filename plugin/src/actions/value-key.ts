@@ -18,7 +18,6 @@ import { renderValueKey } from "../render/value-key";
 import { pressListenTopic, pressState, runPress, type PressSettings } from "./press-action";
 import { HaToggle } from "./ha-toggle";
 import { Toggle } from "./toggle";
-import { keyLabel } from "../source";
 import { TopicKey, type KeyInstance, type TopicKeySettings } from "./topic-key";
 
 export type ValueKeySettings = TopicKeySettings &
@@ -136,7 +135,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
             number: v.number,
             unit: s.unit?.trim() || (fromHa ? haV.unit : undefined),
             second: this.second(inst, fromHa),
-            label: keyLabel(s, fromHa ? haName(e) : undefined),
+            label: this.label(inst, fromHa ? haName(e) : undefined),
             icon: mdiPath(s.icon) ?? (fromHa ? haIconPath(e) : undefined),
             zones: zonesOf(s.color || "#FFFFFF", s.thresholds),
             min: numberSetting(s.min, 0),

@@ -80,6 +80,10 @@ Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's
 - **In percent:** devices count brightness differently (zigbee2mqtt 0–254, Homematic 0–255, others 0–100). Enter the device's range as minimum and maximum and switch on "Show in percent": the dial shows 0–100 % and sends in the device's range.
 - **With Home Assistant:** pick a light, fan, cover, thermostat or number. Range, step and unit come from HA, so there is nothing to set up. *How it works:* a light turns its brightness in percent (`light.turn_on` with `brightness_pct`; 0 % switches it off), a fan its speed (`fan.set_percentage`), a cover its position (`cover.set_cover_position`); a push switches them on and off (open and close). A thermostat turns its setpoint (`climate.set_temperature`) within HA's limits and steps, the arc shows the room temperature, and a push steps through its modes as HA lists them (`climate.set_hvac_mode`, e.g. auto → heat → off); the dial looks like HA's thermostat card (a ring with a handle at the setpoint and a dot at the room temperature, the mode above the setpoint) and dims while the thermostat is off. `number` and `input_number` entities use `set_value` with their own range. A step of your own (e.g. 1 %) replaces HA's.
 
+### Names on keys
+
+HA-C writes the key's name under its icon: your own, or the one from Home Assistant. **No name** hides it. If you type a **title** in Stream Deck instead, HA-C leaves its own name out, so the two never overlap.
+
 ## Setting up a key
 
 **With Home Assistant:** if your devices announce themselves through Home Assistant's MQTT discovery (zigbee2mqtt does by default, as do Tasmota, ESPHome, AWTRIX and many others), the settings start with **Home Assistant device**. Search "living room", pick the entity, done: topics, values, JSON fields, availability, its icon and name are filled in. Each action lists only what fits it: lights and switches for the Switch key, sensors for Value, buttons and scenes for Trigger, selects for Multi-state, numbers, light brightness and thermostats for the Slider dial. A light on the Slider dial is set up in percent, with push switching it on and off.

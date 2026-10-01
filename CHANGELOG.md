@@ -5,6 +5,8 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- **The family's key look** (the kit's key style, as MA-C): a switched-on key gets a tinted plate and a rounded frame in its colour; names are bold captions in the icon's colour, cut with "…" when too long.
+- **A Stream Deck title replaces HA-C's name:** while you type a title in Stream Deck, the key draws no name of its own, so the two never overlap.
 - Shorter settings panels: icon pickers move to the settings window ("Icons"); the Trigger key's "Ask first" gets its own section; the Multi-state panel shows its states in one line, a click opens the window at them.
 - A typed zigbee2mqtt topic suggests `…/availability` only when something is there (availability may be off for the device).
 - The half circle on the dial no longer draws the icon over the name.

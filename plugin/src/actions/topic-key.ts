@@ -3,7 +3,7 @@
 // a redraw when its entity, one of its topics or a connection changes, and the device's
 // availability. Subclasses draw the key and react to a press.
 import { isFeedbackPlaying, playFeedback, type FeedbackKind } from "@rocklobster42195/streamdeck-kit";
-import streamDeck, { type DidReceiveSettingsEvent, type KeyAction, type KeyDownEvent, SingletonAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
+import streamDeck, { type DidReceiveSettingsEvent, type KeyAction, type KeyDownEvent, SingletonAction, type TitleParametersDidChangeEvent, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { ha } from "../ha/connection";
@@ -12,7 +12,7 @@ import { broker } from "../mqtt/connection";
 import { isUnavailable } from "../mqtt/schemes";
 import { BG } from "../render/svg";
 import { renderKeyHint } from "../render/switch-key";
-import { sourceOf, type Source, type SourceSettings } from "../source";
+import { keyLabel, sourceOf, type Source, type SourceSettings } from "../source";
 
 export type TopicKeySettings = SourceSettings & {
     /** Topic that reports whether the device is reachable ("online"/"offline"). */
@@ -25,6 +25,8 @@ export type KeyInstance<S extends JsonObject> = {
     settings: S;
     topics: Set<string>;
     lastImage?: string;
+    /** The title the user typed in Stream Deck: it is drawn over the key, so HA-C draws no name then. */
+    title?: string;
     /** The HA entities last drawn, to redraw only when one of them changes. */
     seen?: (HassEntity | undefined)[];
 };
@@ -135,6 +137,18 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
         inst.settings = ev.payload.settings;
         this.listen(inst);
         this.render(inst);
+    }
+
+    override onTitleParametersDidChange(ev: TitleParametersDidChangeEvent<S>): void {
+        const inst = this.instances.get(ev.action.id);
+        if (!inst) return;
+        inst.title = ev.payload.title?.trim() || undefined;
+        this.render(inst);
+    }
+
+    /** The name to draw: none when a Stream Deck title is set, else the key's own or `fallback` (HA's). */
+    protected label(inst: KeyInstance<S>, fallback?: string): string | undefined {
+        return inst.title ? undefined : keyLabel(inst.settings, fallback);
     }
 
     override onKeyDown(ev: KeyDownEvent<S>): void {

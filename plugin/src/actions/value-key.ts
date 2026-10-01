@@ -1,20 +1,22 @@
 // Value key: shows a value with its unit (temperature, power, humidity, a door's state) from a Home
 // Assistant entity or an MQTT topic, as large text or on a half-circle gauge, coloured by the user's
 // colour ranges; with HA, the state or one of the entity's attributes. Optionally a second, smaller
-// value below (another attribute or entity, or another topic). A press can do nothing,
+// value below (another attribute or entity, or another topic). A press (HA: on another entity, MQTT:
+// on topics) can do nothing,
 // switch something on and off (framed while on), or send a fixed payload.
 import streamDeck, { action } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiThermometer } from "@mdi/js";
 import { ha } from "../ha/connection";
-import { haName } from "../ha/entities";
+import { haName, haTriggerService } from "../ha/entities";
 import { haIconPath } from "../ha/icons";
 import { numberSetting, shownValue, zonesOf } from "../mqtt/value-state";
 import { ACCENT } from "../render/svg";
 import { renderKeyHint } from "../render/switch-key";
 import { renderValueKey } from "../render/value-key";
 import { pressListenTopic, pressState, runPress, type PressSettings } from "./press-action";
+import { HaToggle } from "./ha-toggle";
 import { Toggle } from "./toggle";
 import { keyLabel } from "../source";
 import { TopicKey, type KeyInstance, type TopicKeySettings } from "./topic-key";
@@ -34,6 +36,8 @@ export type ValueKeySettings = TopicKeySettings &
         thresholds?: JsonObject[];
         icon?: string;
         label?: string;
+        /** HA: what a press switches ("toggle") or runs ("send"): a light, a scene, … */
+        pressEntityId?: string;
         /** HA: the attribute to show instead of the state. */
         attribute?: string;
         /** Second value. HA: an entity (empty: the key's own) and attribute; MQTT: a topic and field. */
@@ -47,10 +51,8 @@ export type ValueKeySettings = TopicKeySettings &
 
 @action({ UUID: "de.boriskemper.ha-controller.value" })
 export class ValueKey extends TopicKey<ValueKeySettings> {
-    private readonly toggle = new Toggle((id) => {
-        const inst = this.instances.get(id);
-        if (inst) this.render(inst);
-    });
+    private readonly toggle = new Toggle((id) => this.redraw(id));
+    private readonly haToggle = new HaToggle((id) => this.redraw(id));
 
     protected override readonly haCapable = true;
 
@@ -63,12 +65,11 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
     }
 
     protected override moreEntities(s: ValueKeySettings): (string | undefined)[] {
-        return [s.secondEntityId];
+        return [s.secondEntityId, s.pressAction === "toggle" ? s.pressEntityId : undefined];
     }
 
     protected override press(inst: KeyInstance<ValueKeySettings>): void {
-        // The press action works on MQTT topics; HA entities get theirs later
-        if (this.source(inst) === "ha") return;
+        if (this.source(inst) === "ha") return this.pressHa(inst);
         const result = runPress(inst.settings, this.toggle, inst.id, "value");
         if (result === "failed") this.feedback(inst, "alert");
         else if (result === "ok") this.feedback(inst, "ok", inst.settings.pressColor || ACCENT);
@@ -77,6 +78,29 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
 
     protected override disappeared(inst: KeyInstance<ValueKeySettings>): void {
         this.toggle.forget(inst.id);
+        this.haToggle.forget(inst.id);
+    }
+
+    private redraw(id: string): void {
+        const inst = this.instances.get(id);
+        if (inst) this.render(inst);
+    }
+
+    /** HA press: switch another entity on and off, or run a scene, script, button or automation. */
+    private pressHa(inst: KeyInstance<ValueKeySettings>): void {
+        const s = inst.settings;
+        const target = s.pressEntityId?.trim();
+        if (!s.pressAction || s.pressAction === "none") return;
+        if (!target) return this.feedback(inst, "alert");
+        if (s.pressAction === "toggle") {
+            if (!this.haToggle.press(inst.id, target)) this.feedback(inst, "alert");
+            this.render(inst);
+            return;
+        }
+        const call = haTriggerService(target);
+        if (!call) return this.feedback(inst, "alert");
+        streamDeck.logger.info(`[ha] ${call.domain}.${call.service} ${target}`);
+        void ha.call(call.domain, call.service, target).then((ok) => this.feedback(inst, ok ? "ok" : "alert", s.pressColor || ACCENT));
     }
 
     /** The second value with its unit; undefined when none is set up. */
@@ -105,7 +129,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         const e = fromHa ? this.entity(inst) : undefined;
         const haV = ha.read(e, s.attribute);
         const v = fromHa ? shownValue(haV.payload, undefined, s.decimals) : shownValue(this.payload(s.stateTopic), s.field, s.decimals);
-        const toggled = fromHa ? undefined : pressState(s, this.toggle, inst.id);
+        const toggled = fromHa ? (s.pressAction === "toggle" && s.pressEntityId?.trim() ? this.haToggle.state(inst.id, s.pressEntityId.trim()) : undefined) : pressState(s, this.toggle, inst.id);
         return renderValueKey({
             look: s.look === "gauge" ? "gauge" : "text",
             text: v.text,

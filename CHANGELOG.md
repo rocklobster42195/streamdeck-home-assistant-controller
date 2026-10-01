@@ -5,8 +5,9 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- A typed zigbee2mqtt topic suggests `…/availability` only when something is there (availability may be off for the device).
 - The half circle on the dial no longer draws the icon over the name.
-- Keys confirm in their own colour instead of Stream Deck's green check: a disc grows, a white check mark draws itself (Trigger in its colour, Yellow Sea by default); errors show an exclamation mark on red instead of the yellow triangle. The Slider dial keeps Stream Deck's alert on its touch strip.
+- Keys confirm in their own colour instead of Stream Deck's green check: a disc grows, a white check mark draws itself (Trigger in its colour, Yellow Sea by default); errors show an exclamation mark on red instead of the yellow triangle. The Slider dial shows the red alert on its touch strip too.
 - A key that isn't set up yet says so under its blue "Set up …" button (pick a device, or set it up with a topic).
 - The device picker also finds entities by their kind, in German and English: "Thermostat" or "Heizung" finds every climate entity, "Rollladen" every cover, "Lampe" every light.
 - The device picker lists up to 300 entities without a search (was 80), so entities without an area at the end aren't cut off.
@@ -19,6 +20,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- **Value key press with Home Assistant:** "Switch" toggles another HA entity (a light, plug, lock …; the frame shows whether it is on), "Trigger" runs a scene, script, button or automation. The press choice's third tile is called "Trigger" now.
 - **Slider dial looks:** the open ring (Home Assistant's style, the kit's `openRing`) is the default now: the value with a handle, the unit raised, "Off" while off; a thermostat shows its setpoint, a dot and the room temperature in the gap, and its mode on top. Half circle, ring (MA-C) and **pie** (Sonos Controller) stay to choose.
 - **Colour picker** (from the kit) everywhere a colour is chosen, including the Multi-state states and the colour ranges: 17 standard colours, recent colours, colour wheel with brightness, hex and R/G/B.
 - Slider dial on a thermostat: a push steps through its modes (auto → heat → off, as HA lists them); the mode shows in the corner in HA's words, the dial dims while off.

@@ -45,6 +45,7 @@ Shows a value with its unit: a temperature, power, humidity, a door's state.
 - Decimals as the device sends them, or rounded to a number you choose. Text that isn't a number ("open") shows as it is.
 - Offline look like the Switch key; a dash until the first value arrives.
 - **On press** (optional): **Switch** something on and off, e.g. the plug whose power the key shows; the key gets a frame while it is on. Or **Send** a fixed payload to a topic, e.g. a heating boost.
+- **On press with Home Assistant:** *Switch* toggles another entity (e.g. the light in the room whose temperature the key shows; a frame in your colour shows when it is on), *Trigger* runs a scene, script, button or automation.
 
 ### Trigger *(key)*
 

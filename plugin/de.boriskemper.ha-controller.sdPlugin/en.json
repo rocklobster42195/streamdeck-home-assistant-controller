@@ -110,7 +110,7 @@
 			"on_press": "On press",
 			"press_none": "Nothing",
 			"press_toggle": "Switch",
-			"press_send": "Send",
+			"press_send": "Trigger",
 			"press_state_topic": "State of what is switched",
 			"press_state_topic_hint": "E.g. the plug whose power the key shows. Framed on the key while on.",
 			"frame_color": "Frame when on",
@@ -206,7 +206,10 @@
 			"hide_label": "No name",
 			"set_up_hint": "Not set up yet: pick a device above, or set the key up here (e.g. with an MQTT topic).",
 			"look_open": "Open",
-			"look_pie": "Pie"
+			"look_pie": "Pie",
+			"press_entity": "Entity",
+			"press_entity_placeholder": "e.g. light.living_room or scene.cinema",
+			"press_entity_hint": "Switch: a light, plug, lock … (the frame shows whether it is on). Trigger: a scene, script, button or automation."
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

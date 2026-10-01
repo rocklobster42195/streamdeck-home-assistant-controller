@@ -12,7 +12,7 @@ import { shortHaAddress } from "../ha/url";
 import { findHomeAssistants } from "../ha/zeroconf";
 import { broker } from "../mqtt/connection";
 import { jsonFields } from "../mqtt/payload";
-import { suggestForTopic } from "../mqtt/schemes";
+import { suggestForTopic, type TopicSuggestion } from "../mqtt/schemes";
 import { shortAddress } from "../mqtt/url";
 import { initHaDiscovery } from "../discovery/ha-discovery";
 import { initDevicePicker } from "./devices";
@@ -50,7 +50,7 @@ export function initPiBridge(): void {
     piBridge.handle("topic-info", async (msg) => {
         const topic = String(msg.topic ?? "").trim();
         const payload = topic ? broker.value(topic)?.payload : undefined;
-        const info = { topic, payload, fields: payload ? jsonFields(payload) : [], suggestion: topic ? suggestForTopic(topic, payload) : undefined };
+        const info = { topic, payload, fields: payload ? jsonFields(payload) : [], suggestion: topic ? withKnownAvailability(suggestForTopic(topic, payload)) : undefined };
         await piBridge.reply(json({ event: "topic-info-result", requestId: msg.requestId as number, info }));
     });
     initExplore();
@@ -66,6 +66,15 @@ export function initPiBridge(): void {
 
 function status(): ConnectionStatus {
     return { state: broker.state, address: broker.address ? shortAddress(broker.address) : undefined, error: broker.lastError, topics: broker.topicCount };
+}
+
+/**
+ * A scheme's availability topic only when something is there: zigbee2mqtt without availability for
+ * a device has none, and a key would otherwise wait for a topic nobody writes to.
+ */
+function withKnownAvailability(s: TopicSuggestion | undefined): TopicSuggestion | undefined {
+    if (!s?.availabilityTopic || broker.value(s.availabilityTopic) !== undefined) return s;
+    return { ...s, availabilityTopic: undefined };
 }
 
 function haStatus(): HaStatus {

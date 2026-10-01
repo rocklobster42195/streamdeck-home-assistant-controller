@@ -20,6 +20,13 @@ const PLUGIN_UUID = "de.boriskemper.ha-controller";
 const SD_PLUGIN = path.join(root, "plugin", `${PLUGIN_UUID}.sdPlugin`);
 const DEVICE = { id: "sim-device", name: "Simulated Stream Deck +", size: { columns: 4, rows: 2 }, type: 7 };
 
+/** The SVG of a key image when it is a frame of the kit's feedback (a disc, check mark or "!"), else undefined. */
+function feedbackSvg(image) {
+    if (typeof image !== "string" || !image.startsWith("data:image/svg+xml;base64,")) return undefined;
+    const svg = Buffer.from(image.slice(26), "base64").toString("utf8");
+    return svg.includes("<g opacity=") && svg.includes('cx="72" cy="72"') ? svg : undefined;
+}
+
 export async function startSim({ globalSettings = {}, language = "de", verbose = false } = {}) {
     const wss = new WebSocketServer({ port: 0 });
     await new Promise((r) => wss.once("listening", r));
@@ -27,7 +34,7 @@ export async function startSim({ globalSettings = {}, language = "de", verbose =
 
     const state = {
         globalSettings,
-        /** context → { action, settings, coordinates, controller, image, title, feedback, layout, alerts, oks } */
+        /** context → { action, settings, coordinates, controller, image, title, feedback, layout, alerts, oks } — alerts/oks count showAlert/showOk and the kit's own feedback */
         slots: new Map(),
         log: [],
         piMessages: [],
@@ -87,7 +94,16 @@ export async function startSim({ globalSettings = {}, language = "de", verbose =
                 if (slot) slot.settings = msg.payload;
                 break;
             case "setImage":
-                if (slot) slot.image = msg.payload?.image;
+                if (slot) {
+                    slot.image = msg.payload?.image;
+                    // The kit's own feedback (playFeedback) instead of showOk/showAlert: count its first frame
+                    const svg = feedbackSvg(slot.image);
+                    if (svg !== undefined && !slot.inFeedback) {
+                        if (svg.includes("<polyline")) slot.oks++;
+                        else if (svg.includes('cy="101"') || svg.includes('fill="#E30018"')) slot.alerts++;
+                    }
+                    slot.inFeedback = svg !== undefined;
+                }
                 break;
             case "setTitle":
                 if (slot) slot.title = msg.payload?.title ?? "";

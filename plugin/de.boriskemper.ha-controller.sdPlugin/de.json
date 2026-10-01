@@ -110,7 +110,7 @@
 			"on_press": "Beim Drücken",
 			"press_none": "Nichts",
 			"press_toggle": "Schalten",
-			"press_send": "Senden",
+			"press_send": "Auslösen",
 			"press_state_topic": "Zustand des Geschalteten",
 			"press_state_topic_hint": "Z. B. die Steckdose, deren Leistung die Taste zeigt. Solange sie an ist, hat die Taste einen Rahmen.",
 			"frame_color": "Rahmen bei ein",
@@ -206,7 +206,10 @@
 			"hide_label": "Ohne Namen",
 			"set_up_hint": "Noch nicht eingerichtet: wähle oben ein Gerät, oder richte die Taste hier ein (z. B. mit einem MQTT-Topic).",
 			"look_open": "Offen",
-			"look_pie": "Torte"
+			"look_pie": "Torte",
+			"press_entity": "Entity",
+			"press_entity_placeholder": "z. B. light.wohnzimmer oder scene.kino",
+			"press_entity_hint": "Schalten: eine Lampe, Steckdose, ein Schloss … (der Rahmen zeigt, ob sie an ist). Auslösen: eine Szene, ein Skript, ein Button oder eine Automation."
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

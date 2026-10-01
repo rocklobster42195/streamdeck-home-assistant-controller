@@ -16,7 +16,7 @@ import streamDeck, {
     type WillDisappearEvent,
 } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
-import { LatestSender, OptimisticStore } from "@rocklobster42195/streamdeck-kit";
+import { isFeedbackPlaying, LatestSender, OptimisticStore, playFeedback } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiKnob } from "@mdi/js";
 import type { HassEntity } from "home-assistant-js-websocket";
@@ -188,16 +188,16 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             if (mode) {
                 const call = modeCall(mode);
                 streamDeck.logger.info(`[ha] ${call.domain}.${call.service} ${e!.entity_id} ${mode}`);
-                void ha.call(call.domain, call.service, e!.entity_id, call.data).then((ok) => void (ok ? undefined : inst.action.showAlert()));
+                void ha.call(call.domain, call.service, e!.entity_id, call.data).then((ok) => (ok ? undefined : this.alert(inst)));
                 return;
             }
             if (!d?.toggles) return;
-            if (ha.state !== "online" || !this.haToggle.press(id, inst.settings.entityId!)) void inst.action.showAlert();
+            if (ha.state !== "online" || !this.haToggle.press(id, inst.settings.entityId!)) this.alert(inst);
             this.render(inst);
             return;
         }
-        if (broker.state !== "online") return void inst.action.showAlert();
-        if (runPress(inst.settings, this.toggle, id, "slider") === "failed") void inst.action.showAlert();
+        if (broker.state !== "online") return this.alert(inst);
+        if (runPress(inst.settings, this.toggle, id, "slider") === "failed") this.alert(inst);
         this.render(inst);
     }
 
@@ -251,7 +251,22 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         if (inst) this.render(inst);
     }
 
+    /** The kit's own alert on the touch strip (red with "!") instead of Stream Deck's triangle. */
+    private alert(inst: Instance): void {
+        playFeedback(inst.id, { setImage: (image?: string) => inst.action.setFeedback({ "full-canvas": image ?? "" }) }, "alert", {
+            width: 200,
+            height: 100,
+            background: "#0a0a0a",
+            restore: () => {
+                inst.lastImage = undefined;
+                this.render(inst);
+            },
+        });
+    }
+
     private render(inst: Instance): void {
+        // The alert owns the strip while it plays; the dial redraws when it ends
+        if (isFeedbackPlaying(inst.id)) return;
         inst.seen = this.fromHa(inst) ? ha.entities[inst.settings.entityId ?? ""] : undefined;
         const image = this.image(inst);
         if (image === inst.lastImage) return;

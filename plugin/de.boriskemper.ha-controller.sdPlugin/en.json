@@ -209,7 +209,11 @@
 			"look_pie": "Pie",
 			"press_entity": "Entity",
 			"press_entity_placeholder": "e.g. light.living_room or scene.cinema",
-			"press_entity_hint": "Switch: a light, plug, lock … (the frame shows whether it is on). Trigger: a scene, script, button or automation."
+			"press_entity_hint": "Switch: a light, plug, lock … (the frame shows whether it is on). Trigger: a scene, script, button or automation.",
+			"icons": "Icons",
+			"states_count": "{n} states",
+			"states_none": "No states yet",
+			"states_edit": "Edit: names, icons, colours, order …"
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

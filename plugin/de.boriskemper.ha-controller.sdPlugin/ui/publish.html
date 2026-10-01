@@ -24,9 +24,15 @@
   <pi-section title="pi.display">
     <pi-field setting="label" label="pi.label" placeholder="pi.label_placeholder"></pi-field>
     <pi-toggle setting="hideLabel" label="pi.hide_label"></pi-toggle>
-    <pi-icon-picker setting="icon" default-icon="mdiGestureTapButton"></pi-icon-picker>
     <pi-color setting="color" default="#F7A600" label="pi.color"></pi-color>
+  </pi-section>
+
+  <pi-section title="pi.on_press">
     <pi-toggle setting="confirm" label="pi.confirm" hint="pi.confirm_hint"></pi-toggle>
+  </pi-section>
+
+  <pi-section class="hac-win" title="pi.icons">
+    <pi-icon-picker setting="icon" default-icon="mdiGestureTapButton"></pi-icon-picker>
   </pi-section>
 
   <pi-section class="hac-win" title="pi.advanced" data-show-when="source=mqtt" data-show-default="mqtt">

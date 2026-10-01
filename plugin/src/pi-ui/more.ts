@@ -2,6 +2,7 @@
 // <hac-more ready-when="entityId,stateTopic">: "More settings …", or "Set up …" (blue, with a line
 //   saying why) while none of the listed settings is filled in. Opens the window; when it can't,
 //   the PI shows everything inline.
+// <hac-states-summary>: the Multi-state states in one line, opening the window at them.
 // <hac-sources>: one line per connection (Home Assistant, MQTT broker) with its state; a click
 //   opens the window at the connections. While nothing is set up it asks for that instead.
 import { escapeHtml, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
@@ -40,6 +41,39 @@ export class HacMore extends HTMLElement {
         button.classList.toggle("pi-button-primary", !ready);
         // Why the button is blue: the key isn't set up yet
         this.querySelector<HTMLElement>(".hac-more-hint")!.hidden = ready;
+    }
+}
+
+/**
+ * <hac-states-summary>: the Multi-state key's states in one line ("3 states: auto · color · …") in
+ * the short panel; a click opens the window at the states, where they are edited.
+ */
+export class HacStatesSummary extends HTMLElement {
+    private off: (() => void) | undefined;
+
+    connectedCallback(): void {
+        this.addEventListener("click", () => {
+            if (!openSettingsWindow("states")) showInline();
+        });
+        this.off = sd.onSettings(() => this.render());
+        this.render();
+    }
+
+    disconnectedCallback(): void {
+        this.off?.();
+    }
+
+    private render(): void {
+        const raw = (sd.settings as Record<string, unknown>).states;
+        const states = Array.isArray(raw) ? (raw as { value?: string; label?: string; color?: string }[]).filter((s) => s?.value) : [];
+        const chips = states.map((s) => `<span class="hac-states-chip"><span class="hac-states-dot" style="background:${escapeHtml(s.color || "#F7A600")}"></span>${escapeHtml(s.label?.trim() || s.value!)}</span>`).join("");
+        this.innerHTML = `
+            <div class="pi-section-title">${escapeHtml(t("pi.states"))}</div>
+            <button type="button" class="pi-card hac-states-summary">
+                <span class="pi-label">${escapeHtml(states.length ? t("pi.states_count", { n: states.length }) : t("pi.states_none"))}</span>
+                ${chips ? `<span class="hac-states-chips">${chips}</span>` : ""}
+                <span class="pi-hint">${escapeHtml(t("pi.states_edit"))}</span>
+            </button>`;
     }
 }
 

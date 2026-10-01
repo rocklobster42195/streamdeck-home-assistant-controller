@@ -5,6 +5,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- Shorter settings panels: icon pickers move to the settings window ("Icons"); the Trigger key's "Ask first" gets its own section; the Multi-state panel shows its states in one line, a click opens the window at them.
 - A typed zigbee2mqtt topic suggests `…/availability` only when something is there (availability may be off for the device).
 - The half circle on the dial no longer draws the icon over the name.
 - Keys confirm in their own colour instead of Stream Deck's green check: a disc grows, a white check mark draws itself (Trigger in its colour, Yellow Sea by default); errors show an exclamation mark on red instead of the yellow triangle. The Slider dial shows the red alert on its touch strip too.

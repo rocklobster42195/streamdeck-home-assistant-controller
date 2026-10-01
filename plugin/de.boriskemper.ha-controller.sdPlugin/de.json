@@ -209,7 +209,11 @@
 			"look_pie": "Torte",
 			"press_entity": "Entity",
 			"press_entity_placeholder": "z. B. light.wohnzimmer oder scene.kino",
-			"press_entity_hint": "Schalten: eine Lampe, Steckdose, ein Schloss … (der Rahmen zeigt, ob sie an ist). Auslösen: eine Szene, ein Skript, ein Button oder eine Automation."
+			"press_entity_hint": "Schalten: eine Lampe, Steckdose, ein Schloss … (der Rahmen zeigt, ob sie an ist). Auslösen: eine Szene, ein Skript, ein Button oder eine Automation.",
+			"icons": "Symbole",
+			"states_count": "{n} Stufen",
+			"states_none": "Noch keine Stufen",
+			"states_edit": "Bearbeiten: Namen, Icons, Farben, Reihenfolge …"
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

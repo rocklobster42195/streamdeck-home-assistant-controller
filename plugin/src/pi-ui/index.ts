@@ -7,7 +7,7 @@ import { HacConnectionCard, HacHaCard } from "./connection-card";
 import { HacDevice } from "./device-picker";
 import { HacHaAttribute, HacHaEntity } from "./ha-fields";
 import { HacJsonField } from "./json-field";
-import { HacMore, HacSources } from "./more";
+import { HacMore, HacSources, HacStatesSummary } from "./more";
 import { HacStates } from "./states-field";
 import { HacTest } from "./test-button";
 import { HacTopic } from "./topic-field";
@@ -31,6 +31,7 @@ sd.onReady(() => {
     customElements.define("hac-ha-attribute", HacHaAttribute);
     customElements.define("hac-ha-entity", HacHaEntity);
     customElements.define("hac-sources", HacSources);
+    customElements.define("hac-states-summary", HacStatesSummary);
     document.querySelectorAll<PiChoice & HTMLElement>("pi-choice[data-options]").forEach((el) => {
         const raw = JSON.parse(el.dataset.options ?? "[]") as PiChoiceOption[];
         el.options = raw.map((o) => ({ ...o, icon: o.icon ? CHOICE_ICONS[o.icon] : undefined }));

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Publish</title>
+  <link rel="stylesheet" href="pi-theme.css" />
+  <link rel="stylesheet" href="mqc.css" />
+  <script src="locales.generated.js"></script>
+  <script src="pi.js"></script>
+</head>
+
+<body hidden>
+  <div class="pi-hint mqc-help" data-i18n="pi.publish_help"></div>
+
+  <pi-section title="pi.send">
+    <mqc-topic setting="topic" label="pi.send_topic" placeholder="pi.topic_search_placeholder"></mqc-topic>
+    <pi-field setting="payload" label="pi.send_payload" placeholder="pi.send_payload_placeholder" hint="pi.send_payload_hint"></pi-field>
+    <pi-toggle setting="confirm" label="pi.confirm" hint="pi.confirm_hint"></pi-toggle>
+  </pi-section>
+
+  <pi-section title="pi.display">
+    <pi-field setting="label" label="pi.label" placeholder="pi.label_placeholder"></pi-field>
+    <pi-icon-picker setting="icon" default-icon="mdiGestureTapButton"></pi-icon-picker>
+    <pi-color setting="color" default="#F7A600" label="pi.color"></pi-color>
+  </pi-section>
+
+  <pi-section title="pi.advanced">
+    <mqc-topic setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
+    <pi-toggle setting="retain" label="pi.retain" hint="pi.retain_hint"></pi-toggle>
+    <pi-choice setting="qos" default="0" columns="3" data-options='[
+      {"value":"0","label":"QoS 0"},
+      {"value":"1","label":"QoS 1"},
+      {"value":"2","label":"QoS 2"}
+    ]'></pi-choice>
+  </pi-section>
+
+  <mqc-connection-card></mqc-connection-card>
+
+  <div class="pi-footer"><span data-plugin-version>MQ-C</span></div>
+</body>
+
+</html>

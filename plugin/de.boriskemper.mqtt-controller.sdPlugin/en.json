@@ -7,7 +7,9 @@
 		"Switch a light or plug on and off, and see its state.": "Switch a light or plug on and off, and see its state.",
 		"key": {
 			"no_broker": "Set up the broker",
-			"choose_topic": "Choose a topic"
+			"choose_topic": "Choose a topic",
+			"press_again": "Press again",
+			"add_states": "Add states"
 		},
 		"pi": {
 			"switch_help": "Press: switch on or off. The key shows the state the device reports.",
@@ -98,9 +100,29 @@
 			"value_topic": "Value topic",
 			"value_line_hint": "Shown under the icon, e.g. the power of the plug.",
 			"value_colors": "Icon colour by value (optional)",
-			"value_colors_hint": "While on, the icon takes the colour of the range the value is in, e.g. red from 1000 W."
+			"value_colors_hint": "While on, the icon takes the colour of the range the value is in, e.g. red from 1000 W.",
+			"publish_help": "Press: send the payload. With a confirmation, the first press arms the key for 3 seconds.",
+			"send": "Send",
+			"confirm": "Ask before sending",
+			"confirm_hint": "Press twice: for a gate, an alarm, anything you don't want to trigger by accident.",
+			"color": "Colour",
+			"multi_help": "Press: the next state in the list. The key shows the one the device reports.",
+			"multi_topic_hint": "Where the device reports its current value.",
+			"states": "States",
+			"state_value": "Value",
+			"state_label": "Name",
+			"state_icon": "Icon",
+			"state_up": "Move up",
+			"state_add": "Add a state",
+			"state_add_current": "Add “{value}”",
+			"multi_label_placeholder": "Shown while the state is unknown",
+			"multi_template_hint": "{value} becomes the state's value. Empty: the value alone."
 		},
 		"Value": "Value",
-		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge."
+		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",
+		"Publish": "Publish",
+		"Multi-state": "Multi-state",
+		"Send a fixed payload, e.g. a scene or opening a gate.": "Send a fixed payload, e.g. a scene or opening a gate.",
+		"Step through several values, e.g. fan off, 1, 2, 3, and see the current one.": "Step through several values, e.g. fan off, 1, 2, 3, and see the current one."
 	}
 }

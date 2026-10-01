@@ -13,6 +13,8 @@ const root = "plugin/de.boriskemper.mqtt-controller.sdPlugin/imgs";
 const actions = {
     switch: mdi.mdiLightbulbOnOutline,
     value: mdi.mdiGauge,
+    publish: mdi.mdiSend,
+    "multi-state": mdi.mdiFormatListNumbered,
 };
 
 const listIcon = (d) => `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#ffffff" d="${d}"/></svg>`;

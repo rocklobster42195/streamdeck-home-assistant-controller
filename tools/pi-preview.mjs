@@ -10,6 +10,18 @@ import { createRequire } from "node:module";
 
 const require = createRequire(path.resolve("plugin/package.json"));
 const { WebSocketServer } = require("ws");
+const mdi = require("@mdi/js");
+
+/** The plugin's "mdi-icons" options: an exact name, or names containing every word. */
+const mdiOptions = (q = "") => {
+    if (mdi[q]) return [{ value: q, label: q, icon: mdi[q] }];
+    const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    return Object.keys(mdi)
+        .filter((n) => words.every((w) => n.toLowerCase().includes(w)))
+        .slice(0, 48)
+        .map((n) => ({ value: n, label: n.slice(3), icon: mdi[n] }));
+};
 
 const HTTP_PORT = Number(process.env.PORT ?? 5399);
 const WS_PORT = HTTP_PORT + 1;
@@ -69,7 +81,7 @@ wss.on("connection", (ws) => {
                 const p = msg.payload ?? {};
                 const online = scenario.status.state === "online";
                 if (p.event === "pi-ready") toPi({ event: "status", status: scenario.status });
-                else if (p.event === "options") toPi({ event: "options-result", requestId: p.requestId, source: p.source, items: [] });
+                else if (p.event === "options") toPi({ event: "options-result", requestId: p.requestId, source: p.source, items: p.source === "mdi-icons" ? mdiOptions(p.params?.q) : [] });
                 else if (p.event === "topics") {
                     const words = String(p.query ?? "").toLowerCase().split(/\s+/).filter(Boolean);
                     const hits = online ? Object.entries(topics).filter(([t]) => words.every((w) => t.toLowerCase().includes(w))).map(([topic, value]) => ({ topic, value, retained: true })) : [];

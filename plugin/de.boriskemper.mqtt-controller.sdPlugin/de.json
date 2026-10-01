@@ -7,7 +7,9 @@
 		"Switch a light or plug on and off, and see its state.": "Schaltet eine Lampe oder Steckdose ein und aus und zeigt ihren Zustand.",
 		"key": {
 			"no_broker": "Broker einrichten",
-			"choose_topic": "Topic wählen"
+			"choose_topic": "Topic wählen",
+			"press_again": "Nochmal drücken",
+			"add_states": "Stufen hinzufügen"
 		},
 		"pi": {
 			"switch_help": "Drücken: ein- oder ausschalten. Die Taste zeigt den Zustand, den das Gerät meldet.",
@@ -98,9 +100,29 @@
 			"value_topic": "Wert-Topic",
 			"value_line_hint": "Steht unter dem Icon, z. B. die Leistung der Steckdose.",
 			"value_colors": "Icon-Farbe nach Wert (optional)",
-			"value_colors_hint": "Solange eingeschaltet, nimmt das Icon die Farbe des Bereichs an, in dem der Wert liegt, z. B. rot ab 1000 W."
+			"value_colors_hint": "Solange eingeschaltet, nimmt das Icon die Farbe des Bereichs an, in dem der Wert liegt, z. B. rot ab 1000 W.",
+			"publish_help": "Drücken: sendet die Payload. Mit Rückfrage macht der erste Druck die Taste für 3 Sekunden scharf.",
+			"send": "Senden",
+			"confirm": "Vor dem Senden nachfragen",
+			"confirm_hint": "Zweimal drücken: für ein Tor, eine Alarmanlage, alles, was nicht aus Versehen auslösen soll.",
+			"color": "Farbe",
+			"multi_help": "Drücken: die nächste Stufe der Liste. Die Taste zeigt die, die das Gerät meldet.",
+			"multi_topic_hint": "Hier meldet das Gerät seinen aktuellen Wert.",
+			"states": "Stufen",
+			"state_value": "Wert",
+			"state_label": "Name",
+			"state_icon": "Icon",
+			"state_up": "Nach oben",
+			"state_add": "Stufe hinzufügen",
+			"state_add_current": "„{value}“ hinzufügen",
+			"multi_label_placeholder": "Steht da, solange die Stufe unbekannt ist",
+			"multi_template_hint": "{value} wird zum Wert der Stufe. Leer: nur der Wert."
 		},
 		"Value": "Wert",
-		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis."
+		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",
+		"Publish": "Senden",
+		"Multi-state": "Mehrstufig",
+		"Send a fixed payload, e.g. a scene or opening a gate.": "Sendet eine feste Payload, z. B. eine Szene oder Tor öffnen.",
+		"Step through several values, e.g. fan off, 1, 2, 3, and see the current one.": "Schaltet durch mehrere Werte, z. B. Lüfter aus, 1, 2, 3, und zeigt den aktuellen."
 	}
 }

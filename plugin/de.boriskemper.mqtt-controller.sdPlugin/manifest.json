@@ -57,6 +57,36 @@
                     "Image": "imgs/actions/value/key"
                 }
             ]
+        },
+        {
+            "Name": "Publish",
+            "UUID": "de.boriskemper.mqtt-controller.publish",
+            "Icon": "imgs/actions/publish/icon",
+            "Tooltip": "Send a fixed payload, e.g. a scene or opening a gate.",
+            "PropertyInspectorPath": "ui/publish.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/publish/key"
+                }
+            ]
+        },
+        {
+            "Name": "Multi-state",
+            "UUID": "de.boriskemper.mqtt-controller.multi-state",
+            "Icon": "imgs/actions/multi-state/icon",
+            "Tooltip": "Step through several values, e.g. fan off, 1, 2, 3, and see the current one.",
+            "PropertyInspectorPath": "ui/multi-state.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/multi-state/key"
+                }
+            ]
         }
     ]
 }

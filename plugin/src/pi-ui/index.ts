@@ -4,6 +4,7 @@ import { definePiComponents, initConditionalVisibility, sd, translateDom, type P
 import { mdiCancel, mdiFormatText, mdiGauge, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
 import { MqcConnectionCard } from "./connection-card";
 import { MqcJsonField } from "./json-field";
+import { MqcStates } from "./states-field";
 import { MqcTopic } from "./topic-field";
 
 /** MDI paths for <pi-choice data-options='[{"icon":"…"}]'> tiles. */
@@ -15,6 +16,7 @@ sd.onReady(() => {
     customElements.define("mqc-connection-card", MqcConnectionCard);
     customElements.define("mqc-topic", MqcTopic);
     customElements.define("mqc-json-field", MqcJsonField);
+    customElements.define("mqc-states", MqcStates);
     document.querySelectorAll<PiChoice & HTMLElement>("pi-choice[data-options]").forEach((el) => {
         const raw = JSON.parse(el.dataset.options ?? "[]") as PiChoiceOption[];
         el.options = raw.map((o) => ({ ...o, icon: o.icon ? CHOICE_ICONS[o.icon] : undefined }));

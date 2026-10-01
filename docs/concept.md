@@ -242,4 +242,4 @@ SC stays off the bus for now. MQC comes after XAC.
 ## Open points
 
 - Test broker: a standalone Mosquitto (own VM or container) at the address in `.env`; it may move later. Credentials in `.env`. Home Assistant is connected to it, so real Home Assistant discovery can be tested read-only there.
-- Which of the user's own devices run over MQTT (for real-world tests).
+- Real-device test (agreed 2026-10-01, waits until the user is at home; the user switches, only after saying so): Switch on Sonoff S20 `sonoff/0/S20/POWER` (topic by hand, `true`/`false`; replaces the last old prototype key at 0,1) and TV_Leiste or Deckenfluter_HZ via the discovery picker; Value on the MH-Z19 CO₂ sensor or a temperature sensor; Slider on Ikea_TV (0–254 → %); Multi-state on Stern → Effect; Publish on a harmless scene the user picks. Off limits: washing machine, dishwasher, dehumidifier, Tedee lock, watering valves, WLAN switches, permit join, heating mode.

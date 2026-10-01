@@ -6,7 +6,7 @@ import { PublishKey } from "./actions/publish-key";
 import { SliderDial } from "./actions/slider-dial";
 import { ValueKey } from "./actions/value-key";
 import { startHacBus, trackHacActions } from "./bus/hac-bus";
-import { startConnection } from "./mqtt/connection";
+import { startConnections } from "./connections";
 import { initPiBridge } from "./pi/handlers";
 
 streamDeck.logger.setLevel("info");
@@ -22,7 +22,7 @@ initPiBridge();
 trackHacActions();
 
 await streamDeck.connect();
-await startConnection();
+await startConnections();
 streamDeck.logger.info("HA-C started");
 // deckbus: tell other plugins whether the broker is reachable (works without it if the bus can't start)
 void startHacBus();

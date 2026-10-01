@@ -4,7 +4,9 @@
 .hac-mono { font-family: Consolas, "SF Mono", monospace; font-size: 12px; overflow-wrap: anywhere; }
 
 /* Connection card */
-hac-connection-card { display: flex; flex-direction: column; gap: 6px; }
+hac-connection-card, hac-ha-card { display: flex; flex-direction: column; gap: 6px; }
+.hac-ha-found { display: flex; flex-direction: column; gap: 4px; }
+.hac-ha-found:empty { display: none; }
 .hac-conn-head { display: flex; align-items: center; gap: 10px; }
 .hac-conn-body { display: flex; flex-direction: column; gap: 2px; padding: 10px 0 12px; }
 .hac-conn-actions { display: flex; flex-direction: column; gap: 8px; padding: 4px 12px 0; }

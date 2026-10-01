@@ -1,16 +1,17 @@
 # HA-C — Home Assistant Controller for Stream Deck
 
-Switch and show your smart home on your Stream Deck: lights, plugs, sensors, scenes, thermostats. HA-C works with **any MQTT broker** today — devices from zigbee2mqtt, Tasmota, Shelly or ESPHome, from Home Assistant through its MQTT discovery, ioBroker or Node-RED. A direct **Home Assistant** connection (all your HA entities, by room) is coming next. You don't need to know topic names by heart: pick a device, or let HA-C search and recognise your topics.
+Switch and show your smart home on your Stream Deck: lights, plugs, sensors, scenes, thermostats. HA-C works with **any MQTT broker** today — devices from zigbee2mqtt, Tasmota, Shelly or ESPHome, from Home Assistant through its MQTT discovery, ioBroker or Node-RED. A direct **Home Assistant** connection is set up already; using all your HA entities on keys, by room, is coming next. You don't need to know topic names by heart: pick a device, or let HA-C search and recognise your topics.
 
 > Unofficial community plugin. Not affiliated with Elgato or Home Assistant / the Open Home Foundation.
 
-**Status:** early. All actions work with MQTT: Switch, Value, Publish and Multi-state keys and the Slider dial. The direct Home Assistant connection is next.
+**Status:** early. All actions work with MQTT: Switch, Value, Publish and Multi-state keys and the Slider dial. HA-C connects to Home Assistant; the keys learn HA entities next.
 
 ## Contents
 
 - [Actions](#actions)
 - [Setting up a key](#setting-up-a-key)
-- [Connecting to your broker](#connecting-to-your-broker)
+- [Connecting to Home Assistant](#connecting-to-home-assistant)
+- [Connecting to your MQTT broker](#connecting-to-your-mqtt-broker)
 - [Works with other plugins (deckbus)](#works-with-other-plugins-deckbus)
 - [Troubleshooting](#troubleshooting)
 - [Planned](#planned)
@@ -90,9 +91,20 @@ Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's
 
 Everything can be changed by hand under **Advanced**: command topic, a payload template like `{"state":"{value}"}`, separate values to send, retain and QoS.
 
-## Connecting to your broker
+## Connecting to Home Assistant
 
-All HA-C keys share one broker, set up in the **Broker** card at the bottom of every key's settings.
+HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Keys can't use HA entities yet; that comes next.
+
+- **Address:** a host (`192.168.1.20` means `http://192.168.1.20:8123`) or a URL with `http://` or `https://`. **Search the network** finds Home Assistant when it announces itself (zeroconf); over a VPN that usually fails, so type the address.
+- **Token:** a long-lived access token. In Home Assistant, open your profile → **Security** → **Long-lived access tokens** → **Create token**, and paste it here.
+
+HA-C reconnects on its own. A refused token shows as "Token refused"; HA-C then stops trying until you change the token or press **Connect**.
+
+You only need the sources you use: when one of them is set up, the other card folds away to one line.
+
+## Connecting to your MQTT broker
+
+All HA-C keys share one broker, set up in the **MQTT broker** card at the bottom of every key's settings.
 
 - **Address:** a host (`192.168.1.10` means `mqtt://192.168.1.10:1883`) or a URL with `mqtt://`, `mqtts://` (TLS), `ws://` or `wss://`.
 - **User name and password**, if your broker needs them.
@@ -104,7 +116,7 @@ HA-C reconnects on its own, waiting a little longer after each failed attempt. A
 
 HA-C is part of a family of Stream Deck plugins that talk to each other through **deckbus**, a small local bus (see the [protocol](https://github.com/rocklobster42195/streamdeck-kit/blob/main/docs/deckbus-protocol.md)).
 
-- **Offers:** whether the broker is reachable (`status`), and where HA-C's keys are on your deck (`actions`).
+- **Offers:** whether Home Assistant or the MQTT broker is reachable (`status`), and where HA-C's keys are on your deck (`actions`).
 - **Uses:** nothing yet.
 - **Only with your permission:** nothing yet.
 
@@ -112,14 +124,14 @@ HA-C works the same without other plugins.
 
 ## Troubleshooting
 
-- **"Set up the broker" on the key:** enter your broker's address in the Broker card.
+- **"Set up MQTT" on the key:** enter your broker's address in the MQTT broker card.
 - **"Access denied":** check user name and password. Mosquitto refuses anonymous logins by default.
 - **The key stays on a question mark:** the state topic hasn't sent a value HA-C knows. Check the field and the on/off values; "Now: …" under the topic shows what arrived.
 - **The key goes back after 3 seconds:** the device didn't confirm. Check the command topic (zigbee2mqtt needs `…/set`).
 
 ## Planned
 
-- **Home Assistant connection:** URL and token (found on your network), every HA entity by room and device, with HA's names and icons; the same keys and dials.
+- **Home Assistant entities on keys:** every HA entity by room and device, with HA's names and icons; the same keys and dials.
 
 
 ## Development

@@ -1,5 +1,7 @@
 // HAC's messages between the plugin and its property inspectors (shared by both sides). The kit
 // handles "pi-ready", "options" and "options-result" itself.
+import type { FoundHa } from "../ha/zeroconf";
+import type { HaState } from "../ha/ha-connection";
 import type { BrokerState } from "../mqtt/broker";
 import type { TopicSuggestion } from "../mqtt/schemes";
 import type { SwitchTopics } from "../mqtt/switch-state";
@@ -11,6 +13,16 @@ export type ConnectionStatus = {
     error?: string;
     /** Topics with a known value (the browser's size). */
     topics?: number;
+};
+
+/** The Home Assistant connection, for its card. */
+export type HaStatus = {
+    state: HaState;
+    /** Short address for the status line. */
+    address?: string;
+    error?: string;
+    version?: string;
+    entities?: number;
 };
 
 export type TopicHit = { topic: string; value: string; retained: boolean };
@@ -70,6 +82,8 @@ export type HaItem = {
 /** PI → plugin */
 export type PiRequest =
     | { event: "reconnect" }
+    | { event: "ha-reconnect" }
+    | { event: "ha-find"; requestId: number }
     | { event: "topics"; requestId: number; query: string }
     | { event: "topic-info"; requestId: number; topic: string }
     | { event: "topic-tree"; requestId: number; prefix: string }
@@ -81,6 +95,8 @@ export type PiRequest =
 /** Plugin → PI */
 export type PiPush =
     | { event: "status"; status: ConnectionStatus }
+    | { event: "ha-status"; status: HaStatus }
+    | { event: "ha-find-result"; requestId: number; found: FoundHa[] }
     | { event: "topics-result"; requestId: number; hits: TopicHit[]; total: number }
     | { event: "topic-info-result"; requestId: number; info: TopicInfo }
     | { event: "topic-tree-result"; requestId: number; prefix: string; nodes: TreeNode[] }

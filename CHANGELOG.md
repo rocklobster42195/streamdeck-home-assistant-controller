@@ -9,6 +9,9 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- **Home Assistant connection** (card in every key's settings): address and long-lived token, search on the network (zeroconf), status with HA's version and the number of entities; reconnects by itself, a refused token stops retrying. The WebSocket API through `home-assistant-js-websocket`. Keys don't use HA entities yet.
+- A source that isn't set up while the other one is folds away to one line ("Not set up · Optional").
+- deckbus `status` covers both sources: online when Home Assistant or the broker is.
 - zigbee2mqtt devices show their state right away: zigbee2mqtt keeps no state on the broker, so HA-C asks such a device once (`…/get`) when nothing is known about it.
 - zigbee2mqtt devices that Home Assistant discovery announces with the bridge's availability only are still shown offline when they are (`…/availability`).
 - **Switch** key: switches a device between two values and shows its state (icon and colour per state, a name). Shows the new state at once and goes back if the device doesn't confirm within 3 s. Offline look while the broker is unreachable or the device reports itself unavailable. Keys without a state topic send on and off by turns.

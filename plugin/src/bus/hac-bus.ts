@@ -1,9 +1,11 @@
-// HA-C on deckbus (see the kit's docs/deckbus-protocol.md): tells the other plugins whether the
-// broker is reachable ("status") and where HA-C's actions are visible ("actions"). HA-C works the
+// HA-C on deckbus (see the kit's docs/deckbus-protocol.md): tells the other plugins whether its
+// sources are reachable ("status": online when Home Assistant or the MQTT broker is) and where HA-C's actions are visible ("actions"). HA-C works the
 // same without the bus.
 import streamDeck from "@elgato/streamdeck";
 import { trackActions } from "@rocklobster42195/streamdeck-kit/bridge";
 import { ActionsState, DeckBus } from "@rocklobster42195/streamdeck-kit/bus";
+import { ha } from "../ha/connection";
+import { shortHaAddress } from "../ha/url";
 import { broker } from "../mqtt/connection";
 import { shortAddress } from "../mqtt/url";
 
@@ -25,11 +27,17 @@ export async function startHacBus(): Promise<void> {
     if (!(await bus.start())) return;
     streamDeck.logger.info(`[deckbus] HA-C in slot ${bus.slot}`);
     broker.onState(shareStatus);
+    ha.onState(shareStatus);
 }
 
 function shareStatus(): void {
-    const online = broker.state === "online";
-    const status = { online, detail: online && broker.address ? shortAddress(broker.address) : broker.state };
+    const haOnline = ha.state === "online";
+    const brokerOnline = broker.state === "online";
+    const parts = [
+        ha.state === "unconfigured" ? "" : `HA ${haOnline && ha.address ? shortHaAddress(ha.address) : ha.state}`,
+        broker.state === "unconfigured" ? "" : `MQTT ${brokerOnline && broker.address ? shortAddress(broker.address) : broker.state}`,
+    ].filter(Boolean);
+    const status = { online: haOnline || brokerOnline, detail: parts.join(" · ") || "unconfigured" };
     const json = JSON.stringify(status);
     if (json === lastStatus) return;
     lastStatus = json;

@@ -2,7 +2,7 @@
 // Serves plugin/*.sdPlugin/ui and fakes both the Stream Deck socket and the plugin's messages.
 //
 //   node tools/pi-preview.mjs   → http://localhost:5399/switch.html?scenario=online&lang=de
-//   scenarios: online · setup · denied        lang: en · de        &settings=<json>
+//   scenarios: online · setup · denied · ha-only · mqtt-only        lang: en · de        &settings=<json>
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -56,10 +56,14 @@ const fields = (payload) => {
     return out;
 };
 
+const haOnline = { state: "online", address: "192.168.1.20", version: "2026.9.4", entities: 412 };
+const haGlobal = { haUrl: "192.168.1.20", haToken: "token" };
 const scenarios = {
-    online: { global: { brokerUrl: "192.168.1.10", brokerUser: "hac" }, status: { state: "online", address: "192.168.1.10", topics: Object.keys(topics).length } },
-    setup: { global: {}, status: { state: "unconfigured" } },
-    denied: { global: { brokerUrl: "192.168.1.10", brokerUser: "hac" }, status: { state: "denied", address: "192.168.1.10" } },
+    online: { global: { ...haGlobal, brokerUrl: "192.168.1.10", brokerUser: "hac" }, ha: haOnline, status: { state: "online", address: "192.168.1.10", topics: Object.keys(topics).length } },
+    setup: { global: {}, ha: { state: "unconfigured" }, status: { state: "unconfigured" } },
+    denied: { global: { ...haGlobal, brokerUrl: "192.168.1.10", brokerUser: "hac" }, ha: { state: "denied", address: "192.168.1.20", error: "invalid token" }, status: { state: "denied", address: "192.168.1.10" } },
+    "ha-only": { global: haGlobal, ha: haOnline, status: { state: "unconfigured" } },
+    "mqtt-only": { global: { brokerUrl: "192.168.1.10", brokerUser: "hac" }, ha: { state: "unconfigured" }, status: { state: "online", address: "192.168.1.10", topics: Object.keys(topics).length } },
 };
 
 const wss = new WebSocketServer({ port: WS_PORT });
@@ -80,7 +84,10 @@ wss.on("connection", (ws) => {
             case "sendToPlugin": {
                 const p = msg.payload ?? {};
                 const online = scenario.status.state === "online";
-                if (p.event === "pi-ready") toPi({ event: "status", status: scenario.status });
+                if (p.event === "pi-ready") {
+                    toPi({ event: "ha-status", status: scenario.ha });
+                    toPi({ event: "status", status: scenario.status });
+                } else if (p.event === "ha-find") setTimeout(() => toPi({ event: "ha-find-result", requestId: p.requestId, found: [{ name: "Zuhause", url: "http://192.168.1.20:8123", version: "2026.9.4" }] }), 800);
                 else if (p.event === "options") toPi({ event: "options-result", requestId: p.requestId, source: p.source, items: p.source === "mdi-icons" ? mdiOptions(p.params?.q) : [] });
                 else if (p.event === "topics") {
                     const words = String(p.query ?? "").toLowerCase().split(/\s+/).filter(Boolean);

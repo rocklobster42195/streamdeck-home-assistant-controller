@@ -1,8 +1,8 @@
 // Entry of the property inspector bundle (ui/pi.js): the kit's components plus HA-C's connection
-// card, topic field and JSON field picker.
+// cards (Home Assistant, MQTT broker), topic field and JSON field picker.
 import { definePiComponents, initConditionalVisibility, sd, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
 import { mdiCancel, mdiChartDonut, mdiFormatText, mdiGauge, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
-import { HacConnectionCard } from "./connection-card";
+import { HacConnectionCard, HacHaCard } from "./connection-card";
 import { HacDevice } from "./device-picker";
 import { HacJsonField } from "./json-field";
 import { HacStates } from "./states-field";
@@ -15,6 +15,7 @@ const CHOICE_ICONS: Record<string, string> = { text: mdiFormatText, gauge: mdiGa
 sd.onReady(() => {
     translateDom();
     definePiComponents();
+    customElements.define("hac-ha-card", HacHaCard);
     customElements.define("hac-connection-card", HacConnectionCard);
     customElements.define("hac-device", HacDevice);
     customElements.define("hac-topic", HacTopic);

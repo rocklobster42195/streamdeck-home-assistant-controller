@@ -1,16 +1,21 @@
-// HAC's part of the kit's PI bridge: the connection status, the topic search for the topic fields,
+// HAC's part of the kit's PI bridge: the status of both connections, the search for Home
+// Assistant on the network, the topic search for the topic fields,
 // and what HAC knows about one topic (its payload, JSON fields, a scheme suggestion). While a
 // settings panel is open, HAC listens to every topic ("#"), so the search sees the whole broker.
 import streamDeck from "@elgato/streamdeck";
 import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
-import { broker, reconnect } from "../mqtt/connection";
+import { reconnectBroker, reconnectHa } from "../connections";
+import { ha } from "../ha/connection";
+import { shortHaAddress } from "../ha/url";
+import { findHomeAssistants } from "../ha/zeroconf";
+import { broker } from "../mqtt/connection";
 import { jsonFields } from "../mqtt/payload";
 import { suggestForTopic } from "../mqtt/schemes";
 import { shortAddress } from "../mqtt/url";
 import { initHaDiscovery } from "../discovery/ha-discovery";
 import { initExplore } from "./explore";
-import type { ConnectionStatus, PiPush, TopicHit } from "./protocol";
+import type { ConnectionStatus, HaStatus, PiPush, TopicHit } from "./protocol";
 
 const PI_OWNER = "settings-panel";
 const MAX_HITS = 40;
@@ -18,7 +23,12 @@ const MAX_HITS = 40;
 export function initPiBridge(): void {
     piBridge.init();
     piBridge.registerOptions("mdi-icons", mdiOptions);
-    piBridge.handle("reconnect", () => reconnect());
+    piBridge.handle("reconnect", () => reconnectBroker());
+    piBridge.handle("ha-reconnect", () => reconnectHa());
+    piBridge.handle("ha-find", async (msg) => {
+        const found = await findHomeAssistants();
+        await piBridge.reply(json({ event: "ha-find-result", requestId: msg.requestId as number, found }));
+    });
     piBridge.handle("topics", async (msg) => {
         const { hits, total } = searchTopics(String(msg.query ?? ""));
         await piBridge.reply(json({ event: "topics-result", requestId: msg.requestId as number, hits, total }));
@@ -31,8 +41,9 @@ export function initPiBridge(): void {
     });
     initExplore();
     initHaDiscovery();
-    piBridge.addPusher(() => [json({ event: "status", status: status() })]);
+    piBridge.addPusher(() => [json({ event: "ha-status", status: haStatus() }), json({ event: "status", status: status() })]);
     broker.onState(() => piBridge.schedulePush());
+    ha.onState(() => piBridge.schedulePush());
 
     streamDeck.ui.onDidAppear(() => broker.subscribe("#", PI_OWNER));
     streamDeck.ui.onDidDisappear(() => broker.unsubscribe("#", PI_OWNER));
@@ -40,6 +51,10 @@ export function initPiBridge(): void {
 
 function status(): ConnectionStatus {
     return { state: broker.state, address: broker.address ? shortAddress(broker.address) : undefined, error: broker.lastError, topics: broker.topicCount };
+}
+
+function haStatus(): HaStatus {
+    return { state: ha.state, address: ha.address ? shortHaAddress(ha.address) : undefined, error: ha.lastError, version: ha.version, entities: ha.entityCount };
 }
 
 /** Topics containing every word of the query (case-insensitive), shortest first. */

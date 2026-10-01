@@ -9,7 +9,8 @@
 			"no_broker": "Broker einrichten",
 			"choose_topic": "Topic wählen",
 			"press_again": "Nochmal drücken",
-			"add_states": "Stufen hinzufügen"
+			"add_states": "Stufen hinzufügen",
+			"off": "Aus"
 		},
 		"pi": {
 			"switch_help": "Drücken: ein- oder ausschalten. Die Taste zeigt den Zustand, den das Gerät meldet.",
@@ -116,13 +117,29 @@
 			"state_add": "Stufe hinzufügen",
 			"state_add_current": "„{value}“ hinzufügen",
 			"multi_label_placeholder": "Steht da, solange die Stufe unbekannt ist",
-			"multi_template_hint": "{value} wird zum Wert der Stufe. Leer: nur der Wert."
+			"multi_template_hint": "{value} wird zum Wert der Stufe. Leer: nur der Wert.",
+			"slider_help": "Drehen: Wert einstellen · Drücken oder Tippen: was du unten wählst (z. B. das Licht ein- und ausschalten).",
+			"slider_topic_hint": "Hier meldet das Gerät den Wert, den der Dial einstellt (Helligkeit, Sollwert).",
+			"slider_template_hint": "{value} wird zur Zahl, z. B. {\"brightness\":{value}}. Leer: nur die Zahl.",
+			"step": "Pro Schritt",
+			"step_hint": "Wie viel ein Klick am Dial den Wert ändert, z. B. 0.5 bei einem Thermostat.",
+			"actual": "Ist-Wert (optional)",
+			"actual_topic": "Ist-Wert-Topic",
+			"actual_hint": "Z. B. die Raumtemperatur: der Bogen zeigt sie, ein Marker den Sollwert.",
+			"look_ring": "Ring",
+			"decimals_auto": "Wie der Schritt es braucht",
+			"on_push": "Beim Drücken",
+			"push_state_topic_hint": "Z. B. der Ein/Aus-Zustand der Lampe. Solange sie aus ist, wird der Dial gedimmt und zeigt „Aus“."
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",
 		"Publish": "Senden",
 		"Multi-state": "Mehrstufig",
 		"Send a fixed payload, e.g. a scene or opening a gate.": "Sendet eine feste Payload, z. B. eine Szene oder Tor öffnen.",
-		"Step through several values, e.g. fan off, 1, 2, 3, and see the current one.": "Schaltet durch mehrere Werte, z. B. Lüfter aus, 1, 2, 3, und zeigt den aktuellen."
+		"Step through several values, e.g. fan off, 1, 2, 3, and see the current one.": "Schaltet durch mehrere Werte, z. B. Lüfter aus, 1, 2, 3, und zeigt den aktuellen.",
+		"Slider": "Regler",
+		"Set a value with a dial: brightness, a thermostat's setpoint, a blind. Push switches on and off.": "Stellt einen Wert mit dem Dial ein: Helligkeit, Solltemperatur, Rollladen. Drücken schaltet ein und aus.",
+		"Set the value": "Wert einstellen",
+		"On / off": "Ein / aus"
 	}
 }

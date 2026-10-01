@@ -6,44 +6,30 @@ import type { JsonObject } from "@elgato/utils";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiThermometer } from "@mdi/js";
 import { broker } from "../mqtt/connection";
-import type { SwitchTopics } from "../mqtt/switch-state";
 import { numberSetting, shownValue, zonesOf } from "../mqtt/value-state";
 import { ACCENT } from "../render/svg";
 import { renderKeyHint } from "../render/switch-key";
 import { renderValueKey } from "../render/value-key";
+import { pressListenTopic, pressState, runPress, type PressSettings } from "./press-action";
 import { Toggle } from "./toggle";
 import { TopicKey, type KeyInstance, type TopicKeySettings } from "./topic-key";
 
-export type ValueKeySettings = TopicKeySettings & {
-    stateTopic?: string;
-    field?: string;
-    unit?: string;
-    /** Decimals to show; empty keeps the device's precision. */
-    decimals?: string;
-    look?: "text" | "gauge";
-    min?: string;
-    max?: string;
-    /** Colour below the first threshold. */
-    color?: string;
-    thresholds?: JsonObject[];
-    icon?: string;
-    label?: string;
-    /** What a press does. */
-    pressAction?: "none" | "toggle" | "send";
-    /** Toggle: like the Switch key, with its own topics. */
-    pressStateTopic?: string;
-    pressCommandTopic?: string;
-    pressField?: string;
-    pressOnValue?: string;
-    pressOffValue?: string;
-    pressCommandOn?: string;
-    pressCommandOff?: string;
-    pressTemplate?: string;
-    pressColor?: string;
-    /** Send: a fixed payload to a topic. */
-    sendTopic?: string;
-    sendPayload?: string;
-};
+export type ValueKeySettings = TopicKeySettings &
+    PressSettings & {
+        stateTopic?: string;
+        field?: string;
+        unit?: string;
+        /** Decimals to show; empty keeps the device's precision. */
+        decimals?: string;
+        look?: "text" | "gauge";
+        min?: string;
+        max?: string;
+        /** Colour below the first threshold. */
+        color?: string;
+        thresholds?: JsonObject[];
+        icon?: string;
+        label?: string;
+    };
 
 @action({ UUID: "de.boriskemper.mqtt-controller.value" })
 export class ValueKey extends TopicKey<ValueKeySettings> {
@@ -57,20 +43,14 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
     }
 
     protected override topicsOf(s: ValueKeySettings): (string | undefined)[] {
-        return [s.stateTopic, s.pressAction === "toggle" ? s.pressStateTopic : undefined];
+        return [s.stateTopic, pressListenTopic(s)];
     }
 
     protected override press(inst: KeyInstance<ValueKeySettings>): void {
-        const s = inst.settings;
-        if (s.pressAction === "toggle") {
-            if (!this.toggle.press(inst.id, toggleTopics(s))) void inst.action.showAlert();
-            this.render(inst);
-        } else if (s.pressAction === "send") {
-            const topic = s.sendTopic?.trim();
-            if (!topic || !broker.publish(topic, s.sendPayload ?? "")) return void inst.action.showAlert();
-            streamDeck.logger.info(`[value] ${topic} ← ${s.sendPayload ?? ""}`);
-            void inst.action.showOk();
-        }
+        const result = runPress(inst.settings, this.toggle, inst.id, "value");
+        if (result === "failed") void inst.action.showAlert();
+        else if (result === "ok") void inst.action.showOk();
+        this.render(inst);
     }
 
     protected override disappeared(inst: KeyInstance<ValueKeySettings>): void {
@@ -83,7 +63,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         if (broker.state === "unconfigured" || broker.state === "invalid") return renderKeyHint(t("key.no_broker"), mdiThermometer, true);
         if (!s.stateTopic?.trim()) return renderKeyHint(t("key.choose_topic"), mdiThermometer);
         const v = shownValue(this.payload(s.stateTopic), s.field, s.decimals);
-        const toggled = s.pressAction === "toggle" && s.pressStateTopic?.trim() ? this.toggle.state(inst.id, toggleTopics(s)) : undefined;
+        const toggled = pressState(s, this.toggle, inst.id);
         return renderValueKey({
             look: s.look === "gauge" ? "gauge" : "text",
             text: v.text,
@@ -100,15 +80,3 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
     }
 }
 
-function toggleTopics(s: ValueKeySettings): SwitchTopics {
-    return {
-        stateTopic: s.pressStateTopic,
-        commandTopic: s.pressCommandTopic,
-        field: s.pressField,
-        onValue: s.pressOnValue,
-        offValue: s.pressOffValue,
-        commandOn: s.pressCommandOn,
-        commandOff: s.pressCommandOff,
-        template: s.pressTemplate,
-    };
-}

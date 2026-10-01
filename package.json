@@ -18,7 +18,8 @@
         "sim:switch": "node tools/sd-sim/switch.mjs sim-out",
         "sim:value": "node tools/sd-sim/value.mjs sim-out",
         "pi:preview": "node tools/pi-preview.mjs",
-        "sim:keys": "node tools/sd-sim/keys.mjs sim-out"
+        "sim:keys": "node tools/sd-sim/keys.mjs sim-out",
+        "sim:dial": "node tools/sd-sim/dial.mjs sim-out"
     },
     "devDependencies": {
         "@tsconfig/node24": "^24.0.5",

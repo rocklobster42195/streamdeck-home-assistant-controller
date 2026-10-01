@@ -4,7 +4,7 @@ Switch and show anything on your MQTT broker from your Stream Deck: lights and p
 
 > Unofficial community plugin. Not affiliated with Elgato.
 
-**Status:** early. The Switch, Value, Publish and Multi-state keys work; the Slider dial follows (see [Planned](#planned)).
+**Status:** early. All v1 actions work: Switch, Value, Publish and Multi-state keys and the Slider dial.
 
 ## Contents
 
@@ -58,6 +58,20 @@ Steps through a list of values on every press, e.g. a fan off → 1 → 2 → 3 
 - "Add 'low'" takes the value the device reports right now into the list.
 - The next state shows at once and goes back if the device doesn't confirm within 3 seconds. A value that isn't in the list shows as it is, with a question mark.
 
+### Slider *(dial, Stream Deck + only)*
+
+Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's position.
+
+| Control | What it does |
+|---|---|
+| Rotate | Change the value by the step you set (e.g. 10 for brightness, 0.5 for a thermostat) |
+| Push / tap the display | Nothing, switch something on and off, or send a payload (your choice) |
+
+- The display follows at once; the device gets the latest value at most every 150 ms, so fast turning doesn't flood it. Without a confirmation within 3 seconds, the dial goes back to what the device reports.
+- **Half circle** (with colour ranges) or **Ring**.
+- **Thermostat:** with an actual-value topic (the room temperature), the arc shows the actual value large, and a marker and "→ 21.5 °C" show the setpoint. While you turn, the setpoint is shown large.
+- **Light:** rotate for brightness, push to switch on and off; while the light is off, the dial is dimmed and shows "Off".
+
 ## Setting up a key
 
 1. Start typing in **State topic**, e.g. "lamp". The list shows every matching topic on your broker with its current value. Click the right one.
@@ -95,8 +109,6 @@ MQ-C works the same without other plugins.
 
 ## Planned
 
-- **Slider** dial (brightness, setpoint).
-- The **half-circle gauge** on the Slider dial, with a marker for the setpoint and the actual value as the arc, e.g. for a thermostat.
 - **Home Assistant MQTT discovery:** pick "Living room light" instead of a topic.
 - A topic **browser** (tree), **Listen** (operate the device and see which topic changes) and **Test** (send once and see whether the device answers).
 
@@ -108,6 +120,7 @@ npm run check        # build, tests, lint, manifest check
 npm run sim:switch   # Switch keys against an in-process broker with invented devices
 npm run sim:value    # Value keys in both looks with colour ranges
 npm run sim:keys     # Publish (with confirmation) and Multi-state keys
+npm run sim:dial     # Slider dials: a lamp, a thermostat, a blind
 npm run pi:preview   # the settings pages in a browser, with invented topics
 npm run watch        # rebuild and restart the plugin in Stream Deck
 ```

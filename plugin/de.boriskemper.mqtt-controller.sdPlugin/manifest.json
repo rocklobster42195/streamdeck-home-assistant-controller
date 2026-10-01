@@ -87,6 +87,29 @@
                     "Image": "imgs/actions/multi-state/key"
                 }
             ]
+        },
+        {
+            "Name": "Slider",
+            "UUID": "de.boriskemper.mqtt-controller.slider",
+            "Icon": "imgs/actions/slider/icon",
+            "Tooltip": "Set a value with a dial: brightness, a thermostat's setpoint, a blind. Push switches on and off.",
+            "PropertyInspectorPath": "ui/slider.html",
+            "Controllers": [
+                "Encoder"
+            ],
+            "Encoder": {
+                "layout": "layouts/canvas.json",
+                "TriggerDescription": {
+                    "Rotate": "Set the value",
+                    "Push": "On / off",
+                    "Touch": "On / off"
+                }
+            },
+            "States": [
+                {
+                    "Image": "imgs/actions/slider/key"
+                }
+            ]
         }
     ]
 }

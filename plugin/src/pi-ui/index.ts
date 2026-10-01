@@ -1,14 +1,14 @@
 // Entry of the property inspector bundle (ui/pi.js): the kit's components plus MQ-C's connection
 // card, topic field and JSON field picker.
 import { definePiComponents, initConditionalVisibility, sd, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
-import { mdiCancel, mdiFormatText, mdiGauge, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
+import { mdiCancel, mdiChartDonut, mdiFormatText, mdiGauge, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
 import { MqcConnectionCard } from "./connection-card";
 import { MqcJsonField } from "./json-field";
 import { MqcStates } from "./states-field";
 import { MqcTopic } from "./topic-field";
 
 /** MDI paths for <pi-choice data-options='[{"icon":"…"}]'> tiles. */
-const CHOICE_ICONS: Record<string, string> = { text: mdiFormatText, gauge: mdiGauge, none: mdiCancel, toggle: mdiToggleSwitchOutline, send: mdiSend };
+const CHOICE_ICONS: Record<string, string> = { text: mdiFormatText, gauge: mdiGauge, none: mdiCancel, toggle: mdiToggleSwitchOutline, send: mdiSend, ring: mdiChartDonut };
 
 sd.onReady(() => {
     translateDom();

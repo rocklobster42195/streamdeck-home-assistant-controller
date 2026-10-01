@@ -9,7 +9,8 @@
 			"no_broker": "Set up the broker",
 			"choose_topic": "Choose a topic",
 			"press_again": "Press again",
-			"add_states": "Add states"
+			"add_states": "Add states",
+			"off": "Off"
 		},
 		"pi": {
 			"switch_help": "Press: switch on or off. The key shows the state the device reports.",
@@ -116,13 +117,29 @@
 			"state_add": "Add a state",
 			"state_add_current": "Add “{value}”",
 			"multi_label_placeholder": "Shown while the state is unknown",
-			"multi_template_hint": "{value} becomes the state's value. Empty: the value alone."
+			"multi_template_hint": "{value} becomes the state's value. Empty: the value alone.",
+			"slider_help": "Rotate: set the value · Push or tap: what you choose below (e.g. switch the light on and off).",
+			"slider_topic_hint": "Where the device reports the value the dial sets (brightness, setpoint).",
+			"slider_template_hint": "{value} becomes the number, e.g. {\"brightness\":{value}}. Empty: the number alone.",
+			"step": "Per step",
+			"step_hint": "How much one click of the dial changes the value, e.g. 0.5 for a thermostat.",
+			"actual": "Actual value (optional)",
+			"actual_topic": "Actual-value topic",
+			"actual_hint": "E.g. the room temperature: the arc shows it, a marker the setpoint.",
+			"look_ring": "Ring",
+			"decimals_auto": "As the step needs",
+			"on_push": "On push",
+			"push_state_topic_hint": "E.g. the lamp's on/off state. While it is off, the dial is dimmed and shows “Off”."
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",
 		"Publish": "Publish",
 		"Multi-state": "Multi-state",
 		"Send a fixed payload, e.g. a scene or opening a gate.": "Send a fixed payload, e.g. a scene or opening a gate.",
-		"Step through several values, e.g. fan off, 1, 2, 3, and see the current one.": "Step through several values, e.g. fan off, 1, 2, 3, and see the current one."
+		"Step through several values, e.g. fan off, 1, 2, 3, and see the current one.": "Step through several values, e.g. fan off, 1, 2, 3, and see the current one.",
+		"Slider": "Slider",
+		"Set a value with a dial: brightness, a thermostat's setpoint, a blind. Push switches on and off.": "Set a value with a dial: brightness, a thermostat's setpoint, a blind. Push switches on and off.",
+		"Set the value": "Set the value",
+		"On / off": "On / off"
 	}
 }

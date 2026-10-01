@@ -89,11 +89,15 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
         void inst.action.setImage(image).catch((e) => streamDeck.logger.warn(`[${this.name}] setImage failed`, e));
     }
 
-    /** Subscribe the key's current topics and drop the ones it no longer needs. */
     private listen(inst: KeyInstance<S>): void {
-        const wanted = new Set([...this.topicsOf(inst.settings), inst.settings.availabilityTopic].map((t) => t?.trim()).filter((t): t is string => !!t));
-        for (const t of inst.topics) if (!wanted.has(t)) broker.unsubscribe(t, inst.id);
-        for (const t of wanted) if (!inst.topics.has(t)) broker.subscribe(t, inst.id);
-        inst.topics = wanted;
+        inst.topics = syncTopics(inst.id, inst.topics, [...this.topicsOf(inst.settings), inst.settings.availabilityTopic]);
     }
+}
+
+/** Subscribe an action's wanted topics and drop the ones it no longer needs; returns the new set. */
+export function syncTopics(owner: string, current: Set<string>, wanted: (string | undefined)[]): Set<string> {
+    const next = new Set(wanted.map((t) => t?.trim()).filter((t): t is string => !!t));
+    for (const t of current) if (!next.has(t)) broker.unsubscribe(t, owner);
+    for (const t of next) if (!current.has(t)) broker.subscribe(t, owner);
+    return next;
 }

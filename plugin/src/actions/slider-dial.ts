@@ -20,7 +20,7 @@ import { mdiKnob } from "@mdi/js";
 import { broker } from "../mqtt/connection";
 import { fillTemplate } from "../mqtt/payload";
 import { isUnavailable } from "../mqtt/schemes";
-import { formatNumber, stepValue, type SliderRange } from "../mqtt/slider-state";
+import { formatNumber, stepValue, toPercent, type SliderRange } from "../mqtt/slider-state";
 import { numberSetting, shownValue, zonesOf } from "../mqtt/value-state";
 import { renderSliderDial, renderSliderMessage } from "../render/slider-dial";
 import { pressListenTopic, pressState, runPress, type PressSettings } from "./press-action";
@@ -41,6 +41,8 @@ export type SliderDialSettings = JsonObject &
         /** Decimals on the display; empty: as many as the step needs. */
         decimals?: string;
         look?: "half" | "ring";
+        /** Show the value as a percentage of min–max (devices use 0–254, 0–255, 0–100, …). */
+        percent?: boolean;
         /** The measured value (a thermostat's room temperature). */
         actualTopic?: string;
         actualField?: string;
@@ -209,14 +211,15 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         return renderSliderDial({
             look: s.look === "ring" ? "ring" : "half",
             setpoint,
-            setpointText: setpoint !== undefined ? formatNumber(setpoint, r.step, s.decimals) : undefined,
+            setpointText: setpoint === undefined ? undefined : s.percent ? String(toPercent(setpoint, r)) : formatNumber(setpoint, r.step, s.decimals),
             actual: actual?.number,
             actualText: actual?.text,
-            unit: s.unit,
+            unit: s.percent ? "%" : s.unit,
             label: s.label,
             icon: mdiPath(s.icon),
             min: r.min,
             max: r.max,
+            rangeLabels: s.percent ? ["0", "100"] : undefined,
             zones: zonesOf(s.color || "#F7A600", s.thresholds),
             off: pressState(s, this.toggle, inst.id) === "off",
             offText: t("key.off"),

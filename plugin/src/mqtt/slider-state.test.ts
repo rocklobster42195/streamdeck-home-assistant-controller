@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decimalsOf, formatNumber, stepValue } from "./slider-state";
+import { decimalsOf, formatNumber, stepValue, toPercent } from "./slider-state";
 
 const brightness = { min: 0, max: 254, step: 5 };
 const setpoint = { min: 5, max: 30, step: 0.5 };
@@ -36,5 +36,15 @@ describe("formatting", () => {
         expect(formatNumber(21, 0.5)).toBe("21.0");
         expect(formatNumber(128, 1)).toBe("128");
         expect(formatNumber(21.456, 0.5, "2")).toBe("21.46");
+    });
+});
+
+describe("toPercent", () => {
+    it("maps any device range to 0–100", () => {
+        expect(toPercent(128, { min: 0, max: 254 })).toBe(50);
+        expect(toPercent(255, { min: 0, max: 255 })).toBe(100);
+        expect(toPercent(37, { min: 0, max: 100 })).toBe(37);
+        expect(toPercent(0.5, { min: 0, max: 1 })).toBe(50);
+        expect(toPercent(5, { min: 5, max: 5 })).toBe(0);
     });
 });

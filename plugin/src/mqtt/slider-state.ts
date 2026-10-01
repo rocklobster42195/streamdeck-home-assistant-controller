@@ -29,3 +29,8 @@ function round(n: number, decimals: number): number {
     const f = 10 ** decimals;
     return Math.round(n * f) / f;
 }
+
+/** A value as a whole percentage of its range (128 of 0–254 → 50). */
+export function toPercent(n: number, r: Pick<SliderRange, "min" | "max">): number {
+    return r.max > r.min ? Math.round(((n - r.min) / (r.max - r.min)) * 100) : 0;
+}

@@ -71,6 +71,7 @@ Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's
 - **Half circle** (with colour ranges) or **Ring**.
 - **Thermostat:** with an actual-value topic (the room temperature), the arc shows the actual value large, and a marker and "→ 21.5 °C" show the setpoint. While you turn, the setpoint is shown large.
 - **Light:** rotate for brightness, push to switch on and off; while the light is off, the dial is dimmed and shows "Off".
+- **In percent:** devices count brightness differently (zigbee2mqtt 0–254, Homematic 0–255, others 0–100). Enter the device's range as minimum and maximum and switch on "Show in percent": the dial shows 0–100 % and sends in the device's range.
 
 ## Setting up a key
 

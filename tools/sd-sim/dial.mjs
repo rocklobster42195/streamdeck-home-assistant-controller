@@ -51,6 +51,7 @@ try {
             max: "254",
             step: "10",
             label: "Esstisch",
+            percent: true,
             pressAction: "toggle",
             pressStateTopic: "zigbee2mqtt/Esstisch",
             pressField: "state",

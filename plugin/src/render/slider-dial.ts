@@ -19,6 +19,8 @@ export type SliderView = {
     icon?: string;
     min: number;
     max: number;
+    /** Texts at the ends of the arc (e.g. "0" and "100" when shown in percent). */
+    rangeLabels?: [string, string];
     zones: Zones;
     /** What a push switches is off. */
     off: boolean;
@@ -76,7 +78,7 @@ function half(v: SliderView): string[] {
     if (v.label?.trim()) parts.push(text(4, 14, v.label.trim(), { size: 13, color: dim ? DIM : SOFT, maxWidth: 66 }));
     else if (v.icon) parts.push(mdi(v.icon, 4, 2, 20, dim ? DIM : SOFT));
     // Range at the ends of the arc
-    parts.push(text(cx - r, 99, short(v.min), { size: 11, color: DIM, anchor: "middle" }), text(cx + r, 99, short(v.max), { size: 11, color: DIM, anchor: "middle" }));
+    parts.push(text(cx - r, 99, v.rangeLabels?.[0] ?? short(v.min), { size: 11, color: DIM, anchor: "middle" }), text(cx + r, 99, v.rangeLabels?.[1] ?? short(v.max), { size: 11, color: DIM, anchor: "middle" }));
     return parts;
 }
 

@@ -129,7 +129,9 @@
 			"look_ring": "Ring",
 			"decimals_auto": "As the step needs",
 			"on_push": "On push",
-			"push_state_topic_hint": "E.g. the lamp's on/off state. While it is off, the dial is dimmed and shows “Off”."
+			"push_state_topic_hint": "E.g. the lamp's on/off state. While it is off, the dial is dimmed and shows “Off”.",
+			"percent": "Show in percent",
+			"percent_hint": "Devices count differently (zigbee2mqtt 0–254, Homematic 0–255, others 0–100). Enter the device's range as minimum and maximum; the dial shows 0–100 %."
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

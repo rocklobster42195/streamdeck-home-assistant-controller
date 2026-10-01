@@ -29,6 +29,8 @@ Switches a light, plug or anything else with two states, and shows the state the
 - A question mark means MQ-C hasn't received a known value yet.
 - Pick any icon from the Material Design Icons for on and off, a colour and a name.
 - Without a state topic (a gate that reports nothing), the key sends on and off by turns.
+- **On/off values are recognised:** `ON`/`OFF`, `true`/`false`, `1`/`0` and `open`/`closed` work without setting anything, and the key answers in the same words the device uses. Set your own values only for anything else.
+- **Value line (optional):** a second topic shown under the icon, e.g. the plug's power "42 W". With colour ranges, the icon takes the colour of the range the value is in while on (green, red from 1000 W).
 
 ### Value *(key)*
 
@@ -39,6 +41,7 @@ Shows a value with its unit: a temperature, power, humidity, a door's state.
 - **Colours:** a base colour and as many ranges as you like ("from 25 °C: red"). In the half circle, the ranges show as bands and the arc takes the colour of the range the value is in. A bar in the settings previews them.
 - Decimals as the device sends them, or rounded to a number you choose. Text that isn't a number ("open") shows as it is.
 - Offline look like the Switch key; a dash until the first value arrives.
+- **On press** (optional): **Switch** something on and off, e.g. the plug whose power the key shows; the key gets a frame while it is on. Or **Send** a fixed payload to a topic, e.g. a heating boost.
 
 ## Setting up a key
 

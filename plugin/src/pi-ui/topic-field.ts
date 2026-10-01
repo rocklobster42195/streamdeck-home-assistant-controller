@@ -1,8 +1,9 @@
-// <mqc-topic setting="stateTopic" label="…" [placeholder="…"] [hint="…"] [suggest]>
+// <mqc-topic setting="stateTopic" label="…" [placeholder="…"] [hint="…"] [suggest [suggest-prefix="press"]]>
 // A topic field with a live search over every topic on the broker (with its current value), and
 // below it the topic's current payload. With `suggest`, a recognised scheme (zigbee2mqtt, Tasmota,
 // Shelly, ESPHome, …) is offered as a card that fills the command topic, field, values and
-// availability in one click.
+// availability in one click. With `suggest-prefix`, the card fills prefixed settings instead
+// ("pressCommandTopic", …; no availability), e.g. for the Value key's press action.
 import { escapeHtml, nextRequestId, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
 import type { TopicSuggestion } from "../mqtt/schemes";
 import type { PiPush, TopicHit, TopicInfo } from "../pi/protocol";
@@ -146,12 +147,13 @@ export class MqcTopic extends HTMLElement {
         const s = this.hasAttribute("suggest") ? info?.suggestion : undefined;
         card.hidden = !s;
         if (!s) return;
-        const applied = SUGGESTED_KEYS.every((k) => String(sd.settings[k] ?? "") === String(s[k] ?? ""));
+        const prefix = this.getAttribute("suggest-prefix") ?? "";
+        const applied = keysFor(prefix).every(([k, from]) => String(sd.settings[k] ?? "") === String(s[from] ?? ""));
         const rows: [string, string | undefined][] = [
             ["pi.command_topic", s.commandTopic],
             ["pi.field", s.field],
             ["pi.on_off", s.onValue && s.offValue ? `${s.onValue} / ${s.offValue}` : undefined],
-            ["pi.availability_topic", s.availabilityTopic],
+            ["pi.availability_topic", prefix ? undefined : s.availabilityTopic],
         ];
         card.innerHTML = `
             <div class="mqc-suggestion-head">
@@ -163,13 +165,19 @@ export class MqcTopic extends HTMLElement {
                 .map(([k, v]) => `<span class="pi-hint">${escapeHtml(t(k))}</span><span class="mqc-mono">${escapeHtml(v!)}</span>`)
                 .join("")}</div>
             <button type="button" class="pi-button pi-button-small mqc-apply">${escapeHtml(t("pi.scheme_apply"))}</button>`}`;
-        card.querySelector(".mqc-apply")?.addEventListener("click", () => apply(s));
+        card.querySelector(".mqc-apply")?.addEventListener("click", () => apply(s, prefix));
     }
 }
 
-function apply(s: TopicSuggestion): void {
+/** [setting, suggestion field] pairs; a prefix renames the settings and leaves out availability. */
+function keysFor(prefix: string): [string, (typeof SUGGESTED_KEYS)[number]][] {
+    if (!prefix) return SUGGESTED_KEYS.map((k) => [k, k]);
+    return SUGGESTED_KEYS.filter((k) => k !== "availabilityTopic").map((k) => [`${prefix}${k[0].toUpperCase()}${k.slice(1)}`, k]);
+}
+
+function apply(s: TopicSuggestion, prefix: string): void {
     const patch: Record<string, string> = {};
-    for (const k of SUGGESTED_KEYS) patch[k] = s[k] ?? "";
+    for (const [k, from] of keysFor(prefix)) patch[k] = s[from] ?? "";
     sd.setSettings(patch);
 }
 

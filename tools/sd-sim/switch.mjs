@@ -35,6 +35,7 @@ aedes.on("publish", (packet, client) => {
 await publish("zigbee2mqtt/Wohnzimmer Lampe", JSON.stringify({ state: "OFF", brightness: 180, linkquality: 120 }));
 await publish("zigbee2mqtt/Wohnzimmer Lampe/availability", JSON.stringify({ state: "online" }));
 await publish("stat/plug1/POWER", "ON");
+await publish("tele/plug1/SENSOR", JSON.stringify({ ENERGY: { Power: 42.3, Today: 1.2 } }));
 await publish("shellyplus1-a8/status/switch:0", JSON.stringify({ id: 0, output: true, apower: 3.2 }));
 await publish("shellyplus1-a8/online", "true");
 
@@ -58,7 +59,7 @@ try {
         },
         { column: 0 },
     );
-    const plug = sim.add("switch", { stateTopic: "stat/plug1/POWER", commandTopic: "cmnd/plug1/POWER", label: "Steckdose", iconOn: "mdiPowerSocketEu", iconOff: "mdiPowerSocketEu" }, { column: 1 });
+    const plug = sim.add("switch", { stateTopic: "stat/plug1/POWER", commandTopic: "cmnd/plug1/POWER", label: "Steckdose", iconOn: "mdiPowerSocketEu", iconOff: "mdiPowerSocketEu", valueTopic: "tele/plug1/SENSOR", valueField: "ENERGY.Power", valueUnit: "W", valueDecimals: "0", colorOn: "#3ddc84", valueThresholds: [{ from: 1000, color: "#ff4d4d" }] }, { column: 1 });
     const shelly = sim.add(
         "switch",
         { stateTopic: "shellyplus1-a8/status/switch:0", commandTopic: "shellyplus1-a8/command/switch:0", field: "output", onValue: "true", offValue: "false", commandOn: "on", commandOff: "off", availabilityTopic: "shellyplus1-a8/online", label: "Shelly", colorOn: "#87AE73" },

@@ -1,6 +1,7 @@
 // The Value key in two looks. "Text": the name at the top, the value large in its zone's colour,
 // the unit below. "Gauge": the half circle with colour ranges and the value inside it. Offline:
-// dimmed with a cloud badge; before a value arrives: a dash.
+// dimmed with a cloud badge; before a value arrives: a dash. A frame shows that what a press
+// switches is on.
 import { escapeXml, halfArc, measureArialWidth, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
 import { mdiCloudOffOutline } from "@mdi/js";
 import { BG, FONT, icon, SIZE, svgUri } from "./svg";
@@ -17,6 +18,8 @@ export type ValueKeyView = {
     min: number;
     max: number;
     offline: boolean;
+    /** Colour of a frame around the key (what a press switches is on); none when undefined. */
+    frame?: string;
 };
 
 const DIM = "#7a7a80";
@@ -24,6 +27,7 @@ const DIM = "#7a7a80";
 export function renderValueKey(v: ValueKeyView): string {
     const color = v.offline ? DIM : v.number !== undefined ? zoneColor(v.number, v.zones) : v.zones[0].color;
     const parts = [`<rect width="${SIZE}" height="${SIZE}" fill="${BG}"/>`];
+    if (v.frame) parts.push(`<rect x="3" y="3" width="${SIZE - 6}" height="${SIZE - 6}" rx="14" fill="none" stroke="${v.frame}" stroke-width="5"${v.offline ? ' opacity="0.35"' : ""}/>`);
     if (v.look === "gauge") parts.push(...gauge(v, color));
     else parts.push(...textLook(v, color));
     // Text look: the name sits at the top, so the badge goes bottom right; gauge: the free top corner

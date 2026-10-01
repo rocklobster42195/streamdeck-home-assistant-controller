@@ -36,6 +36,27 @@
     <pi-thresholds setting="thresholds" base-setting="color" base-default="#FFFFFF" unit-setting="unit" min-setting="min" max-setting="max" default-min="0" default-max="100"></pi-thresholds>
   </pi-section>
 
+  <pi-section title="pi.on_press">
+    <pi-choice setting="pressAction" default="none" columns="3" data-options='[
+      {"value":"none","label":"pi.press_none","icon":"none"},
+      {"value":"toggle","label":"pi.press_toggle","icon":"toggle"},
+      {"value":"send","label":"pi.press_send","icon":"send"}
+    ]'></pi-choice>
+    <div data-show-when="pressAction=toggle" data-show-default="none">
+      <mqc-topic setting="pressStateTopic" suggest suggest-prefix="press" label="pi.press_state_topic" placeholder="pi.topic_search_placeholder" hint="pi.press_state_topic_hint"></mqc-topic>
+      <mqc-json-field setting="pressField" topic-setting="pressStateTopic" label="pi.field"></mqc-json-field>
+      <mqc-topic setting="pressCommandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder"></mqc-topic>
+      <pi-field setting="pressOnValue" label="pi.on_value" placeholder="pi.auto_value"></pi-field>
+      <pi-field setting="pressOffValue" label="pi.off_value" placeholder="pi.auto_value" hint="pi.auto_value_hint"></pi-field>
+      <pi-field setting="pressTemplate" label="pi.template" placeholder='{"state":"{value}"}'></pi-field>
+      <pi-color setting="pressColor" default="#F7A600" label="pi.frame_color"></pi-color>
+    </div>
+    <div data-show-when="pressAction=send" data-show-default="none">
+      <mqc-topic setting="sendTopic" label="pi.send_topic" placeholder="pi.topic_search_placeholder"></mqc-topic>
+      <pi-field setting="sendPayload" label="pi.send_payload" placeholder="pi.send_payload_placeholder" hint="pi.send_payload_hint"></pi-field>
+    </div>
+  </pi-section>
+
   <pi-section title="pi.advanced">
     <mqc-topic setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
   </pi-section>

@@ -28,6 +28,18 @@
     <pi-color setting="colorOn" default="#F7A600" label="pi.color_on"></pi-color>
   </pi-section>
 
+  <pi-section title="pi.value_line">
+    <mqc-topic setting="valueTopic" label="pi.value_topic" placeholder="pi.topic_search_placeholder" hint="pi.value_line_hint"></mqc-topic>
+    <mqc-json-field setting="valueField" topic-setting="valueTopic" label="pi.field"></mqc-json-field>
+    <pi-field setting="valueUnit" label="pi.unit" placeholder="pi.unit_placeholder"></pi-field>
+    <pi-field setting="valueDecimals" label="pi.decimals" placeholder="pi.decimals_placeholder"></pi-field>
+  </pi-section>
+
+  <pi-section title="pi.value_colors">
+    <div class="pi-hint mqc-help" data-i18n="pi.value_colors_hint"></div>
+    <pi-thresholds setting="valueThresholds" base-setting="colorOn" base-default="#F7A600" unit-setting="valueUnit" default-min="0" default-max="100"></pi-thresholds>
+  </pi-section>
+
   <pi-section title="pi.advanced">
     <mqc-topic setting="commandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder" hint="pi.command_topic_hint"></mqc-topic>
     <pi-field setting="template" label="pi.template" placeholder='{"state":"{value}"}' hint="pi.template_hint"></pi-field>

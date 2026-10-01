@@ -1,5 +1,6 @@
-// The Switch key: the state's icon large (on: in its colour, off: grey), the name below. Unknown
-// state: grey with a question mark; offline: dimmed with a cloud badge; nothing set up: a hint.
+// The Switch key: the state's icon large (on: in its colour, off: grey), the name and an optional
+// value line ("42 W") below. Unknown state: grey with a question mark; offline: dimmed with a
+// cloud badge; nothing set up: a hint.
 import { mdiCloudOffOutline, mdiHelpCircleOutline, mdiLightbulbOnOutline } from "@mdi/js";
 import type { SwitchState } from "../mqtt/switch-state";
 import { BG, icon, lines, SIZE, svgUri } from "./svg";
@@ -12,6 +13,8 @@ export type SwitchKeyView = {
     iconOff: string;
     colorOn: string;
     label?: string;
+    /** Value line with its unit, e.g. "42 W". */
+    value?: string;
 };
 
 const OFF_INK = "#7a7a80";
@@ -19,9 +22,11 @@ const OFF_INK = "#7a7a80";
 export function renderSwitchKey(v: SwitchKeyView): string {
     const on = v.state === "on";
     const label = v.label?.trim();
-    const size = label ? 72 : 88;
+    const value = v.value?.trim();
+    // Room for one or two text lines under the icon
+    const size = label && value ? 56 : label || value ? 72 : 88;
     const x = (SIZE - size) / 2;
-    const y = label ? 14 : (SIZE - size) / 2;
+    const y = label && value ? 8 : label || value ? 14 : (SIZE - size) / 2;
     const fade = v.offline ? 0.35 : 1;
     const parts = [`<rect width="${SIZE}" height="${SIZE}" fill="${BG}"/>`];
     // A soft glow behind the icon while on
@@ -29,7 +34,9 @@ export function renderSwitchKey(v: SwitchKeyView): string {
     parts.push(icon(on ? v.iconOn : v.iconOff, x, y, size, on ? v.colorOn : OFF_INK, fade));
     if (v.state === "unknown" && !v.offline) parts.push(icon(mdiHelpCircleOutline, SIZE - 42, 8, 32, "#c8c8cc"));
     if (v.offline) parts.push(icon(mdiCloudOffOutline, SIZE - 42, 8, 32, "#ff6b6b"));
-    if (label) parts.push(...lines(label, 112, 18, v.offline ? OFF_INK : on ? "#FFFFFF" : "#c8c8cc", 1));
+    const ink = v.offline ? OFF_INK : on ? "#FFFFFF" : "#c8c8cc";
+    if (label) parts.push(...lines(label, value ? 92 : 112, value ? 17 : 18, ink, 1));
+    if (value) parts.push(...lines(value, label ? 122 : 116, label ? 20 : 22, ink, 1, 700));
     return svgUri(parts);
 }
 

@@ -1,6 +1,6 @@
 # MQTT Controller (MQC): Concept
 
-Status: agreed 2026-09-26; building since 2026-10-01 (Switch key, broker connection, topic help, deckbus). Decisions and their reasons are in [`notes/2026-09-26-mqtt-controller-grill.md`](../notes/2026-09-26-mqtt-controller-grill.md).
+Status: agreed 2026-09-26; v1 actions, topic help (search, schemes, Browse, Listen, Test), Home Assistant discovery and deckbus built on 2026-10-01. Decisions and their reasons are in [`notes/2026-09-26-mqtt-controller-grill.md`](../notes/2026-09-26-mqtt-controller-grill.md).
 
 ## What it is
 

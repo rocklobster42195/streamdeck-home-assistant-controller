@@ -3,6 +3,7 @@
 import { definePiComponents, initConditionalVisibility, sd, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
 import { mdiCancel, mdiChartDonut, mdiFormatText, mdiGauge, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
 import { MqcConnectionCard } from "./connection-card";
+import { MqcDevice } from "./device-picker";
 import { MqcJsonField } from "./json-field";
 import { MqcStates } from "./states-field";
 import { MqcTest } from "./test-button";
@@ -15,6 +16,7 @@ sd.onReady(() => {
     translateDom();
     definePiComponents();
     customElements.define("mqc-connection-card", MqcConnectionCard);
+    customElements.define("mqc-device", MqcDevice);
     customElements.define("mqc-topic", MqcTopic);
     customElements.define("mqc-json-field", MqcJsonField);
     customElements.define("mqc-states", MqcStates);

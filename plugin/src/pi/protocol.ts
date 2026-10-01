@@ -55,6 +55,18 @@ export type TestResult = {
     ms?: number;
 };
 
+/** A Home Assistant entity in the device picker. */
+export type HaItem = {
+    id: string;
+    name: string;
+    device?: string;
+    component: string;
+    /** A config/diagnostic entity (listed after the main ones). */
+    extra: boolean;
+    /** MDI path of its icon. */
+    icon?: string;
+};
+
 /** PI → plugin */
 export type PiRequest =
     | { event: "reconnect" }
@@ -62,7 +74,9 @@ export type PiRequest =
     | { event: "topic-info"; requestId: number; topic: string }
     | { event: "topic-tree"; requestId: number; prefix: string }
     | { event: "listen"; requestId: number; ms: number }
-    | { event: "test-switch"; requestId: number; settings: SwitchTopics };
+    | { event: "test-switch"; requestId: number; settings: SwitchTopics }
+    | { event: "ha-entities"; requestId: number; action: string; query: string; current?: string }
+    | { event: "ha-apply"; requestId: number; action: string; id: string };
 
 /** Plugin → PI */
 export type PiPush =
@@ -71,4 +85,6 @@ export type PiPush =
     | { event: "topic-info-result"; requestId: number; info: TopicInfo }
     | { event: "topic-tree-result"; requestId: number; prefix: string; nodes: TreeNode[] }
     | { event: "listen-result"; requestId: number; heard: Heard[] }
-    | { event: "test-result"; requestId: number; result: TestResult };
+    | { event: "test-result"; requestId: number; result: TestResult }
+    | { event: "ha-entities-result"; requestId: number; items: HaItem[]; total: number; matching: number; current?: HaItem }
+    | { event: "ha-apply-result"; requestId: number; settings?: Record<string, unknown> };

@@ -75,6 +75,10 @@ Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's
 
 ## Setting up a key
 
+**With Home Assistant:** if your devices announce themselves through Home Assistant's MQTT discovery (zigbee2mqtt does by default, as do Tasmota, ESPHome, AWTRIX and many others), the settings start with **Home Assistant device**. Search "living room", pick the entity, done: topics, values, JSON fields, availability, its icon and name are filled in. Each action lists only what fits it: lights and switches for the Switch key, sensors for Value, buttons and scenes for Publish, selects for Multi-state, numbers, light brightness and thermostats for the Slider dial. A light on the Slider dial is set up in percent, with push switching it on and off.
+
+**Without discovery** (or to fine-tune):
+
 1. Find the **State topic** in one of three ways:
    - **Type** part of it, e.g. "lamp": the list shows every matching topic on your broker with its current value.
    - **Browse:** all topics as a tree, one level at a time, with their values.
@@ -115,7 +119,6 @@ MQ-C works the same without other plugins.
 
 ## Planned
 
-- **Home Assistant MQTT discovery:** pick "Living room light" instead of a topic.
 
 ## Development
 
@@ -126,6 +129,7 @@ npm run sim:switch   # Switch keys against an in-process broker with invented de
 npm run sim:value    # Value keys in both looks with colour ranges
 npm run sim:keys     # Publish (with confirmation) and Multi-state keys
 npm run sim:dial     # Slider dials: a lamp, a thermostat, a blind
+npm run sim:discovery # Home Assistant discovery: pick a device, the key and dial work
 npm run pi:preview   # the settings pages in a browser, with invented topics
 npm run watch        # rebuild and restart the plugin in Stream Deck
 ```

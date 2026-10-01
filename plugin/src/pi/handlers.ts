@@ -8,6 +8,7 @@ import { broker, reconnect } from "../mqtt/connection";
 import { jsonFields } from "../mqtt/payload";
 import { suggestForTopic } from "../mqtt/schemes";
 import { shortAddress } from "../mqtt/url";
+import { initHaDiscovery } from "../discovery/ha-discovery";
 import { initExplore } from "./explore";
 import type { ConnectionStatus, PiPush, TopicHit } from "./protocol";
 
@@ -29,6 +30,7 @@ export function initPiBridge(): void {
         await piBridge.reply(json({ event: "topic-info-result", requestId: msg.requestId as number, info }));
     });
     initExplore();
+    initHaDiscovery();
     piBridge.addPusher(() => [json({ event: "status", status: status() })]);
     broker.onState(() => piBridge.schedulePush());
 

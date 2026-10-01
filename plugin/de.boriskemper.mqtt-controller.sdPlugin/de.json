@@ -149,7 +149,12 @@
 			"test_no_answer": "Keine Antwort in 3 s. Gesendet:",
 			"test_reported": "Das Status-Topic sagt: {value}",
 			"test_no_topic": "Wähle zuerst ein Status- oder Befehls-Topic.",
-			"test_offline": "Nicht mit dem Broker verbunden."
+			"test_offline": "Nicht mit dem Broker verbunden.",
+			"ha_device": "Home-Assistant-Gerät",
+			"ha_search": "Gerät suchen, z. B. wohnzimmer",
+			"ha_hint": "Aus der MQTT-Discovery von Home Assistant: die Auswahl füllt alle Topics darunter aus.",
+			"ha_none": "Kein passendes Gerät gefunden.",
+			"ha_no_device": "Ohne Gerät"
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

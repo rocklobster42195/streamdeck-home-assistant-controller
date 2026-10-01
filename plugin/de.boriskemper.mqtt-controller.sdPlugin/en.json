@@ -149,7 +149,12 @@
 			"test_no_answer": "No answer within 3 s. Sent:",
 			"test_reported": "The state topic says: {value}",
 			"test_no_topic": "Choose a state or command topic first.",
-			"test_offline": "Not connected to the broker."
+			"test_offline": "Not connected to the broker.",
+			"ha_device": "Home Assistant device",
+			"ha_search": "Search a device, e.g. living room",
+			"ha_hint": "From Home Assistant's MQTT discovery: picking one fills in all topics below.",
+			"ha_none": "No fitting device found.",
+			"ha_no_device": "Without a device"
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

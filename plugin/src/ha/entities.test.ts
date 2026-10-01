@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { sourceOf } from "../source";
-import { haFits, haIcon, haName, haSwitchService, haSwitchState, haValue, isUnavailable } from "./entities";
+import { haFits, haIcon, haName, haSwitchService, haAttributes, haRead, haSwitchState, isUnavailable } from "./entities";
 
 const entity = (entity_id: string, state: string, attributes: Record<string, unknown> = {}): HassEntity => ({ entity_id, state, attributes, last_changed: "", last_updated: "", context: { id: "", user_id: null, parent_id: null } });
 
@@ -36,11 +36,21 @@ describe("HA entities on keys", () => {
     });
 
     it("shows the value with HA's unit, nothing while unavailable", () => {
-        expect(haValue(entity("sensor.temp", "21.4", { unit_of_measurement: "°C" }))).toEqual({ payload: "21.4", unit: "°C" });
-        expect(haValue(entity("binary_sensor.window", "off"))).toEqual({ payload: "off", unit: undefined });
-        expect(haValue(entity("sensor.temp", "unavailable"))).toEqual({});
+        expect(haRead(entity("sensor.temp", "21.4", { unit_of_measurement: "°C" }))).toEqual({ payload: "21.4", unit: "°C" });
+        expect(haRead(entity("binary_sensor.window", "off"))).toEqual({ payload: "off", unit: undefined });
+        expect(haRead(entity("sensor.temp", "unavailable"))).toEqual({});
+        expect(haRead(entity("sensor.temp", "unknown"))).toEqual({});
         expect(isUnavailable(entity("sensor.temp", "unavailable"))).toBe(true);
         expect(isUnavailable(undefined)).toBe(true);
+    });
+
+    it("reads attributes, brightness as percent", () => {
+        const light = entity("light.desk", "on", { brightness: 128, color_mode: "brightness", friendly_name: "Desk", rgb_color: [1, 2, 3] });
+        expect(haRead(light, "brightness")).toEqual({ payload: "50", unit: "%" });
+        expect(haRead(entity("climate.bath", "heat", { current_temperature: 21.5 }), "current_temperature")).toEqual({ payload: "21.5" });
+        expect(haRead(light, "rgb_color")).toEqual({});
+        expect(haRead(light, "missing")).toEqual({});
+        expect(haAttributes(light)).toEqual([{ name: "brightness", value: "128" }]);
     });
 
     it("takes name and icon from HA", () => {

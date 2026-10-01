@@ -1,12 +1,14 @@
 // Switch key: toggles a device and shows its state: a Home Assistant entity (light, switch, lock,
-// cover, …) or MQTT topics with two values (ON/OFF, true/false, …). With MQTT, optionally a value
-// line under the icon (e.g. the plug's power) whose colour ranges can colour the icon while on.
+// cover, …) or MQTT topics with two values (ON/OFF, true/false, …). Optionally a value line under
+// the icon (e.g. the plug's power or the light's brightness: an HA attribute or entity, or a topic)
+// whose colour ranges can colour the icon while on.
 import streamDeck, { action } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { zoneColor } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiLightbulbOnOutline, mdiLightbulbOutline, mdiToggleSwitchOffOutline } from "@mdi/js";
-import { haIcon, haName } from "../ha/entities";
+import { ha } from "../ha/connection";
+import { haIcon, haName, haRead } from "../ha/entities";
 import type { SwitchTopics } from "../mqtt/switch-state";
 import { shownValue, zonesOf } from "../mqtt/value-state";
 import { ACCENT } from "../render/svg";
@@ -29,6 +31,9 @@ export type SwitchKeySettings = TopicKeySettings &
         valueField?: string;
         valueUnit?: string;
         valueDecimals?: string;
+        /** HA value line: an entity (empty: the key's own) and attribute (empty: its state). */
+        valueEntityId?: string;
+        valueAttribute?: string;
         /** Colour ranges for the value: while on, the icon takes the colour of the value's range. */
         valueThresholds?: JsonObject[];
     };
@@ -51,6 +56,22 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
     private redraw(id: string): void {
         const inst = this.instances.get(id);
         if (inst) this.render(inst);
+    }
+
+    protected override moreEntities(s: SwitchKeySettings): (string | undefined)[] {
+        return [s.valueEntityId];
+    }
+
+    /** The value line: shown value and unit, from HA or a topic; undefined when none is set up. */
+    private valueLine(inst: KeyInstance<SwitchKeySettings>, fromHa: boolean): { text?: string; number?: number; unit?: string } | undefined {
+        const s = inst.settings;
+        if (fromHa) {
+            if (!s.valueEntityId?.trim() && !s.valueAttribute?.trim()) return undefined;
+            const read = haRead(ha.entities[s.valueEntityId?.trim() || s.entityId || ""], s.valueAttribute);
+            return { ...shownValue(read.payload, undefined, s.valueDecimals), unit: s.valueUnit?.trim() || read.unit };
+        }
+        if (!s.valueTopic?.trim()) return undefined;
+        return { ...shownValue(this.payload(s.valueTopic), s.valueField, s.valueDecimals), unit: s.valueUnit?.trim() };
     }
 
     protected override press(inst: KeyInstance<SwitchKeySettings>): void {
@@ -77,31 +98,22 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
         const t = (k: string) => streamDeck.i18n.t(k);
         const hint = this.sourceHint(inst, mdiLightbulbOnOutline);
         if (hint) return hint;
-        if (this.source(inst) === "ha") {
-            const e = this.entity(inst);
-            const icon = mdiPath(s.iconOn) ?? mdiPath(haIcon(e)) ?? mdiLightbulbOnOutline;
-            return renderSwitchKey({
-                state: this.haToggle.state(inst.id, s.entityId!),
-                offline: this.isOffline(inst),
-                iconOn: icon,
-                iconOff: mdiPath(s.iconOff) ?? mdiPath(s.iconOn) ?? mdiPath(haIcon(e)) ?? mdiLightbulbOutline,
-                colorOn: s.colorOn || ACCENT,
-                label: s.label?.trim() || haName(e),
-            });
-        }
-        if (!s.stateTopic?.trim() && !s.commandTopic?.trim()) return renderKeyHint(t("key.choose_topic"), mdiToggleSwitchOffOutline);
-        const value = s.valueTopic?.trim() ? shownValue(this.payload(s.valueTopic), s.valueField, s.valueDecimals) : undefined;
+        const fromHa = this.source(inst) === "ha";
+        if (!fromHa && !s.stateTopic?.trim() && !s.commandTopic?.trim()) return renderKeyHint(t("key.choose_topic"), mdiToggleSwitchOffOutline);
+        const e = fromHa ? this.entity(inst) : undefined;
+        const value = this.valueLine(inst, fromHa);
         // The on colour follows the value's range, with the chosen on colour as the base
         const base = s.colorOn || ACCENT;
         const colorOn = value?.number !== undefined && s.valueThresholds?.length ? zoneColor(value.number, zonesOf(base, s.valueThresholds)) : base;
+        const haIconPath = fromHa ? mdiPath(haIcon(e)) : undefined;
         return renderSwitchKey({
-            state: this.toggle.state(inst.id, s),
+            state: fromHa ? this.haToggle.state(inst.id, s.entityId!) : this.toggle.state(inst.id, s),
             offline: this.isOffline(inst),
-            iconOn: mdiPath(s.iconOn) ?? mdiLightbulbOnOutline,
-            iconOff: mdiPath(s.iconOff) ?? mdiPath(s.iconOn) ?? mdiLightbulbOutline,
+            iconOn: mdiPath(s.iconOn) ?? haIconPath ?? mdiLightbulbOnOutline,
+            iconOff: mdiPath(s.iconOff) ?? mdiPath(s.iconOn) ?? haIconPath ?? mdiLightbulbOutline,
             colorOn,
-            label: s.label,
-            value: value ? `${value.text ?? "–"}${s.valueUnit?.trim() ? ` ${s.valueUnit.trim()}` : ""}` : undefined,
+            label: s.label?.trim() || (fromHa ? haName(e) : undefined),
+            value: value ? `${value.text ?? "–"}${value.unit ? ` ${value.unit}` : ""}` : undefined,
         });
     }
 }

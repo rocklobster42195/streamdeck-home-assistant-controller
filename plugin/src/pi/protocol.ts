@@ -91,6 +91,8 @@ export type PiRequest =
     | { event: "reconnect" }
     | { event: "ha-reconnect" }
     | { event: "ha-find"; requestId: number }
+    | { event: "ha-attributes"; requestId: number; entityId: string }
+    | { event: "ha-entity-list"; requestId: number }
     | { event: "topics"; requestId: number; query: string }
     | { event: "topic-info"; requestId: number; topic: string }
     | { event: "topic-tree"; requestId: number; prefix: string }
@@ -104,6 +106,8 @@ export type PiPush =
     | { event: "status"; status: ConnectionStatus }
     | { event: "ha-status"; status: HaStatus }
     | { event: "ha-find-result"; requestId: number; found: FoundHa[] }
+    | { event: "ha-attributes-result"; requestId: number; state?: string; attributes: { name: string; value: string }[] }
+    | { event: "ha-entity-list-result"; requestId: number; entities: { id: string; name: string }[] }
     | { event: "topics-result"; requestId: number; hits: TopicHit[]; total: number }
     | { event: "topic-info-result"; requestId: number; info: TopicInfo }
     | { event: "topic-tree-result"; requestId: number; prefix: string; nodes: TreeNode[] }

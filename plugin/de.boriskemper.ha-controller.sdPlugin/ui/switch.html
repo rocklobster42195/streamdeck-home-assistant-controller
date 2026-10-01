@@ -31,14 +31,20 @@
     <pi-color setting="colorOn" default="#F7A600" label="pi.color_on"></pi-color>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.value_line" data-show-when="source=mqtt" data-show-default="mqtt">
-    <hac-topic setting="valueTopic" label="pi.value_topic" placeholder="pi.topic_search_placeholder" hint="pi.value_line_hint"></hac-topic>
-    <hac-json-field setting="valueField" topic-setting="valueTopic" label="pi.field"></hac-json-field>
+  <pi-section class="hac-win" title="pi.value_line">
+    <div data-show-when="source=ha" data-show-default="mqtt">
+      <hac-ha-entity setting="valueEntityId" label="pi.entity" placeholder="pi.same_entity"></hac-ha-entity>
+      <hac-ha-attribute setting="valueAttribute" entity-setting="valueEntityId" fallback-setting="entityId" hint="pi.value_line_ha_hint"></hac-ha-attribute>
+    </div>
+    <div data-show-when="source=mqtt" data-show-default="mqtt">
+      <hac-topic setting="valueTopic" label="pi.value_topic" placeholder="pi.topic_search_placeholder" hint="pi.value_line_hint"></hac-topic>
+      <hac-json-field setting="valueField" topic-setting="valueTopic" label="pi.field"></hac-json-field>
+    </div>
     <pi-field setting="valueUnit" label="pi.unit" placeholder="pi.unit_placeholder"></pi-field>
     <pi-field setting="valueDecimals" label="pi.decimals" placeholder="pi.decimals_placeholder"></pi-field>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.value_colors" data-show-when="source=mqtt" data-show-default="mqtt">
+  <pi-section class="hac-win" title="pi.value_colors">
     <div class="pi-hint hac-help" data-i18n="pi.value_colors_hint"></div>
     <pi-thresholds setting="valueThresholds" base-setting="colorOn" base-default="#F7A600" unit-setting="valueUnit" default-min="0" default-max="100"></pi-thresholds>
   </pi-section>

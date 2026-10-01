@@ -5,6 +5,7 @@ import { definePiComponents, escapeHtml, initConditionalVisibility, sd, t, trans
 import { mdiCancel, mdiChartDonut, mdiFormatText, mdiGauge, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
 import { HacConnectionCard, HacHaCard } from "./connection-card";
 import { HacDevice } from "./device-picker";
+import { HacHaAttribute, HacHaEntity } from "./ha-fields";
 import { HacJsonField } from "./json-field";
 import { HacMore, HacSources } from "./more";
 import { HacStates } from "./states-field";
@@ -26,6 +27,8 @@ sd.onReady(() => {
     customElements.define("hac-states", HacStates);
     customElements.define("hac-test", HacTest);
     customElements.define("hac-more", HacMore);
+    customElements.define("hac-ha-attribute", HacHaAttribute);
+    customElements.define("hac-ha-entity", HacHaEntity);
     customElements.define("hac-sources", HacSources);
     document.querySelectorAll<PiChoice & HTMLElement>("pi-choice[data-options]").forEach((el) => {
         const raw = JSON.parse(el.dataset.options ?? "[]") as PiChoiceOption[];

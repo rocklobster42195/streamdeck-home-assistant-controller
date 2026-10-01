@@ -23,8 +23,8 @@ export type KeyInstance<S extends JsonObject> = {
     settings: S;
     topics: Set<string>;
     lastImage?: string;
-    /** The HA entity last drawn, to redraw only when it changes. */
-    lastEntity?: HassEntity;
+    /** The HA entities last drawn, to redraw only when one of them changes. */
+    seen?: (HassEntity | undefined)[];
 };
 
 export abstract class TopicKey<S extends TopicKeySettings> extends SingletonAction<S> {
@@ -40,9 +40,8 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
         });
         ha.onEntities((entities) => {
             for (const inst of this.instances.values()) {
-                if (this.source(inst) !== "ha") continue;
-                const e = entities[inst.settings.entityId ?? ""];
-                if (e !== inst.lastEntity) this.render(inst);
+                const ids = this.entityIds(inst);
+                if (ids.some((id, i) => entities[id] !== inst.seen?.[i])) this.render(inst);
             }
         });
         broker.onMessage((topic) => {
@@ -67,10 +66,21 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
         return this.haCapable ? sourceOf(inst.settings, ha.state !== "unconfigured") : "mqtt";
     }
 
-    /** The key's HA entity (remembered, so only its own changes redraw the key). */
+    /** The key's HA entity. */
     protected entity(inst: KeyInstance<S>): HassEntity | undefined {
-        inst.lastEntity = ha.entities[inst.settings.entityId ?? ""];
-        return inst.lastEntity;
+        return ha.entities[inst.settings.entityId ?? ""];
+    }
+
+    /** HA entities the key shows besides its own (a second value, a value line). */
+    protected moreEntities(_settings: S): (string | undefined)[] {
+        return [];
+    }
+
+    /** Every HA entity whose change redraws the key (none while the key isn't on HA). */
+    private entityIds(inst: KeyInstance<S>): string[] {
+        if (!this.haCapable || ha.state === "unconfigured") return [];
+        const own = this.source(inst) === "ha" ? [inst.settings.entityId] : [];
+        return [...own, ...this.moreEntities(inst.settings)].map((id) => id?.trim()).filter((id): id is string => !!id);
     }
 
     /** "Set up …" or "Choose a device" while the key's source can't show anything yet. */
@@ -133,6 +143,7 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
     }
 
     protected render(inst: KeyInstance<S>): void {
+        inst.seen = this.entityIds(inst).map((id) => ha.entities[id]);
         const image = this.image(inst);
         if (image === inst.lastImage) return;
         inst.lastImage = image;

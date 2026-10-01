@@ -59,12 +59,34 @@ export function haSwitchService(entityId: string, turnOn: boolean): { domain: st
     return sw ? { domain, service: turnOn ? sw.turnOn : sw.turnOff } : undefined;
 }
 
-/** What the Value key shows: the state as text (number when it is one) and the entity's unit. */
-export function haValue(e: HassEntity | undefined): { payload?: string; unit?: string } {
-    if (!e || UNAVAILABLE.has(e.state) || e.state === "unknown") return {};
-    const unit = e.attributes.unit_of_measurement;
-    return { payload: e.state, unit: typeof unit === "string" ? unit : undefined };
+/**
+ * The state, or one of the entity's attributes, as text with its unit. A light's brightness
+ * (0–255) reads as percent; lists and objects are left out.
+ */
+export function haRead(e: HassEntity | undefined, attribute?: string): { payload?: string; unit?: string } {
+    if (!e || UNAVAILABLE.has(e.state)) return {};
+    const attr = attribute?.trim();
+    if (!attr) {
+        if (e.state === "unknown") return {};
+        const unit = e.attributes.unit_of_measurement;
+        return { payload: e.state, unit: typeof unit === "string" ? unit : undefined };
+    }
+    const v = e.attributes[attr];
+    if (attr === "brightness" && typeof v === "number") return { payload: String(Math.round((v / 255) * 100)), unit: "%" };
+    if (v === null || v === undefined || typeof v === "object") return {};
+    return { payload: String(v) };
 }
+
+/** The attributes the Value key can show (scalars only), with their current values. */
+export function haAttributes(e: HassEntity | undefined): { name: string; value: string }[] {
+    if (!e) return [];
+    return Object.entries(e.attributes)
+        .filter(([name, v]) => v !== null && v !== undefined && typeof v !== "object" && !HIDDEN_ATTRIBUTES.has(name))
+        .map(([name, v]) => ({ name, value: String(v) }));
+}
+
+/** Attributes that describe the entity rather than measure something. */
+const HIDDEN_ATTRIBUTES = new Set(["friendly_name", "icon", "entity_picture", "unit_of_measurement", "device_class", "state_class", "supported_features", "supported_color_modes", "color_mode", "attribution", "restored", "editable", "id", "assumed_state"]);
 
 export function haName(e: HassEntity | undefined): string | undefined {
     const n = e?.attributes.friendly_name;

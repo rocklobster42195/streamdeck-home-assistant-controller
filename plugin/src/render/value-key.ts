@@ -1,5 +1,6 @@
 // The Value key in two looks. "Text": the name at the top, the value large in its zone's colour,
-// the unit below. "Gauge": the half circle with colour ranges and the value inside it. Offline:
+// the unit below; with a second value, both on their own line. "Gauge": the half circle with colour
+// ranges and the value inside it, a second value at the bottom. Offline:
 // dimmed with a cloud badge; before a value arrives: a dash. A frame shows that what a press
 // switches is on.
 import { escapeXml, halfArc, measureArialWidth, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
@@ -11,6 +12,8 @@ export type ValueKeyView = {
     text?: string;
     number?: number;
     unit?: string;
+    /** A second, smaller value under the first (already with its unit), e.g. the humidity. */
+    second?: string;
     label?: string;
     /** MDI path shown small at the top left (text look) or under the value (gauge look). */
     icon?: string;
@@ -41,8 +44,16 @@ function textLook(v: ValueKeyView, color: string): string[] {
     if (v.icon) parts.push(icon(v.icon, 10, 10, 26, v.offline ? DIM : "#c8c8cc"));
     if (label) parts.push(text(label, v.icon ? 40 + (SIZE - 50) / 2 : SIZE / 2, 30, fit(label, 18, v.icon ? SIZE - 50 : SIZE - 16, true, 12), "#c8c8cc", 600));
     const value = v.text ?? "–";
-    const size = fit(value, 48, SIZE - 12, true, 18);
     const unit = v.unit?.trim();
+    const second = v.second?.trim();
+    if (second) {
+        // Two values: the first with its unit on one line, the second smaller below
+        const first = `${value}${unit ? ` ${unit}` : ""}`;
+        parts.push(text(first, SIZE / 2, 86, fit(first, 38, SIZE - 12, true, 16), color, 700));
+        parts.push(text(second, SIZE / 2, 122, fit(second, 26, SIZE - 16, true, 12), v.offline ? DIM : "#c8c8cc", 600));
+        return parts;
+    }
+    const size = fit(value, 48, SIZE - 12, true, 18);
     const y = unit ? 92 : 100;
     parts.push(text(value, SIZE / 2, y, size, color, 700));
     if (unit) parts.push(text(unit, SIZE / 2, 124, fit(unit, 20, SIZE - 16, false, 12), v.offline ? DIM : "#c8c8cc", 400));
@@ -64,7 +75,8 @@ function gauge(v: ValueKeyView, color: string): string[] {
     parts.push(`<text x="${x0.toFixed(1)}" y="${cy - 6}" ${FONT} font-size="${vs}" font-weight="700" fill="${color}">${escapeXml(value)}${unit ? `<tspan font-size="${us}" font-weight="400" fill="${v.offline ? DIM : "#c8c8cc"}"> ${escapeXml(unit)}</tspan>` : ""}</text>`);
     // Min and max under the ends, the name at the bottom
     parts.push(text(short(v.min), cx - 54, cy + 18, 12, DIM, 400), text(short(v.max), cx + 54, cy + 18, 12, DIM, 400));
-    const label = v.label?.trim();
+    // At the bottom: the second value, else the name, else the icon
+    const label = v.second?.trim() || v.label?.trim();
     if (label) parts.push(text(label, cx, 132, fit(label, 17, SIZE - 50, true, 11), v.offline ? DIM : "#c8c8cc", 600));
     else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, v.offline ? DIM : "#c8c8cc"));
     return parts;

@@ -1,12 +1,14 @@
 // Value key: shows a value with its unit (temperature, power, humidity, a door's state) from a Home
 // Assistant entity or an MQTT topic, as large text or on a half-circle gauge, coloured by the user's
-// colour ranges. A press can do nothing,
+// colour ranges; with HA, the state or one of the entity's attributes. Optionally a second, smaller
+// value below (another attribute or entity, or another topic). A press can do nothing,
 // switch something on and off (framed while on), or send a fixed payload.
 import streamDeck, { action } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiThermometer } from "@mdi/js";
-import { haIcon, haName, haValue } from "../ha/entities";
+import { ha } from "../ha/connection";
+import { haIcon, haName, haRead } from "../ha/entities";
 import { numberSetting, shownValue, zonesOf } from "../mqtt/value-state";
 import { ACCENT } from "../render/svg";
 import { renderKeyHint } from "../render/switch-key";
@@ -30,6 +32,15 @@ export type ValueKeySettings = TopicKeySettings &
         thresholds?: JsonObject[];
         icon?: string;
         label?: string;
+        /** HA: the attribute to show instead of the state. */
+        attribute?: string;
+        /** Second value. HA: an entity (empty: the key's own) and attribute; MQTT: a topic and field. */
+        secondEntityId?: string;
+        secondAttribute?: string;
+        secondTopic?: string;
+        secondField?: string;
+        secondUnit?: string;
+        secondDecimals?: string;
     };
 
 @action({ UUID: "de.boriskemper.ha-controller.value" })
@@ -46,7 +57,11 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
     }
 
     protected override topicsOf(s: ValueKeySettings): (string | undefined)[] {
-        return [s.stateTopic, pressListenTopic(s)];
+        return [s.stateTopic, s.secondTopic, pressListenTopic(s)];
+    }
+
+    protected override moreEntities(s: ValueKeySettings): (string | undefined)[] {
+        return [s.secondEntityId];
     }
 
     protected override press(inst: KeyInstance<ValueKeySettings>): void {
@@ -62,6 +77,22 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         this.toggle.forget(inst.id);
     }
 
+    /** The second value with its unit; undefined when none is set up. */
+    private second(inst: KeyInstance<ValueKeySettings>, fromHa: boolean): string | undefined {
+        const s = inst.settings;
+        let read: { payload?: string; unit?: string; field?: string };
+        if (fromHa) {
+            if (!s.secondAttribute?.trim() && !s.secondEntityId?.trim()) return undefined;
+            read = haRead(ha.entities[s.secondEntityId?.trim() || s.entityId || ""], s.secondAttribute);
+        } else {
+            if (!s.secondTopic?.trim()) return undefined;
+            read = { payload: this.payload(s.secondTopic), field: s.secondField };
+        }
+        const v = shownValue(read.payload, read.field, s.secondDecimals);
+        const unit = s.secondUnit?.trim() || read.unit;
+        return `${v.text ?? "–"}${unit ? ` ${unit}` : ""}`;
+    }
+
     protected override image(inst: KeyInstance<ValueKeySettings>): string {
         const s = inst.settings;
         const t = (k: string) => streamDeck.i18n.t(k);
@@ -70,7 +101,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         const fromHa = this.source(inst) === "ha";
         if (!fromHa && !s.stateTopic?.trim()) return renderKeyHint(t("key.choose_topic"), mdiThermometer);
         const e = fromHa ? this.entity(inst) : undefined;
-        const haV = haValue(e);
+        const haV = haRead(e, s.attribute);
         const v = fromHa ? shownValue(haV.payload, undefined, s.decimals) : shownValue(this.payload(s.stateTopic), s.field, s.decimals);
         const toggled = fromHa ? undefined : pressState(s, this.toggle, inst.id);
         return renderValueKey({
@@ -78,6 +109,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
             text: v.text,
             number: v.number,
             unit: s.unit?.trim() || (fromHa ? haV.unit : undefined),
+            second: this.second(inst, fromHa),
             label: s.label?.trim() || (fromHa ? haName(e) : undefined),
             icon: mdiPath(s.icon) ?? (fromHa ? mdiPath(haIcon(e)) : undefined),
             zones: zonesOf(s.color || "#FFFFFF", s.thresholds),

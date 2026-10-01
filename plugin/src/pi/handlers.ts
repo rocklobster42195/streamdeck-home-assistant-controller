@@ -7,6 +7,7 @@ import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/b
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
 import { reconnectBroker, reconnectHa } from "../connections";
 import { ha } from "../ha/connection";
+import { haAttributes, haName } from "../ha/entities";
 import { shortHaAddress } from "../ha/url";
 import { findHomeAssistants } from "../ha/zeroconf";
 import { broker } from "../mqtt/connection";
@@ -26,6 +27,15 @@ export function initPiBridge(): void {
     piBridge.registerOptions("mdi-icons", mdiOptions);
     piBridge.handle("reconnect", () => reconnectBroker());
     piBridge.handle("ha-reconnect", () => reconnectHa());
+    piBridge.handle("ha-attributes", async (msg) => {
+        const e = ha.entities[String(msg.entityId ?? "")];
+        await piBridge.reply(json({ event: "ha-attributes-result", requestId: msg.requestId as number, state: e?.state, attributes: haAttributes(e) }));
+    });
+    piBridge.handle("ha-entity-list", async (msg) => {
+        const entities = Object.values(ha.entities).map((e) => ({ id: e.entity_id, name: haName(e) ?? "" }));
+        entities.sort((a, b) => a.id.localeCompare(b.id));
+        await piBridge.reply(json({ event: "ha-entity-list-result", requestId: msg.requestId as number, entities }));
+    });
     piBridge.handle("ha-find", async (msg) => {
         const found = await findHomeAssistants();
         await piBridge.reply(json({ event: "ha-find-result", requestId: msg.requestId as number, found }));

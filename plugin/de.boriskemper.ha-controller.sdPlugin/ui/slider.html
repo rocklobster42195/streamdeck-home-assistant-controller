@@ -40,9 +40,11 @@
   </pi-section>
 
   <pi-section title="pi.display">
-    <pi-choice setting="look" default="half" columns="2" data-options='[
+    <pi-choice setting="look" default="open" columns="4" data-options='[
+      {"value":"open","label":"pi.look_open","icon":"open"},
       {"value":"half","label":"pi.look_gauge","icon":"gauge"},
-      {"value":"ring","label":"pi.look_ring","icon":"ring"}
+      {"value":"ring","label":"pi.look_ring","icon":"ring"},
+      {"value":"pie","label":"pi.look_pie","icon":"pie"}
     ]'></pi-choice>
     <pi-field setting="label" label="pi.label" placeholder="pi.label_placeholder"></pi-field>
     <pi-toggle setting="hideLabel" label="pi.hide_label"></pi-toggle>

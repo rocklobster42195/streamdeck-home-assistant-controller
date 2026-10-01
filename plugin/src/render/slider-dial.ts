@@ -1,16 +1,17 @@
 // The Slider dial's display (200×100). "Half": a half circle with the colour ranges, the value
 // inside it; with an actual value, the arc shows the actual value and a marker the setpoint
 // (thermostat), and the setpoint is written small under the value. "Ring": MA-C's ring on the
-// left, the name and value on the right. "Thermostat" (as Home Assistant's thermostat card): a
-// ring open at the bottom with a handle at the setpoint and a dot at the room temperature; inside,
-// the mode, the setpoint large and the room temperature in the gap. Off (what a push switches is
+// left, the name and value on the right. "Pie": Sonos Controller's pie in the same place. "Open"
+// (the default, as Home Assistant's cards): the kit's ring open at the bottom with a handle on the
+// value, text inside; with an actual value a thermostat (dot at the room temperature, which is also
+// written in the gap). Off (what a push switches is
 // off): dimmed with "Off". Offline: dimmed with a cloud badge.
-import { arc, escapeXml, halfArc, halfArcPosition, measureArialWidth, mdi, stripImage, text, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
+import { arc, escapeXml, halfArc, halfArcPosition, measureArialWidth, mdi, openRing, pie, stripImage, text, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
 import { localNumber } from "../format";
 import { mdiCloudOffOutline } from "@mdi/js";
 
 export type SliderView = {
-    look: "half" | "ring" | "thermostat";
+    look: "open" | "half" | "ring" | "pie";
     /** The value the dial sets; undefined before anything arrived. */
     setpoint?: number;
     setpointText?: string;
@@ -44,7 +45,7 @@ export function renderSliderMessage(icon: string, line: string, warn: boolean): 
 }
 
 export function renderSliderDial(v: SliderView): string {
-    const parts = v.look === "ring" ? ring(v) : v.look === "thermostat" ? thermostat(v) : half(v);
+    const parts = v.look === "ring" ? ring(v) : v.look === "pie" ? pieLook(v) : v.look === "half" ? half(v) : open(v);
     if (v.offline) parts.push(mdi(mdiCloudOffOutline, 174, 4, 22, "#ff6b6b"));
     return stripImage(parts);
 }
@@ -82,8 +83,8 @@ function half(v: SliderView): string[] {
     parts.push(text(cx, cy - 12, big, { size: fitSize(big, 30, 92, 16), color, weight: "bold", anchor: "middle" }));
     if (s.small && !v.off) parts.push(text(cx, cy + 6, s.small, { size: 14, color: v.adjusting ? "#ffffff" : SOFT, anchor: "middle", maxWidth: 110 }));
     if (v.label?.trim()) parts.push(text(4, 14, v.label.trim(), { size: 13, color: dim ? DIM : SOFT, maxWidth: 66 }));
-    if (v.status) parts.push(text(196, 14, v.status, { size: 12, color: dim ? DIM : SOFT, anchor: "end", maxWidth: 66 }));
     else if (v.icon) parts.push(mdi(v.icon, 4, 2, 20, dim ? DIM : SOFT));
+    if (v.status) parts.push(text(196, 14, v.status, { size: 12, color: dim ? DIM : SOFT, anchor: "end", maxWidth: 66 }));
     // Range at the ends of the arc
     parts.push(text(cx - r, 96, v.rangeLabels?.[0] ?? short(v.min), { size: 11, color: DIM, anchor: "middle" }), text(cx + r, 96, v.rangeLabels?.[1] ?? short(v.max), { size: 11, color: DIM, anchor: "middle" }));
     return parts;
@@ -106,58 +107,54 @@ function ring(v: SliderView): string[] {
     return parts;
 }
 
-/** The thermostat ring: 270° from bottom left over the top to bottom right. */
-const T = { cx: 100, cy: 50, r: 40, width: 6, start: 135, sweep: 270 };
-
-function ringPoint(f: number): [number, number] {
-    const a = ((T.start + T.sweep * Math.min(1, Math.max(0, f))) * Math.PI) / 180;
-    return [T.cx + T.r * Math.cos(a), T.cy + T.r * Math.sin(a)];
-}
-
-function ringArc(f0: number, f1: number, color: string): string {
-    const [x0, y0] = ringPoint(f0);
-    const [x1, y1] = ringPoint(f1);
-    const large = (f1 - f0) * T.sweep > 180 ? 1 : 0;
-    return `<path d="M${x0.toFixed(1)} ${y0.toFixed(1)} A${T.r} ${T.r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${color}" stroke-width="${T.width}" stroke-linecap="round"/>`;
-}
+/** The open ring's place: in the middle of the strip, text inside. */
+const RING = { cx: 100, cy: 50, r: 40 };
 
 /** "21,5" with the whole number large, the decimals small and the unit raised (as HA writes it). */
 function bigNumber(value: string, unit: string | undefined, y: number, color: string): string {
     const m = /^(-?\d+)([.,]\d+)?$/.exec(value);
-    const font = `font-family="Arial,sans-serif" font-weight="bold" fill="${color}"`;
-    if (!m) return text(T.cx, y, value, { size: fitSize(value, 22, 68, 12), color, weight: "bold", anchor: "middle" });
+    if (!m) return text(RING.cx, y, value, { size: fitSize(value, 22, 64, 12), color, weight: "bold", anchor: "middle" });
     const whole = `<tspan font-size="26">${escapeXml(m[1])}</tspan>`;
     const dec = m[2] ? `<tspan font-size="14">${escapeXml(m[2])}</tspan>` : "";
-    const u = unit ? `<tspan font-size="10" font-weight="normal" dy="-13">${escapeXml(unit)}</tspan>` : "";
-    return `<text x="${T.cx}" y="${y}" ${font} text-anchor="middle">${whole}${dec}${u}</text>`;
+    const u = unit ? `<tspan font-size="11" font-weight="normal" dy="-12">${escapeXml(unit)}</tspan>` : "";
+    return `<text x="${RING.cx}" y="${y}" font-family="Arial,sans-serif" font-weight="bold" fill="${color}" text-anchor="middle">${whole}${dec}${u}</text>`;
 }
 
-function thermostat(v: SliderView): string[] {
+/**
+ * The open ring (HA's style). With an actual value it is a thermostat: the ring fills up to the
+ * setpoint with a handle on it, a dot marks the room temperature, which is also written in the gap.
+ * Otherwise the ring shows the value (brightness, position, volume) with a handle; while off it
+ * says so large.
+ */
+function open(v: SliderView): string[] {
     const dim = v.offline || v.off;
-    const span = v.max - v.min || 1;
-    const frac = (n: number | undefined) => (n === undefined ? undefined : (n - v.min) / span);
-    const fSet = frac(v.setpoint);
-    const fAct = frac(v.actual);
-    const color = dim ? DIM : v.setpoint !== undefined ? zoneColor(v.setpoint, v.zones) : SOFT;
-    const parts = [ringArc(0, 1, "#2e2e33")];
-    // Heating towards the setpoint: the arc is coloured up to it (as HA does while on)
-    if (!dim && fSet !== undefined && fSet > 0) parts.push(ringArc(0, fSet, color));
-    if (fAct !== undefined) {
-        const [x, y] = ringPoint(fAct);
-        parts.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${dim ? DIM : SOFT}"/>`);
-    }
-    if (fSet !== undefined) {
-        const [x, y] = ringPoint(fSet);
-        parts.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6.5" fill="${dim ? "#8a8a90" : "#ffffff"}" stroke="#0a0a0a" stroke-width="2"/>`);
-    }
-    // Inside: the mode, the setpoint large; the room temperature in the gap at the bottom
-    const mode = v.off ? v.offText : v.status;
-    if (mode) parts.push(text(T.cx, 33, mode, { size: 11, color: dim ? DIM : SOFT, anchor: "middle", maxWidth: 60 }));
+    const thermostat = v.actual !== undefined;
+    const parts = openRing({ ...RING, min: v.min, max: v.max, value: v.setpoint, dot: v.actual, zones: v.zones, handle: true, dim });
     const unit = v.unit?.trim();
-    if (v.setpointText !== undefined) parts.push(bigNumber(v.setpointText, unit, 63, dim ? DIM : v.adjusting ? "#ffffff" : "#f2f2f4"));
-    if (v.actualText !== undefined) parts.push(text(T.cx, 95, `${v.actualText}${unit ? ` ${unit}` : ""}`, { size: 11, color: dim ? DIM : SOFT, anchor: "middle" }));
+    const top = v.off && thermostat ? v.offText : v.status;
+    if (top) parts.push(text(RING.cx, 33, top, { size: 11, color: dim ? DIM : SOFT, anchor: "middle", maxWidth: 60 }));
+    const color = dim ? DIM : v.adjusting ? "#ffffff" : "#f2f2f4";
+    if (v.off && !thermostat) parts.push(text(RING.cx, 58, v.offText, { size: fitSize(v.offText, 20, 62, 12), color: DIM, weight: "bold", anchor: "middle" }));
+    else if (v.setpointText !== undefined) parts.push(bigNumber(v.setpointText, unit, thermostat ? 63 : 60, color));
+    if (thermostat && v.actualText !== undefined) parts.push(text(RING.cx, 95, `${v.actualText}${unit ? ` ${unit}` : ""}`, { size: 11, color: dim ? DIM : SOFT, anchor: "middle" }));
     if (v.label?.trim()) parts.push(text(4, 16, v.label.trim(), { size: 12, color: dim ? DIM : SOFT, maxWidth: 52 }));
     else if (v.icon) parts.push(mdi(v.icon, 4, 4, 22, dim ? DIM : SOFT));
+    return parts;
+}
+
+/** Sonos Controller's pie on the left, the name and value on the right (as the ring look). */
+function pieLook(v: SliderView): string[] {
+    const dim = v.offline || v.off;
+    const s = shown(v);
+    const color = dim ? DIM : s.fill !== undefined ? zoneColor(s.fill, v.zones) : SOFT;
+    const pos = s.fill !== undefined ? halfArcPosition(s.fill, v.min, v.max) : 0;
+    const parts = pie(46, 50, 36, dim ? 0 : pos, color);
+    const x = 92;
+    if (v.status) parts.push(text(x, 13, v.status, { size: 11, color: dim ? DIM : SOFT, maxWidth: 104 }));
+    if (v.label?.trim()) parts.push(text(x, 30, v.label.trim(), { size: 14, color: dim ? DIM : SOFT, maxWidth: 104 }));
+    const big = v.off ? v.offText : s.big;
+    parts.push(text(x, 62, big, { size: fitSize(big, 26, 104, 14), color, weight: "bold" }));
+    if (s.small && !v.off) parts.push(text(x, 84, s.small, { size: 13, color: v.adjusting ? "#ffffff" : SOFT, maxWidth: 104 }));
     return parts;
 }
 

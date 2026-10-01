@@ -5,6 +5,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- The half circle on the dial no longer draws the icon over the name.
 - Keys confirm in their own colour instead of Stream Deck's green check: a disc grows, a white check mark draws itself (Trigger in its colour, Yellow Sea by default); errors show an exclamation mark on red instead of the yellow triangle. The Slider dial keeps Stream Deck's alert on its touch strip.
 - A key that isn't set up yet says so under its blue "Set up …" button (pick a device, or set it up with a topic).
 - The device picker also finds entities by their kind, in German and English: "Thermostat" or "Heizung" finds every climate entity, "Rollladen" every cover, "Lampe" every light.
@@ -18,7 +19,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
-- **Thermostat look** on the Slider dial for HA thermostats, as Home Assistant's thermostat card: a ring open at the bottom with a handle at the setpoint and a dot at the room temperature; inside the mode, the setpoint large (small decimals, raised unit), the room temperature in the gap. Coloured up to the setpoint while on, grey while off.
+- **Slider dial looks:** the open ring (Home Assistant's style, the kit's `openRing`) is the default now: the value with a handle, the unit raised, "Off" while off; a thermostat shows its setpoint, a dot and the room temperature in the gap, and its mode on top. Half circle, ring (MA-C) and **pie** (Sonos Controller) stay to choose.
 - **Colour picker** (from the kit) everywhere a colour is chosen, including the Multi-state states and the colour ranges: 17 standard colours, recent colours, colour wheel with brightness, hex and R/G/B.
 - Slider dial on a thermostat: a push steps through its modes (auto → heat → off, as HA lists them); the mode shows in the corner in HA's words, the dial dims while off.
 - **States in your language:** an HA state that isn't a number shows as HA writes it, in Stream Deck's language ("Bewölkt" for cloudy, "Geöffnet" for an open door), also for the states of a Multi-state key; HA's own texts (`frontend/get_translations`).

@@ -2,7 +2,7 @@
 // cards (Home Assistant, MQTT broker), topic field and JSON field picker. The same page runs as the
 // short PI and, with "?window", as the settings window (see window.ts).
 import { definePiComponents, initConditionalVisibility, sd, t, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
-import { mdiCancel, mdiChartDonut, mdiFormatText, mdiGauge, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
+import { mdiCancel, mdiChartDonut, mdiCircleSlice5, mdiFormatText, mdiGauge, mdiHorseshoe, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
 import { HacConnectionCard, HacHaCard } from "./connection-card";
 import { HacDevice } from "./device-picker";
 import { HacHaAttribute, HacHaEntity } from "./ha-fields";
@@ -15,7 +15,7 @@ import { isSettingsWindow, mirrorOpener, shareConnection } from "./window";
 import { initWindowNav } from "./window-nav";
 
 /** MDI paths for <pi-choice data-options='[{"icon":"…"}]'> tiles. */
-const CHOICE_ICONS: Record<string, string> = { text: mdiFormatText, gauge: mdiGauge, none: mdiCancel, toggle: mdiToggleSwitchOutline, send: mdiSend, ring: mdiChartDonut };
+const CHOICE_ICONS: Record<string, string> = { text: mdiFormatText, gauge: mdiGauge, none: mdiCancel, toggle: mdiToggleSwitchOutline, send: mdiSend, ring: mdiChartDonut, open: mdiHorseshoe, pie: mdiCircleSlice5 };
 
 sd.onReady(() => {
     translateDom();

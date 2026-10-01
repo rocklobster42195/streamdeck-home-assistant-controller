@@ -51,7 +51,8 @@ export type SliderDialSettings = JsonObject &
         unit?: string;
         /** Decimals on the display; empty: as many as the step needs. */
         decimals?: string;
-        look?: "half" | "ring";
+        /** Empty: the open ring (HA's style). */
+        look?: "open" | "half" | "ring" | "pie";
         /** Show the value as a percentage of min–max (devices use 0–254, 0–255, 0–100, …). */
         percent?: boolean;
         /** The measured value (a thermostat's room temperature). */
@@ -270,8 +271,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         const setpoint = this.setpoint(inst);
         const percent = d?.unit === "%" && r.min === 0 && r.max === 100;
         return renderSliderDial({
-            // A thermostat looks like HA's thermostat card (unless the ring was chosen)
-            look: s.look === "ring" ? "ring" : e?.entity_id.startsWith("climate.") ? "thermostat" : "half",
+            look: lookOf(s),
             setpoint,
             setpointText: setpoint === undefined ? undefined : localNumber(formatNumber(setpoint, r.step, s.decimals)),
             actual: d?.actual,
@@ -303,7 +303,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         if (broker.state === "unconfigured" || broker.state === "invalid") return renderSliderMessage(mdiKnob, t("key.no_broker"), true);
         if (!this.commandTopic(s)) return renderSliderMessage(mdiKnob, t("key.choose_topic"), false);
         return renderSliderDial({
-            look: s.look === "ring" ? "ring" : "half",
+            look: lookOf(s),
             setpoint,
             setpointText: setpoint === undefined ? undefined : s.percent ? String(toPercent(setpoint, r)) : localNumber(formatNumber(setpoint, r.step, s.decimals)),
             actual: actual?.number,
@@ -321,4 +321,9 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             adjusting: Date.now() < inst.adjustingUntil,
         });
     }
+}
+
+/** The chosen look; the open ring when none is chosen. */
+function lookOf(s: SliderDialSettings): "open" | "half" | "ring" | "pie" {
+    return s.look === "half" || s.look === "ring" || s.look === "pie" ? s.look : "open";
 }

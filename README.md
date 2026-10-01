@@ -73,7 +73,7 @@ Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's
 | Push / tap the display | Nothing, switch something on and off, or send a payload (your choice) |
 
 - The display follows at once; the device gets the latest value at most every 150 ms, so fast turning doesn't flood it. Without a confirmation within 3 seconds, the dial goes back to what the device reports.
-- **Half circle** (with colour ranges) or **Ring**.
+- **Looks:** the **open ring** (the default, as Home Assistant draws its cards: the value with a handle, a thermostat with its room temperature), the **half circle** (with the range at its ends), the **ring** (as in MA-C) or the **pie** (as in Sonos Controller).
 - **Thermostat:** with an actual-value topic (the room temperature), the arc shows the actual value large, and a marker and "→ 21.5 °C" show the setpoint. While you turn, the setpoint is shown large.
 - **Light:** rotate for brightness, push to switch on and off; while the light is off, the dial is dimmed and shows "Off".
 - **In percent:** devices count brightness differently (zigbee2mqtt 0–254, Homematic 0–255, others 0–100). Enter the device's range as minimum and maximum and switch on "Show in percent": the dial shows 0–100 % and sends in the device's range.

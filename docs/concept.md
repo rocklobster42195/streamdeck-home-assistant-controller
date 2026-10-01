@@ -100,6 +100,14 @@ Every action shows an **offline** look when the broker is disconnected, or when 
 - MQTT 3.1.1 and 5 (the `mqtt` package supports both).
 - Reconnects on its own with a growing delay. Keys are greyed out while disconnected; a rejected login says so clearly ("access denied").
 
+## Settings window (tested 2026-10-01)
+
+The property inspector can open its own window with `window.open("x.html", name, "width=…,height=…")` from a click: a page from the plugin folder (`file://…/ui/`), no web server. The window reaches the PI through `window.opener` (direct calls and `postMessage`), and so the PI's Stream Deck connection: it can read and write the key's and the global settings and ask the plugin anything the PI can. Tested on Windows in Stream Deck; macOS not yet.
+
+The window **closes with the PI** (another key clicked, Stream Deck closed). Settings are saved on every change, so nothing is lost; the window just belongs to one key's settings.
+
+Idea (to be decided): the PI stays short (device, name, icon, "More settings …"), the window holds the roomy parts (device picker by area, colour ranges, value lines and attributes, MQTT details, the connections). Fallback without the window: collapsed sections, MQTT parts hidden while no broker is set up. A candidate for the kit, as the whole family has long PIs.
+
 ## Shared code: the kit
 
 MQC is built on **`@rocklobster42195/streamdeck-kit`** (repository `rocklobster42195/streamdeck-kit`; the name leaves out "plugin", decided 2026-09-28), published to npm the same way as `music-assistant-client`. The kit is carved out of MAC **before** MQC is built, and MAC is switched over to it. Sonos Controller follows so that the kit bus can be tested between SC and MAC (decided 2026-09-28).

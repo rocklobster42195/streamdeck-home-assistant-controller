@@ -70,8 +70,8 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         // The press action works on MQTT topics; HA entities get theirs later
         if (this.source(inst) === "ha") return;
         const result = runPress(inst.settings, this.toggle, inst.id, "value");
-        if (result === "failed") void inst.action.showAlert();
-        else if (result === "ok") void inst.action.showOk();
+        if (result === "failed") this.feedback(inst, "alert");
+        else if (result === "ok") this.feedback(inst, "ok", inst.settings.pressColor || ACCENT);
         this.render(inst);
     }
 

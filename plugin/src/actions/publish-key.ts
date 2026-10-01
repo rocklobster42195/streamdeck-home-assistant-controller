@@ -48,7 +48,7 @@ export class PublishKey extends TopicKey<PublishKeySettings> {
         const fromHa = this.source(inst) === "ha";
         const topic = s.topic?.trim();
         const call = fromHa ? haTriggerService(s.entityId ?? "") : undefined;
-        if (fromHa ? !call : !topic) return void inst.action.showAlert();
+        if (fromHa ? !call : !topic) return this.feedback(inst, "alert");
         if (s.confirm && !this.armed.has(inst.id)) {
             this.armed.set(
                 inst.id,
@@ -64,12 +64,12 @@ export class PublishKey extends TopicKey<PublishKeySettings> {
         this.render(inst);
         if (call) {
             streamDeck.logger.info(`[ha] ${call.domain}.${call.service} ${s.entityId}`);
-            void ha.call(call.domain, call.service, s.entityId!).then((ok) => void (ok ? inst.action.showOk() : inst.action.showAlert()));
+            void ha.call(call.domain, call.service, s.entityId!).then((ok) => this.feedback(inst, ok ? "ok" : "alert", s.color || ACCENT));
             return;
         }
-        if (!broker.publish(topic!, s.payload ?? "", { retain: s.retain, qos: Number(s.qos ?? 0) as 0 | 1 | 2 })) return void inst.action.showAlert();
+        if (!broker.publish(topic!, s.payload ?? "", { retain: s.retain, qos: Number(s.qos ?? 0) as 0 | 1 | 2 })) return this.feedback(inst, "alert");
         streamDeck.logger.info(`[publish] ${topic} ← ${s.payload ?? ""}`);
-        void inst.action.showOk();
+        this.feedback(inst, "ok", s.color || ACCENT);
     }
 
     protected override disappeared(inst: KeyInstance<PublishKeySettings>): void {

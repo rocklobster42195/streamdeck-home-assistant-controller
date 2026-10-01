@@ -79,12 +79,12 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
     protected override press(inst: KeyInstance<SwitchKeySettings>): void {
         const s = inst.settings;
         if (this.source(inst) === "ha") {
-            if (!s.entityId || !this.haToggle.press(inst.id, s.entityId)) void inst.action.showAlert();
+            if (!s.entityId || !this.haToggle.press(inst.id, s.entityId)) this.feedback(inst, "alert");
             this.render(inst);
             return;
         }
         if (!this.toggle.press(inst.id, s, { retain: s.retain, qos: Number(s.qos ?? 0) as 0 | 1 | 2 })) {
-            void inst.action.showAlert();
+            this.feedback(inst, "alert");
             return;
         }
         this.render(inst);

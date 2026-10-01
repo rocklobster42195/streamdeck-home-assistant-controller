@@ -67,17 +67,17 @@ export class MultiStateKey extends TopicKey<MultiStateKeySettings> {
         const fromHa = this.source(inst) === "ha";
         if (fromHa) {
             const call = next >= 0 && s.entityId ? haSelectService(s.entityId, options[next].value) : undefined;
-            if (!call) return void inst.action.showAlert();
+            if (!call) return this.feedback(inst, "alert");
             streamDeck.logger.info(`[ha] ${call.domain}.${call.service} ${s.entityId} ${call.data.option}`);
             void ha.call(call.domain, call.service, s.entityId!, call.data).then((ok) => {
                 if (ok) return;
                 this.optimistic.clear(inst.id);
                 this.render(inst);
-                void inst.action.showAlert();
+                this.feedback(inst, "alert");
             });
         } else {
             const cmd = next >= 0 ? stateCommand(s, options[next]) : undefined;
-            if (!cmd) return void inst.action.showAlert();
+            if (!cmd) return this.feedback(inst, "alert");
             broker.publish(cmd.topic, cmd.payload, { retain: s.retain, qos: Number(s.qos ?? 0) as 0 | 1 | 2 });
             streamDeck.logger.info(`[multi-state] ${cmd.topic} ← ${cmd.payload}`);
         }

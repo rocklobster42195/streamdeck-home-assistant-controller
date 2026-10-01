@@ -2,6 +2,7 @@
 // each one listens to (subscribed through the shared broker and released when the key goes away),
 // a redraw when its entity, one of its topics or a connection changes, and the device's
 // availability. Subclasses draw the key and react to a press.
+import { isFeedbackPlaying, playFeedback, type FeedbackKind } from "@rocklobster42195/streamdeck-kit";
 import streamDeck, { type DidReceiveSettingsEvent, type KeyAction, type KeyDownEvent, SingletonAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import type { HassEntity } from "home-assistant-js-websocket";
@@ -9,6 +10,7 @@ import { ha } from "../ha/connection";
 import { isUnavailable as entityUnavailable } from "../ha/entities";
 import { broker } from "../mqtt/connection";
 import { isUnavailable } from "../mqtt/schemes";
+import { BG } from "../render/svg";
 import { renderKeyHint } from "../render/switch-key";
 import { sourceOf, type Source, type SourceSettings } from "../source";
 
@@ -139,13 +141,30 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
         const inst = this.instances.get(ev.action.id);
         if (!inst) return;
         if ((this.source(inst) === "ha" ? ha.state : broker.state) !== "online") {
-            void ev.action.showAlert();
+            this.feedback(inst, "alert");
             return;
         }
         this.press(inst);
     }
 
+    /**
+     * The family's own feedback instead of Stream Deck's green check and yellow triangle: a disc in
+     * the key's colour with a check mark, or red with an exclamation mark (see the kit's feedback.ts).
+     */
+    protected feedback(inst: KeyInstance<S>, kind: FeedbackKind, color?: string): void {
+        playFeedback(inst.id, inst.action, kind, {
+            color: kind === "ok" ? color : undefined,
+            background: BG,
+            restore: () => {
+                inst.lastImage = undefined;
+                this.render(inst);
+            },
+        });
+    }
+
     protected render(inst: KeyInstance<S>): void {
+        // The feedback owns the key while it plays; the key redraws when it ends
+        if (isFeedbackPlaying(inst.id)) return;
         inst.seen = this.entityIds(inst).map((id) => ha.entities[id]);
         const image = this.image(inst);
         if (image === inst.lastImage) return;

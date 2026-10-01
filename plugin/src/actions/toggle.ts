@@ -1,12 +1,34 @@
 // Switching something on and off from a key, shared by the Switch key and the Value key's press
 // action: publishes the command, shows the new state at once and goes back if the device doesn't
-// confirm within 3 s; without a state topic, it toggles by what it sent last.
+// confirm within 3 s; without a state topic, it toggles by what it sent last. A zigbee2mqtt device
+// whose state is unknown is asked for it once.
 import streamDeck from "@elgato/streamdeck";
 import { OptimisticStore } from "@rocklobster42195/streamdeck-kit";
 import { broker } from "../mqtt/connection";
 import { switchCommand, switchState, type SwitchState, type SwitchTopics } from "../mqtt/switch-state";
+import { stateRequest } from "../mqtt/z2m";
 
 const CONFIRM_MS = 3000;
+/** How long a retained state may take to arrive before HA-C asks the device. */
+const ASK_DELAY_MS = 1500;
+
+/** State topics asked for since the broker came online (zigbee2mqtt keeps no state). */
+const asked = new Set<string>();
+broker.onState(() => {
+    if (broker.state !== "online") asked.clear();
+});
+
+/** Ask a zigbee2mqtt device once for its state when nothing is known about it. */
+function askState(s: SwitchTopics): void {
+    const req = stateRequest(s.stateTopic, s.commandTopic);
+    if (!req || asked.has(req.topic) || broker.state !== "online") return;
+    asked.add(req.topic);
+    setTimeout(() => {
+        if (broker.state !== "online" || payloadOf(s.stateTopic) !== undefined) return;
+        broker.publish(req.topic, req.payload);
+        streamDeck.logger.info(`[toggle] ${req.topic} ← ${req.payload}`);
+    }, ASK_DELAY_MS);
+}
 
 export class Toggle {
     private readonly optimistic = new OptimisticStore<{ state: SwitchState }>();
@@ -51,7 +73,9 @@ export class Toggle {
 
     private reported(id: string, s: SwitchTopics): SwitchState {
         if (!s.stateTopic?.trim()) return this.sent.get(id) ? "on" : "off";
-        return switchState(s, payloadOf(s.stateTopic));
+        const payload = payloadOf(s.stateTopic);
+        if (payload === undefined) askState(s);
+        return switchState(s, payload);
     }
 }
 

@@ -1,6 +1,7 @@
 // Home Assistant MQTT discovery configs: expand the abbreviated keys and the "~" base topic, and
 // read what HA-C can use from Home Assistant's templates (a JSON field from "{{ value_json.x }}",
 // "{value}" from "{{ value }}"). Anything more complex is left out rather than guessed.
+import { deviceAvailability } from "../mqtt/z2m";
 
 const ABBREVIATIONS: Record<string, string> = {
     avty: "availability",
@@ -93,11 +94,12 @@ export function templateFromHa(tpl: unknown): string | undefined {
 
 /** The availability topic HA-C watches: the device's own one (the last of several), or the single one. */
 export function availabilityTopic(c: HaConfig): string | undefined {
+    let topic = str(c.availability_topic);
     if (Array.isArray(c.availability)) {
         const topics = c.availability.map((a) => (a && typeof a === "object" ? (a as Record<string, unknown>).topic : undefined)).filter((t): t is string => typeof t === "string");
-        return topics.at(-1);
+        topic = topics.at(-1);
     }
-    return str(c.availability_topic);
+    return topic && deviceAvailability(topic, str(c.state_topic));
 }
 
 /** "mdi:battery-charging" → "mdiBatteryCharging" (the kit's icon names). */

@@ -1,13 +1,16 @@
 # Changelog
 
-All notable changes to HA-C (Home Assistant Controller, formerly HA-C / MQTT Controller) are documented here.
+All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Controller) are documented here.
 
 ## [Unreleased]
 
 ### Changed
-- HA-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
+- The settings say "MQTT broker" and "MQTT device", to keep MQTT apart from the Home Assistant connection.
+- MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- zigbee2mqtt devices show their state right away: zigbee2mqtt keeps no state on the broker, so HA-C asks such a device once (`…/get`) when nothing is known about it.
+- zigbee2mqtt devices that Home Assistant discovery announces with the bridge's availability only are still shown offline when they are (`…/availability`).
 - **Switch** key: switches a device between two values and shows its state (icon and colour per state, a name). Shows the new state at once and goes back if the device doesn't confirm within 3 s. Offline look while the broker is unreachable or the device reports itself unavailable. Keys without a state topic send on and off by turns.
 - **Value** key: a value with its unit as large text or on a half-circle gauge, coloured by your colour ranges (base colour plus "from …" ranges, previewed in the settings); decimals as sent or rounded; text values shown as they are; offline look.
 - Switch key: on/off values are recognised without settings (`ON`/`OFF`, `true`/`false`, `1`/`0`, `open`/`closed`), and commands use the device's own words (an ioBroker Homematic lamp that reports `true` gets `false`). Optional value line under the icon (e.g. the power), whose colour ranges can colour the icon while on.

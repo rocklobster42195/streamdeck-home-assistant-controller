@@ -112,7 +112,7 @@ export class HacStates extends HTMLElement {
                     <button type="button" class="pi-icon-button hac-state-icon" title="${escapeHtml(t("pi.state_icon"))}" style="color:${escapeHtml(r.color || "#F7A600")}">${svg(r.icon ? this.paths.get(r.icon) || undefined : undefined) || "+"}</button>
                     <input class="pi-input hac-state-value" type="text" spellcheck="false" placeholder="${escapeHtml(t("pi.state_value"))}" value="${escapeHtml(r.value ?? "")}"/>
                     <input class="pi-input hac-state-label" type="text" placeholder="${escapeHtml(t("pi.state_label"))}" value="${escapeHtml(r.label ?? "")}"/>
-                    <input class="pi-color" type="color" value="${escapeHtml(r.color || "#F7A600")}"/>
+                    <pi-swatch class="pi-color" value="${escapeHtml(r.color || "#F7A600")}"></pi-swatch>
                     <button type="button" class="pi-icon-button hac-state-up" title="${escapeHtml(t("pi.state_up"))}" ${i === 0 ? "disabled" : ""}>↑</button>
                     <button type="button" class="pi-icon-button hac-state-remove" title="${escapeHtml(t("kit.threshold_remove"))}">×</button>
                 </div>

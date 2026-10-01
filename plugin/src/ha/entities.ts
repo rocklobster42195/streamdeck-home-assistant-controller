@@ -1,6 +1,7 @@
 // Home Assistant entities on HA-C's keys, without Stream Deck: which domains fit which action, what
 // an entity's state means for the Switch key (on, off, unknown) and which service switches it, which
-// service the Trigger key calls, what the Value key shows, and the icon HA would use.
+// service the Trigger key calls, how the Multi-state key picks an option, what the Value key shows,
+// and the icon HA would use.
 import type { HassEntity } from "home-assistant-js-websocket";
 import { mdiName } from "../discovery/ha-config";
 import type { ActionKind } from "../discovery/ha-entities";
@@ -21,6 +22,9 @@ const SWITCHABLE: Record<string, { on: string; turnOn: string; turnOff: string }
 /** The "off" states per domain (anything else but "on" and these is unknown). */
 const OFF: Record<string, string[]> = { lock: ["unlocked"], cover: ["closed"] };
 
+/** Domains with a list of options (the Multi-state key steps through them with select_option). */
+const SELECTABLE = new Set(["select", "input_select"]);
+
 /** Per domain: the service that runs it once (the Trigger key). */
 const TRIGGERABLE: Record<string, string> = { scene: "turn_on", script: "turn_on", button: "press", input_button: "press", automation: "trigger" };
 
@@ -38,6 +42,7 @@ export function haFits(entityId: string): ActionKind[] {
     const d = domainOf(entityId);
     if (SWITCHABLE[d]) return ["switch"];
     if (TRIGGERABLE[d]) return ["publish"];
+    if (SELECTABLE.has(d)) return ["multi-state", "value"];
     if (VALUE_DOMAINS.has(d)) return ["value"];
     return [];
 }
@@ -61,6 +66,18 @@ export function haSwitchService(entityId: string, turnOn: boolean): { domain: st
     const domain = domainOf(entityId);
     const sw = SWITCHABLE[domain];
     return sw ? { domain, service: turnOn ? sw.turnOn : sw.turnOff } : undefined;
+}
+
+/** A select's options (its "options" attribute), in HA's order. */
+export function haOptions(e: HassEntity | undefined): string[] {
+    const o = e?.attributes.options;
+    return Array.isArray(o) ? o.filter((x): x is string => typeof x === "string") : [];
+}
+
+/** The service that picks one option of a select; undefined for other domains. */
+export function haSelectService(entityId: string, option: string): { domain: string; service: string; data: { option: string } } | undefined {
+    const domain = domainOf(entityId);
+    return SELECTABLE.has(domain) ? { domain, service: "select_option", data: { option } } : undefined;
 }
 
 /** The service that runs a scene, script, button or automation once; undefined for other domains. */

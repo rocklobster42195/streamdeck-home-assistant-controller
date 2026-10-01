@@ -9,6 +9,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- **Multi-state key with Home Assistant:** steps through the options of a select or input select (`select_option`); picking one fills in the states from its options, each with a colour.
 - The settings window has a menu on the left with the sections this key shows; the one in view is highlighted, a click scrolls to it.
 - The **Publish** key is now called **Trigger** ("Auslösen" in German); existing keys keep working.
 - **Trigger key with Home Assistant:** runs a scene (`scene.turn_on`), script (`script.turn_on`), button or input button (`press`) or automation (`automation.trigger`); a check mark when HA accepted the call, an alert when it refused. "Confirm" (press twice) works for both sources.

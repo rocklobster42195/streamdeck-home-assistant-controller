@@ -128,7 +128,8 @@ export function settingsFor(e: HaEntity, kind: ActionKind): Record<string, unkno
     }
 }
 
-const PALETTE = ["#F7A600", "#3ddc84", "#6cc4ff", "#ff4d4d", "#E14190", "#f5c542"];
+/** Colours for the states of a Multi-state key, in turn. */
+export const PALETTE = ["#F7A600", "#3ddc84", "#6cc4ff", "#ff4d4d", "#E14190", "#f5c542"];
 
 function sliderSettings(e: HaEntity): Record<string, unknown> {
     const c = e.config;

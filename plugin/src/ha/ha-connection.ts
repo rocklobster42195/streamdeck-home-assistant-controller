@@ -97,12 +97,15 @@ export class HaConnection {
         return value;
     }
 
-    /** Call a service on one entity ("light", "turn_on", "light.desk"); false when not connected or HA refused. */
-    async call(domain: string, service: string, entityId: string): Promise<boolean> {
+    /**
+     * Call a service on one entity ("light", "turn_on", "light.desk"), with optional service data
+     * ({ option: "eco" }); false when not connected or HA refused.
+     */
+    async call(domain: string, service: string, entityId: string, data?: Record<string, unknown>): Promise<boolean> {
         const conn = this.connection;
         if (!conn) return false;
         try {
-            await callService(conn, domain, service, undefined, { entity_id: entityId });
+            await callService(conn, domain, service, data, { entity_id: entityId });
             return true;
         } catch (e) {
             this.log.warn(`[ha] ${domain}.${service} ${entityId}: ${JSON.stringify(e)}`);

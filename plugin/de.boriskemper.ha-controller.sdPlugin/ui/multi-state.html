@@ -16,7 +16,7 @@
 
   <hac-device action="multi-state"></hac-device>
 
-  <pi-section class="hac-win" title="pi.mqtt_topics">
+  <pi-section class="hac-win" title="pi.mqtt_topics" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic setting="stateTopic" label="pi.state_topic" placeholder="pi.topic_search_placeholder" hint="pi.multi_topic_hint"></hac-topic>
     <hac-json-field setting="field" topic-setting="stateTopic" label="pi.field"></hac-json-field>
   </pi-section>
@@ -29,7 +29,7 @@
     <pi-field setting="label" label="pi.label" placeholder="pi.multi_label_placeholder"></pi-field>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.advanced">
+  <pi-section class="hac-win" title="pi.advanced" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic no-explore setting="commandTopic" label="pi.command_topic" placeholder="pi.command_topic_placeholder" hint="pi.command_topic_hint"></hac-topic>
     <pi-field setting="template" label="pi.template" placeholder='{"fan_mode":"{value}"}' hint="pi.multi_template_hint"></pi-field>
     <hac-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></hac-topic>
@@ -41,7 +41,7 @@
     ]'></pi-choice>
   </pi-section>
 
-  <hac-more class="hac-pi-only" ready-when="stateTopic,commandTopic"></hac-more>
+  <hac-more class="hac-pi-only" ready-when="entityId,stateTopic,commandTopic"></hac-more>
   <hac-sources class="hac-pi-only"></hac-sources>
 
   <div id="connections" class="hac-win hac-connections">

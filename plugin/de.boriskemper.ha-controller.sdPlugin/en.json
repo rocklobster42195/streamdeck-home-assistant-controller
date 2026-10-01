@@ -128,7 +128,7 @@
 			"confirm": "Ask before sending",
 			"confirm_hint": "Press twice: for a gate, an alarm, anything you don't want to trigger by accident.",
 			"color": "Colour",
-			"multi_help": "Press: the next state in the list. The key shows the one the device reports.",
+			"multi_help": "Press: the next state of the list. The key shows the one the device reports. With Home Assistant: pick a select (e.g. a heating mode), its options become the states; remove the ones the key should skip.",
 			"multi_topic_hint": "Where the device reports its current value.",
 			"states": "States",
 			"state_value": "Value",

@@ -128,7 +128,7 @@
 			"confirm": "Vor dem Senden nachfragen",
 			"confirm_hint": "Zweimal drücken: für ein Tor, eine Alarmanlage, alles, was nicht aus Versehen auslösen soll.",
 			"color": "Farbe",
-			"multi_help": "Drücken: die nächste Stufe der Liste. Die Taste zeigt die, die das Gerät meldet.",
+			"multi_help": "Drücken: die nächste Stufe der Liste. Die Taste zeigt die, die das Gerät meldet. Mit Home Assistant: wähle einen Select (z. B. Heizungsmodus), seine Optionen werden die Stufen; entferne Stufen, die die Taste überspringen soll.",
 			"multi_topic_hint": "Hier meldet das Gerät seinen aktuellen Wert.",
 			"states": "Stufen",
 			"state_value": "Wert",

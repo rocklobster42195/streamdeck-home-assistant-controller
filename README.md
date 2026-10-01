@@ -6,7 +6,7 @@ Switch and show your smart home on your Stream Deck: lights, plugs, sensors, sce
 
 **Looking for something simpler?** If you only use Home Assistant and want a lean, proven plugin, have a look at the [Home Assistant plugin by cgiesche](https://github.com/cgiesche/streamdeck-homeassistant): it has been around for years and does the basics very well. HA-C's focus is different: Home Assistant and MQTT side by side, gauges and dials, and working together with the other plugins of its family.
 
-**Status:** early. All actions work with MQTT: Switch, Value, Trigger and Multi-state keys and the Slider dial. Switch, Value and Trigger keys also work with Home Assistant entities; the other actions follow.
+**Status:** early. All actions work with MQTT: Switch, Value, Trigger and Multi-state keys and the Slider dial. All keys also work with Home Assistant entities; the Slider dial follows.
 
 ## Contents
 
@@ -50,6 +50,7 @@ Shows a value with its unit: a temperature, power, humidity, a door's state.
 
 Runs something once on every press: a Home Assistant scene, script, button or automation, or a fixed MQTT payload (a scene, opening a gate, a JSON command). The key confirms with a check mark. (Called "Publish" in earlier versions.)
 
+- **With Home Assistant:** pick a scene, script, button or automation. *How it works:* scenes and scripts are started with `scene.turn_on` / `script.turn_on`, buttons are pressed with `button.press` / `input_button.press`, automations run with `automation.trigger` (this skips their conditions, as "Run" in HA does). The check mark means HA accepted the call; a script that keeps running (e.g. waiting for a door) runs on in HA.
 - **Ask before sending:** the first press arms the key for 3 seconds (it turns into "Press again"), only a second press sends. For a gate, an alarm, anything you don't want to trigger by accident.
 - Icon, colour and name of your choice.
 
@@ -60,6 +61,7 @@ Steps through a list of values on every press, e.g. a fan off → 1 → 2 → 3 
 - Each state has its value, a name, an icon and a colour. Dots under the name show where you are in the list.
 - "Add 'low'" takes the value the device reports right now into the list.
 - The next state shows at once and goes back if the device doesn't confirm within 3 seconds. A value that isn't in the list shows as it is, with a question mark.
+- **With Home Assistant:** pick a *select* or *input select* (a heating mode, a camera's day/night mode, a list of scenes). Its options become the states, each with a colour; give them names and icons, or remove the ones the key should skip: a press then jumps to the next one left in the list. *How it works:* HA-C calls `select.select_option` (or `input_select.select_option`) with the next option and shows the state HA reports back.
 
 ### Slider *(dial, Stream Deck + only)*
 
@@ -95,7 +97,7 @@ Everything can be changed by hand under **Advanced**: command topic, a payload t
 
 ## Connecting to Home Assistant
 
-HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Switch, Value and Trigger keys can then use your HA entities (pick them under **Device**); Multi-state and the Slider dial still use MQTT.
+HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Switch, Value, Trigger and Multi-state keys can then use your HA entities (pick them under **Device**); the Slider dial still uses MQTT.
 
 - **Address:** a host (`192.168.1.20` means `http://192.168.1.20:8123`) or a URL with `http://` or `https://`. **Search the network** finds Home Assistant when it announces itself (zeroconf); over a VPN that usually fails, so type the address.
 - **Token:** a long-lived access token. In Home Assistant, open your profile → **Security** → **Long-lived access tokens** → **Create token**, and paste it here.
@@ -133,7 +135,7 @@ HA-C works the same without other plugins.
 
 ## Planned
 
-- **Home Assistant entities on the other actions:** selects on Multi-state, brightness, climate and covers on the Slider dial.
+- **Home Assistant entities on the Slider dial:** brightness, climate, covers and numbers.
 
 
 ## Development

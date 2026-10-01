@@ -5,10 +5,10 @@
 import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { entities as mqttEntities } from "../discovery/ha-discovery";
-import { fits, settingsFor, type ActionKind, type HaEntity } from "../discovery/ha-entities";
+import { fits, PALETTE, settingsFor, type ActionKind, type HaEntity } from "../discovery/ha-entities";
 import { ha } from "../ha/connection";
 import type { HaRegistry } from "../ha/ha-connection";
-import { haFits, haName } from "../ha/entities";
+import { haFits, haName, haOptions } from "../ha/entities";
 import { haListIcon } from "../ha/icons";
 import { broker } from "../mqtt/connection";
 import type { DeviceItem, PiPush } from "./protocol";
@@ -55,6 +55,8 @@ export function initDevicePicker(): void {
 function haSettings(entityId: string, action: ActionKind): Record<string, unknown> {
     const common = { source: "ha", entityId, haEntity: "", label: "" };
     if (action === "switch") return { ...common, iconOn: "", iconOff: "" };
+    // A select's options become the states, each with a colour; names and icons can be added after
+    if (action === "multi-state") return { ...common, states: haOptions(ha.entities[entityId]).map((value, i) => ({ value, color: PALETTE[i % PALETTE.length] })) };
     return action === "value" ? { ...common, icon: "", unit: "" } : { ...common, icon: "" };
 }
 

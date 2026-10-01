@@ -46,6 +46,9 @@ export class HacStates extends HTMLElement {
                         this.paths.set(name, msg.items[0]?.icon ?? "");
                         this.render();
                     }
+                } else if (msg?.event === "ha-attributes-result" && msg.requestId === this.infoId) {
+                    this.currentValue = msg.state;
+                    this.render();
                 } else if (msg?.event === "topic-info-result" && msg.requestId === this.infoId) {
                     const field = this.getAttribute("field-setting");
                     const f = field ? String(sd.settings[field] ?? "") : "";
@@ -71,6 +74,13 @@ export class HacStates extends HTMLElement {
     }
 
     private requestCurrent(): void {
+        // A key on an HA entity: its state is the current value
+        const entityId = sd.settings.source === "ha" ? String(sd.settings.entityId ?? "").trim() : "";
+        if (entityId) {
+            this.infoId = nextRequestId();
+            sd.sendToPlugin({ event: "ha-attributes", requestId: this.infoId, entityId });
+            return;
+        }
         const topic = String(sd.settings[this.getAttribute("topic-setting") ?? "stateTopic"] ?? "").trim();
         if (!topic) return;
         this.infoId = nextRequestId();

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { sourceOf } from "../source";
-import { haFits, haIcon, haName, haSwitchService, haAttributes, haRead, haSwitchState, haTriggerService, isUnavailable } from "./entities";
+import { haFits, haIcon, haName, haSwitchService, haAttributes, haRead, haOptions, haSelectService, haSwitchState, haTriggerService, isUnavailable } from "./entities";
 
 const entity = (entity_id: string, state: string, attributes: Record<string, unknown> = {}): HassEntity => ({ entity_id, state, attributes, last_changed: "", last_updated: "", context: { id: "", user_id: null, parent_id: null } });
 
@@ -43,6 +43,15 @@ describe("HA entities on keys", () => {
         expect(haTriggerService("input_button.bell")).toEqual({ domain: "input_button", service: "press" });
         expect(haTriggerService("automation.morning")).toEqual({ domain: "automation", service: "trigger" });
         expect(haTriggerService("light.desk")).toBeUndefined();
+    });
+
+    it("steps through a select's options", () => {
+        expect(haFits("select.heating_mode")).toEqual(["multi-state", "value"]);
+        expect(haFits("input_select.scene_list")).toEqual(["multi-state", "value"]);
+        expect(haOptions(entity("select.heating_mode", "eco", { options: ["comfort", "eco", "off"] }))).toEqual(["comfort", "eco", "off"]);
+        expect(haOptions(entity("select.x", "a"))).toEqual([]);
+        expect(haSelectService("input_select.scene_list", "Kino")).toEqual({ domain: "input_select", service: "select_option", data: { option: "Kino" } });
+        expect(haSelectService("light.desk", "on")).toBeUndefined();
     });
 
     it("shows the value with HA's unit, nothing while unavailable", () => {

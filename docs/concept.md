@@ -39,7 +39,7 @@ The sections below describe the MQTT source as built.
 | Action | Device | Behaviour |
 |---|---|---|
 | **Switch** | Key | Toggles between two values (e.g. `ON`/`OFF`) and shows the state. For lights and plugs. |
-| **Publish** | Key | Sends a fixed value or JSON, e.g. for a scene or opening a gate. |
+| **Trigger** (was Publish; UUID `…publish` kept) | Key | Runs something once: an HA scene, script, button or automation, or a fixed MQTT value or JSON, e.g. opening a gate. |
 | **Value** | Key | Shows a value with its unit (temperature, power). Colors change at thresholds, e.g. red from 25 °C. |
 | **Multi-state** | Key | Steps through a list of values (fan 1 → 2 → 3 → off) and shows the current one. |
 | **Slider** | Dial | Rotate to set a value (brightness, setpoint, blind position) with a ring like MAC's Volume dial; push toggles on/off. |

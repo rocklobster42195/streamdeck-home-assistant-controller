@@ -1,4 +1,4 @@
-// The Publish key: its icon in its colour and the name below. Armed (waiting for the confirming
+// The Trigger key (formerly Publish): its icon in its colour and the name below. Armed (waiting for the confirming
 // second press): filled with the colour and "Press again". Offline: dimmed with a cloud badge.
 import { mdiCloudOffOutline } from "@mdi/js";
 import { BG, icon, lines, SIZE, svgUri } from "./svg";

@@ -1,4 +1,4 @@
-// Publish key: runs something once on every press: an HA scene, script, button or automation, or a
+// Trigger key (UUID …publish, formerly "Publish"): runs something once on every press: an HA scene, script, button or automation, or a
 // fixed MQTT payload (a scene, opening a gate, a JSON command). With "confirm", the first press arms
 // the key for 3 s and only a second press sends.
 import streamDeck, { action } from "@elgato/streamdeck";

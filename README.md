@@ -6,7 +6,7 @@ Switch and show your smart home on your Stream Deck: lights, plugs, sensors, sce
 
 **Looking for something simpler?** If you only use Home Assistant and want a lean, proven plugin, have a look at the [Home Assistant plugin by cgiesche](https://github.com/cgiesche/streamdeck-homeassistant): it has been around for years and does the basics very well. HA-C's focus is different: Home Assistant and MQTT side by side, gauges and dials, and working together with the other plugins of its family.
 
-**Status:** early. All actions work with MQTT: Switch, Value, Publish and Multi-state keys and the Slider dial. Switch and Value keys also work with Home Assistant entities; the other actions follow.
+**Status:** early. All actions work with MQTT: Switch, Value, Trigger and Multi-state keys and the Slider dial. Switch, Value and Trigger keys also work with Home Assistant entities; the other actions follow.
 
 ## Contents
 
@@ -46,9 +46,9 @@ Shows a value with its unit: a temperature, power, humidity, a door's state.
 - Offline look like the Switch key; a dash until the first value arrives.
 - **On press** (optional): **Switch** something on and off, e.g. the plug whose power the key shows; the key gets a frame while it is on. Or **Send** a fixed payload to a topic, e.g. a heating boost.
 
-### Publish *(key)*
+### Trigger *(key)*
 
-Sends a fixed payload on every press: a scene, opening a gate, a JSON command. The key confirms with a check mark.
+Runs something once on every press: a Home Assistant scene, script, button or automation, or a fixed MQTT payload (a scene, opening a gate, a JSON command). The key confirms with a check mark. (Called "Publish" in earlier versions.)
 
 - **Ask before sending:** the first press arms the key for 3 seconds (it turns into "Press again"), only a second press sends. For a gate, an alarm, anything you don't want to trigger by accident.
 - Icon, colour and name of your choice.
@@ -78,7 +78,7 @@ Sets a value by turning: a lamp's brightness, a thermostat's setpoint, a blind's
 
 ## Setting up a key
 
-**With Home Assistant:** if your devices announce themselves through Home Assistant's MQTT discovery (zigbee2mqtt does by default, as do Tasmota, ESPHome, AWTRIX and many others), the settings start with **Home Assistant device**. Search "living room", pick the entity, done: topics, values, JSON fields, availability, its icon and name are filled in. Each action lists only what fits it: lights and switches for the Switch key, sensors for Value, buttons and scenes for Publish, selects for Multi-state, numbers, light brightness and thermostats for the Slider dial. A light on the Slider dial is set up in percent, with push switching it on and off.
+**With Home Assistant:** if your devices announce themselves through Home Assistant's MQTT discovery (zigbee2mqtt does by default, as do Tasmota, ESPHome, AWTRIX and many others), the settings start with **Home Assistant device**. Search "living room", pick the entity, done: topics, values, JSON fields, availability, its icon and name are filled in. Each action lists only what fits it: lights and switches for the Switch key, sensors for Value, buttons and scenes for Trigger, selects for Multi-state, numbers, light brightness and thermostats for the Slider dial. A light on the Slider dial is set up in percent, with push switching it on and off.
 
 **Without discovery** (or to fine-tune):
 
@@ -95,7 +95,7 @@ Everything can be changed by hand under **Advanced**: command topic, a payload t
 
 ## Connecting to Home Assistant
 
-HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Switch and Value keys can then show your HA entities (pick them under **Device**); Publish, Multi-state and the Slider dial still use MQTT.
+HA-C connects to Home Assistant in the **Home Assistant** card at the bottom of every key's settings. Switch, Value and Trigger keys can then use your HA entities (pick them under **Device**); Multi-state and the Slider dial still use MQTT.
 
 - **Address:** a host (`192.168.1.20` means `http://192.168.1.20:8123`) or a URL with `http://` or `https://`. **Search the network** finds Home Assistant when it announces itself (zeroconf); over a VPN that usually fails, so type the address.
 - **Token:** a long-lived access token. In Home Assistant, open your profile → **Security** → **Long-lived access tokens** → **Create token**, and paste it here.
@@ -133,7 +133,7 @@ HA-C works the same without other plugins.
 
 ## Planned
 
-- **Home Assistant entities on the other actions:** scenes, scripts and buttons on Publish, selects on Multi-state, brightness, climate and covers on the Slider dial.
+- **Home Assistant entities on the other actions:** selects on Multi-state, brightness, climate and covers on the Slider dial.
 
 
 ## Development
@@ -143,7 +143,7 @@ npm install
 npm run check        # build, tests, lint, manifest check
 npm run sim:switch   # Switch keys against an in-process broker with invented devices
 npm run sim:value    # Value keys in both looks with colour ranges
-npm run sim:keys     # Publish (with confirmation) and Multi-state keys
+npm run sim:keys     # Trigger (with confirmation) and Multi-state keys
 npm run sim:dial     # Slider dials: a lamp, a thermostat, a blind
 npm run sim:discovery # Home Assistant discovery: pick a device, the key and dial work
 npm run pi:preview   # the settings pages in a browser, with invented topics

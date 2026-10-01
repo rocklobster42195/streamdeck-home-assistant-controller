@@ -1,6 +1,6 @@
 // Home Assistant entities on HA-C's keys, without Stream Deck: which domains fit which action, what
 // an entity's state means for the Switch key (on, off, unknown) and which service switches it, which
-// service the Publish key calls, what the Value key shows, and the icon HA would use.
+// service the Trigger key calls, what the Value key shows, and the icon HA would use.
 import type { HassEntity } from "home-assistant-js-websocket";
 import { mdiName } from "../discovery/ha-config";
 import type { ActionKind } from "../discovery/ha-entities";
@@ -21,7 +21,7 @@ const SWITCHABLE: Record<string, { on: string; turnOn: string; turnOff: string }
 /** The "off" states per domain (anything else but "on" and these is unknown). */
 const OFF: Record<string, string[]> = { lock: ["unlocked"], cover: ["closed"] };
 
-/** Per domain: the service that runs it once (the Publish key). */
+/** Per domain: the service that runs it once (the Trigger key). */
 const TRIGGERABLE: Record<string, string> = { scene: "turn_on", script: "turn_on", button: "press", input_button: "press", automation: "trigger" };
 
 const VALUE_DOMAINS = new Set(["sensor", "binary_sensor", "number", "input_number", "counter", "input_text", "input_select", "select", "weather", "sun"]);

@@ -59,7 +59,7 @@ export abstract class TopicKey<S extends TopicKeySettings> extends SingletonActi
     }
     protected disappeared(_inst: KeyInstance<S>): void {}
 
-    /** Whether this action can show HA entities yet (so far the Switch, Value and Publish keys). */
+    /** Whether this action can show HA entities yet (so far the Switch, Value and Trigger keys). */
     protected readonly haCapable: boolean = false;
 
     protected source(inst: KeyInstance<S>): Source {

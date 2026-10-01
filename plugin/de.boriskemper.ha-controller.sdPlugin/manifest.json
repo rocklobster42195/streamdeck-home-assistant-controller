@@ -59,10 +59,10 @@
             ]
         },
         {
-            "Name": "Publish",
+            "Name": "Trigger",
             "UUID": "de.boriskemper.ha-controller.publish",
             "Icon": "imgs/actions/publish/icon",
-            "Tooltip": "Send a fixed payload, e.g. a scene or opening a gate.",
+            "Tooltip": "Run something once: a scene, script, button or automation, or an MQTT message (e.g. opening a gate).",
             "PropertyInspectorPath": "ui/publish.html",
             "Controllers": [
                 "Keypad"

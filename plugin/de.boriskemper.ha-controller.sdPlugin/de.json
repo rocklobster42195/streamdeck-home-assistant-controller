@@ -179,7 +179,16 @@
 			"by_hand": "Topic von Hand",
 			"by_hand_sub": "Status- und Befehls-Topic selbst eintragen",
 			"no_area": "Ohne Bereich",
-			"no_device": "Ohne Gerät"
+			"no_device": "Ohne Gerät",
+			"more_settings": "Mehr einstellen …",
+			"set_up_key": "Einrichten …",
+			"connect_sources": "Home Assistant oder MQTT verbinden …",
+			"state_short_online": "verbunden",
+			"state_short_connecting": "verbinde…",
+			"state_short_offline": "nicht erreichbar",
+			"state_short_denied": "Zugriff verweigert",
+			"state_short_invalid": "Adresse prüfen",
+			"state_short_unconfigured": "nicht eingerichtet"
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

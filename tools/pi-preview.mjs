@@ -158,7 +158,8 @@ http.createServer((req, res) => {
         return;
     }
     let body = fs.readFileSync(file);
-    if (file.endsWith(".html")) {
+    // The settings window ("?window") borrows the PI's connection, as in Stream Deck
+    if (file.endsWith(".html") && !u.searchParams.has("window")) {
         const scenario = u.searchParams.get("scenario") ?? "online";
         const lang = u.searchParams.get("lang") ?? "de";
         const settings = JSON.parse(u.searchParams.get("settings") ?? "{}");

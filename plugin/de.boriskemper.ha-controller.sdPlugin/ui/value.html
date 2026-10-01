@@ -11,12 +11,12 @@
   <script src="pi.js"></script>
 </head>
 
-<body hidden>
+<body hidden data-title="Value">
   <div class="pi-hint hac-help" data-i18n="pi.value_help"></div>
 
   <hac-device action="value"></hac-device>
 
-  <pi-section title="pi.mqtt_topics" data-show-when="source=mqtt" data-show-default="mqtt">
+  <pi-section class="hac-win" title="pi.mqtt_topics" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic setting="stateTopic" label="pi.state_topic" placeholder="pi.topic_search_placeholder" hint="pi.value_topic_hint"></hac-topic>
     <hac-json-field setting="field" topic-setting="stateTopic" label="pi.field"></hac-json-field>
     <pi-field setting="unit" label="pi.unit" placeholder="pi.unit_placeholder"></pi-field>
@@ -34,11 +34,11 @@
     <pi-icon-picker setting="icon" none-label="pi.icon" reset-label="kit.threshold_remove"></pi-icon-picker>
   </pi-section>
 
-  <pi-section title="pi.colors">
+  <pi-section class="hac-win" title="pi.colors">
     <pi-thresholds setting="thresholds" base-setting="color" base-default="#FFFFFF" unit-setting="unit" min-setting="min" max-setting="max" default-min="0" default-max="100"></pi-thresholds>
   </pi-section>
 
-  <pi-section title="pi.on_press" data-show-when="source=mqtt" data-show-default="mqtt">
+  <pi-section class="hac-win" title="pi.on_press" data-show-when="source=mqtt" data-show-default="mqtt">
     <pi-choice setting="pressAction" default="none" columns="3" data-options='[
       {"value":"none","label":"pi.press_none","icon":"none"},
       {"value":"toggle","label":"pi.press_toggle","icon":"toggle"},
@@ -60,12 +60,17 @@
     </div>
   </pi-section>
 
-  <pi-section title="pi.advanced" data-show-when="source=mqtt" data-show-default="mqtt">
+  <pi-section class="hac-win" title="pi.advanced" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></hac-topic>
   </pi-section>
 
-  <hac-ha-card></hac-ha-card>
-  <hac-connection-card></hac-connection-card>
+  <hac-more class="hac-pi-only" ready-when="entityId,stateTopic"></hac-more>
+  <hac-sources class="hac-pi-only"></hac-sources>
+
+  <div id="connections" class="hac-win hac-connections">
+    <hac-ha-card></hac-ha-card>
+    <hac-connection-card></hac-connection-card>
+  </div>
 
   <div class="pi-footer"><span data-plugin-version>HA-C</span></div>
 </body>

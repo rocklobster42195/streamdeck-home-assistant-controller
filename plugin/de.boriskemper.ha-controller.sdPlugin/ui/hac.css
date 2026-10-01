@@ -76,3 +76,20 @@ hac-device { display: flex; flex-direction: column; gap: 6px; }
 .pi-select-group .hac-badge { margin-left: 8px; }
 .hac-badge-ha { background: rgba(3, 169, 244, 0.18); color: #6cc4ff; }
 .hac-badge-mqtt { background: rgba(156, 106, 222, 0.2); color: #c9a6f5; }
+
+/* Short PI and settings window (one page, see pi-ui/window.ts) */
+body:not(.hac-window):not(.hac-inline) .hac-win { display: none !important; }
+.hac-window .hac-pi-only, .hac-inline hac-more { display: none !important; }
+hac-more .hac-more-button { width: 100%; }
+.hac-sources { display: flex; flex-direction: column; gap: 2px; }
+.hac-source-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 12px; background: var(--pi-card, transparent); border: 1px solid var(--pi-control-border); border-radius: var(--pi-radius); color: inherit; font: inherit; cursor: pointer; text-align: left; }
+.hac-source-row .pi-label { flex-grow: 1; }
+.hac-sources-setup { width: 100%; }
+.hac-connections { display: flex; flex-direction: column; gap: 6px; }
+
+body.hac-window { max-width: 760px; margin: 0 auto; padding: 8px 28px 32px; }
+.hac-window-title { font-size: 20px; font-weight: 600; margin: 12px 0 4px; }
+.hac-window .hac-device-list { max-height: 520px; }
+@media (min-width: 700px) {
+    .hac-window .hac-connections { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+}

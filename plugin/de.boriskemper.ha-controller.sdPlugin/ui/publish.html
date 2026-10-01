@@ -11,12 +11,12 @@
   <script src="pi.js"></script>
 </head>
 
-<body hidden>
+<body hidden data-title="Publish">
   <div class="pi-hint hac-help" data-i18n="pi.publish_help"></div>
 
   <hac-device action="publish"></hac-device>
 
-  <pi-section title="pi.send">
+  <pi-section class="hac-win" title="pi.send">
     <hac-topic setting="topic" label="pi.send_topic" placeholder="pi.topic_search_placeholder"></hac-topic>
     <pi-field setting="payload" label="pi.send_payload" placeholder="pi.send_payload_placeholder" hint="pi.send_payload_hint"></pi-field>
     <pi-toggle setting="confirm" label="pi.confirm" hint="pi.confirm_hint"></pi-toggle>
@@ -28,7 +28,7 @@
     <pi-color setting="color" default="#F7A600" label="pi.color"></pi-color>
   </pi-section>
 
-  <pi-section title="pi.advanced">
+  <pi-section class="hac-win" title="pi.advanced">
     <hac-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></hac-topic>
     <pi-toggle setting="retain" label="pi.retain" hint="pi.retain_hint"></pi-toggle>
     <pi-choice setting="qos" default="0" columns="3" data-options='[
@@ -38,8 +38,13 @@
     ]'></pi-choice>
   </pi-section>
 
-  <hac-ha-card></hac-ha-card>
-  <hac-connection-card></hac-connection-card>
+  <hac-more class="hac-pi-only" ready-when="topic"></hac-more>
+  <hac-sources class="hac-pi-only"></hac-sources>
+
+  <div id="connections" class="hac-win hac-connections">
+    <hac-ha-card></hac-ha-card>
+    <hac-connection-card></hac-connection-card>
+  </div>
 
   <div class="pi-footer"><span data-plugin-version>HA-C</span></div>
 </body>

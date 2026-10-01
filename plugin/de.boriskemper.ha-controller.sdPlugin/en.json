@@ -179,7 +179,16 @@
 			"by_hand": "Topic by hand",
 			"by_hand_sub": "Enter state and command topics yourself",
 			"no_area": "No area",
-			"no_device": "No device"
+			"no_device": "No device",
+			"more_settings": "More settings …",
+			"set_up_key": "Set up …",
+			"connect_sources": "Connect Home Assistant or MQTT …",
+			"state_short_online": "connected",
+			"state_short_connecting": "connecting…",
+			"state_short_offline": "not reachable",
+			"state_short_denied": "access denied",
+			"state_short_invalid": "check the address",
+			"state_short_unconfigured": "not set up"
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

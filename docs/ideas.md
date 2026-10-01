@@ -41,6 +41,7 @@ Display name **Home Assistant Controller**, public short name **HA-C**. With the
 ## Discovery
 
 - **HA-C finds Home Assistant:** HA announces itself through zeroconf (`_home-assistant._tcp`), so the connection card offers the instances it finds, as XR-C does with `/xinfo`.
+- **Decided 2026-10-01** (see `docs/concept.md`, "The deck as a device in Home Assistant"): MQTT Discovery from HA-C itself plus WebSocket events, new actions "Ereignis" and "Meldung". The original idea below stays for reference.
 - **The deck becomes visible in Home Assistant, through HA's own event bus.** This needs no extra ports and no mDNS on the HA side.
   1. **Events (possible in v1):** HA-C fires events over the WebSocket API, e.g. `ha_c_key_pressed` with deck, page, key and gesture. Normal HA automations can use them without anything else installed.
   2. **Announce and commands:** HA-C fires `ha_c_announce` (deck id, name, model, layout) and subscribes to `ha_c_command`. Anything in HA can then send commands: an automation, a script, or JSA. Examples: show an overlay across the deck, set a key, trigger a scene.

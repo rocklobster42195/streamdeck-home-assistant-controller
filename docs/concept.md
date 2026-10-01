@@ -108,6 +108,16 @@ The window **closes with the PI** (another key clicked, Stream Deck closed). Set
 
 Idea (to be decided): the PI stays short (device, name, icon, "More settings …"), the window holds the roomy parts (device picker by area, colour ranges, value lines and attributes, MQTT details, the connections). Fallback without the window: collapsed sections, MQTT parts hidden while no broker is set up. A candidate for the kit, as the whole family has long PIs.
 
+## The deck as a device in Home Assistant (grilled 2026-10-01, to build later)
+
+Grill notes: `notes/2026-10-01-ha-device-grill.md`. In short:
+
+- **Why:** automations from key presses, messages on the deck, controlling the deck, monitoring. Limits of the SDK: no deck brightness, no firmware, no user profiles/pages, drawing and presses only on HA-C's own keys.
+- **How:** with a broker, MQTT Discovery (as JSA's `ha.register()`): a bridge device "HA-C auf <PC>" and one device per deck (`via_device`); key presses also as events over the WebSocket connection, so they work without a broker. **Opt-in** at the connections, off by default; switching off removes the devices.
+- **v1 (HA-C):** deck connected/model, versions, family reachability (deckbus); night mode (HA-C keys dimmed, brightness 10–100 %), screensaver, identify; new actions **"Ereignis"** (event entity per key: short/long/double, dial rotate/push) and **"Meldung"** (`notify.send_message` shows on the deck's Meldung keys until acknowledged).
+- **v2 (family):** night mode passed on over deckbus and implemented by the other plugins; more deckbus content (e.g. MA-C playing now, X-Air levels) as sensors on the bridge.
+- **When:** after the kit backup and the README pass.
+
 ## Shared code: the kit
 
 MQC is built on **`@rocklobster42195/streamdeck-kit`** (repository `rocklobster42195/streamdeck-kit`; the name leaves out "plugin", decided 2026-09-28), published to npm the same way as `music-assistant-client`. The kit is carved out of MAC **before** MQC is built, and MAC is switched over to it. Sonos Controller follows so that the kit bus can be tested between SC and MAC (decided 2026-09-28).

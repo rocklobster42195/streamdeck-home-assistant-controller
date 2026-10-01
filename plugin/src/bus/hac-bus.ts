@@ -1,9 +1,11 @@
 // HA-C on deckbus (see the kit's docs/deckbus-protocol.md): tells the other plugins whether its
-// sources are reachable ("status": online when Home Assistant or the MQTT broker is) and where HA-C's actions are visible ("actions"). HA-C works the
-// same without the bus.
+// sources are reachable ("status": online when Home Assistant or the MQTT broker is), where HA-C's
+// actions are visible ("actions"), and shares the Panorama behind its dials with neighbouring
+// dials of other plugins. HA-C works the same without the bus.
 import streamDeck from "@elgato/streamdeck";
 import { trackActions } from "@rocklobster42195/streamdeck-kit/bridge";
-import { ActionsState, DeckBus } from "@rocklobster42195/streamdeck-kit/bus";
+import { PanoramaEngine, SharedPanorama } from "@rocklobster42195/streamdeck-kit";
+import { ActionsState, DeckBus, type PeerInfo } from "@rocklobster42195/streamdeck-kit/bus";
 import { ha } from "../ha/connection";
 import { shortHaAddress } from "../ha/url";
 import { broker } from "../mqtt/connection";
@@ -14,6 +16,24 @@ let lastStatus = "";
 /** Collected from the start, shared once the bus exists. */
 const actions = new ActionsState({ setState: (key, value) => bus?.setState(key, value) });
 
+/**
+ * HA-C's Panorama (effects behind the Slider dials), shared with the dials of other plugins next
+ * to them once the bus runs (local until then; the leftmost dial's plugin runs a shared one).
+ */
+export const panorama = new SharedPanorama(new PanoramaEngine({ defaultColor: "#F7A600" }), actions);
+
+const peerListeners = new Set<() => void>();
+
+/** Called when other plugins' dials change (so "like the neighbour" backgrounds can follow). */
+export function onBusPeers(fn: () => void): void {
+    peerListeners.add(fn);
+}
+
+/** The other plugins on the bus (none before it runs). */
+export function busPeers(): PeerInfo[] {
+    return bus?.peers() ?? [];
+}
+
 /** Call before streamDeck.connect(), so no willAppear is missed. */
 export function trackHacActions(): void {
     trackActions(actions);
@@ -23,6 +43,8 @@ export function trackHacActions(): void {
 export async function startHacBus(): Promise<void> {
     bus = new DeckBus({ id: "de.boriskemper.ha-controller", name: "HA-C", version: streamDeck.info.plugin.version, caps: [] });
     bus.setState("actions", actions.list());
+    panorama.connect(bus);
+    bus.onPeers(() => peerListeners.forEach((fn) => fn()));
     shareStatus();
     if (!(await bus.start())) return;
     streamDeck.logger.info(`[deckbus] HA-C in slot ${bus.slot}`);

@@ -6,7 +6,7 @@
 // value, text inside; with an actual value a thermostat (dot at the room temperature, which is also
 // written in the gap). Off (what a push switches is
 // off): dimmed with "Off". Offline: dimmed with a cloud badge.
-import { arc, escapeXml, halfArc, halfArcPosition, measureArialWidth, mdi, openRing, pie, stripImage, text, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
+import { arc, escapeXml, halfArc, halfArcPosition, measureArialWidth, mdi, openRing, pie, scrimDisc, scrimText, stripImage, text, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
 import { localNumber } from "../format";
 import { mdiCloudOffOutline } from "@mdi/js";
 
@@ -32,6 +32,8 @@ export type SliderView = {
     status?: string;
     offText: string;
     offline: boolean;
+    /** The Panorama effect's slice behind the dial (SVG fragment), if it shows one. */
+    background?: string;
     /** The user is turning the dial: the setpoint is drawn highlighted. */
     adjusting: boolean;
 };
@@ -47,7 +49,7 @@ export function renderSliderMessage(icon: string, line: string, warn: boolean): 
 export function renderSliderDial(v: SliderView): string {
     const parts = v.look === "ring" ? ring(v) : v.look === "pie" ? pieLook(v) : v.look === "half" ? half(v) : open(v);
     if (v.offline) parts.push(mdi(mdiCloudOffOutline, 174, 4, 22, "#ff6b6b"));
-    return stripImage(parts);
+    return stripImage(parts, undefined, v.background);
 }
 
 /** The number the gauge fills to, and the big text. */
@@ -80,13 +82,24 @@ function half(v: SliderView): string[] {
         marker: v.adjusting ? "#ffffff" : "#e8e8ec",
     });
     const big = v.off ? v.offText : s.big;
+    // Over an effect: dark behind the arc and each text, the effect stays visible around them
+    if (v.background) {
+        parts.unshift(
+            scrimDisc(cx, cy, r + 8),
+            v.label?.trim() ? scrimText(4, 14, v.label.trim(), 13, { maxWidth: 66 }) : "",
+            v.status ? scrimText(196, 14, v.status, 12, { anchor: "end", maxWidth: 66 }) : "",
+        );
+    }
     parts.push(text(cx, cy - 12, big, { size: fitSize(big, 30, 92, 16), color, weight: "bold", anchor: "middle" }));
     if (s.small && !v.off) parts.push(text(cx, cy + 6, s.small, { size: 14, color: v.adjusting ? "#ffffff" : SOFT, anchor: "middle", maxWidth: 110 }));
     if (v.label?.trim()) parts.push(text(4, 14, v.label.trim(), { size: 13, color: dim ? DIM : SOFT, maxWidth: 66 }));
     else if (v.icon) parts.push(mdi(v.icon, 4, 2, 20, dim ? DIM : SOFT));
     if (v.status) parts.push(text(196, 14, v.status, { size: 12, color: dim ? DIM : SOFT, anchor: "end", maxWidth: 66 }));
-    // Range at the ends of the arc
-    parts.push(text(cx - r, 96, v.rangeLabels?.[0] ?? short(v.min), { size: 11, color: DIM, anchor: "middle" }), text(cx + r, 96, v.rangeLabels?.[1] ?? short(v.max), { size: 11, color: DIM, anchor: "middle" }));
+    // Range at the ends of the arc (on a little box over an effect)
+    const lo = v.rangeLabels?.[0] ?? short(v.min);
+    const hi = v.rangeLabels?.[1] ?? short(v.max);
+    if (v.background) parts.push(scrimText(cx - r, 96, lo, 11, { anchor: "middle" }), scrimText(cx + r, 96, hi, 11, { anchor: "middle" }));
+    parts.push(text(cx - r, 96, lo, { size: 11, color: DIM, anchor: "middle" }), text(cx + r, 96, hi, { size: 11, color: DIM, anchor: "middle" }));
     return parts;
 }
 
@@ -95,7 +108,7 @@ function ring(v: SliderView): string[] {
     const s = shown(v);
     const color = dim ? DIM : s.fill !== undefined ? zoneColor(s.fill, v.zones) : SOFT;
     const pos = s.fill !== undefined ? halfArcPosition(s.fill, v.min, v.max) : 0;
-    const parts = arc(46, 50, 34, dim ? 0 : pos, color, { width: 8 });
+    const parts = [...rightColumnScrims(v, s), ...arc(46, 50, 34, dim ? 0 : pos, color, { width: 8 })];
     if (v.icon) parts.push(mdi(v.icon, 32, 36, 28, dim ? DIM : SOFT));
     else parts.push(text(46, 56, `${Math.round(pos * 100)}%`, { size: 15, color: dim ? DIM : "#ffffff", weight: "bold", anchor: "middle" }));
     const x = 92;
@@ -105,6 +118,20 @@ function ring(v: SliderView): string[] {
     parts.push(text(x, 62, big, { size: fitSize(big, 26, 104, 14), color, weight: "bold" }));
     if (s.small && !v.off) parts.push(text(x, 84, s.small, { size: 13, color: v.adjusting ? "#ffffff" : SOFT, maxWidth: 104 }));
     return parts;
+}
+
+/** Ring and pie over an effect: dark behind the circle and each line of the text column. */
+function rightColumnScrims(v: SliderView, s: ReturnType<typeof shown>): string[] {
+    if (!v.background) return [];
+    const x = 92;
+    const big = v.off ? v.offText : s.big;
+    return [
+        scrimDisc(46, 50, 44),
+        v.status ? scrimText(x, 13, v.status, 11, { maxWidth: 104 }) : "",
+        v.label?.trim() ? scrimText(x, 30, v.label.trim(), 14, { maxWidth: 104 }) : "",
+        scrimText(x, 62, big, fitSize(big, 26, 104, 14), { bold: true, maxWidth: 104 }),
+        s.small && !v.off ? scrimText(x, 84, s.small, 13, { maxWidth: 104 }) : "",
+    ];
 }
 
 /** The open ring's place: in the middle of the strip, text inside. */
@@ -129,7 +156,12 @@ function bigNumber(value: string, unit: string | undefined, y: number, color: st
 function open(v: SliderView): string[] {
     const dim = v.offline || v.off;
     const thermostat = v.actual !== undefined;
-    const parts = openRing({ ...RING, min: v.min, max: v.max, value: v.setpoint, dot: v.actual, zones: v.zones, handle: true, dim });
+    const parts = [
+        // Over an effect: dark inside the ring and behind the name, the effect stays visible around them
+        v.background ? scrimDisc(RING.cx, RING.cy, RING.r + 6) : "",
+        v.background && v.label?.trim() ? scrimText(4, 16, v.label.trim(), 12, { maxWidth: 52 }) : "",
+        ...openRing({ ...RING, min: v.min, max: v.max, value: v.setpoint, dot: v.actual, zones: v.zones, handle: true, dim }),
+    ];
     const unit = v.unit?.trim();
     const top = v.off && thermostat ? v.offText : v.status;
     if (top) parts.push(text(RING.cx, 33, top, { size: 11, color: dim ? DIM : SOFT, anchor: "middle", maxWidth: 60 }));
@@ -148,7 +180,7 @@ function pieLook(v: SliderView): string[] {
     const s = shown(v);
     const color = dim ? DIM : s.fill !== undefined ? zoneColor(s.fill, v.zones) : SOFT;
     const pos = s.fill !== undefined ? halfArcPosition(s.fill, v.min, v.max) : 0;
-    const parts = pie(46, 50, 36, dim ? 0 : pos, color);
+    const parts = [...rightColumnScrims(v, s), ...pie(46, 50, 36, dim ? 0 : pos, color)];
     const x = 92;
     if (v.status) parts.push(text(x, 13, v.status, { size: 11, color: dim ? DIM : SOFT, maxWidth: 104 }));
     if (v.label?.trim()) parts.push(text(x, 30, v.label.trim(), { size: 14, color: dim ? DIM : SOFT, maxWidth: 104 }));

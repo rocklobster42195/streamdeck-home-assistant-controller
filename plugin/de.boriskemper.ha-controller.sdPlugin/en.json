@@ -215,7 +215,17 @@
 			"states_none": "No states yet",
 			"states_edit": "Edit: names, icons, colours, order …",
 			"color_caption": "Name in the key's colour",
-			"color_caption_hint": "Off: white, readable on every colour. On: in the key's colour (harder to read with dark colours)."
+			"color_caption_hint": "Off: white, readable on every colour. On: in the key's colour (harder to read with dark colours).",
+			"background": "Background",
+			"background_auto": "Like the neighbour",
+			"background_none": "No effect",
+			"background_hint": "A Panorama effect behind the dial. “Like the neighbour” takes the effect of the dial next to it, also from MA-C or XR-C: one Panorama then runs across all of them (the plugin on the left runs it). To read values at a glance, choose “No effect”.",
+			"effect_light_color": "Colour from the light",
+			"effect_light_color_hint": "The effect takes the lamp's colour (for lamps with colour).",
+			"effect_level": "Movement from an entity",
+			"effect_level_placeholder": "e.g. sensor.washer_power",
+			"effect_level_max": "Maximum",
+			"effect_level_hint": "The value divided by the maximum moves the effect (speed, density) as music does: e.g. power 0–2000 W."
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

@@ -16,12 +16,13 @@ import streamDeck, {
     type WillDisappearEvent,
 } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
-import { isFeedbackPlaying, LatestSender, OptimisticStore, playFeedback } from "@rocklobster42195/streamdeck-kit";
+import { isFeedbackPlaying, LatestSender, OptimisticStore, playFeedback, resolveBackgrounds } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiKnob } from "@mdi/js";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { ha } from "../ha/connection";
 import { haDial, modeCall, nextMode, type HaDial } from "../ha/dial";
+import { busPeers, onBusPeers, panorama } from "../bus/hac-bus";
 import { haName } from "../ha/entities";
 import { haIconPath } from "../ha/icons";
 import { broker } from "../mqtt/connection";
@@ -63,6 +64,13 @@ export type SliderDialSettings = JsonObject &
         label?: string;
         icon?: string;
         availabilityTopic?: string;
+        /** Panorama effect behind the dial: unset/"auto" = like the neighbour, "none", or an effect id. */
+        background?: string;
+        /** The effect's colour follows an HA light's colour (default on). */
+        effectLightColor?: boolean;
+        /** An HA entity whose value (÷ effectLevelMax) moves the effect, like an audio level. */
+        effectLevelEntityId?: string;
+        effectLevelMax?: string;
         retain?: boolean;
         qos?: "0" | "1" | "2";
     };
@@ -79,6 +87,10 @@ type Instance = {
     lastImage?: string;
     /** The HA entity last drawn, to redraw only when it changes. */
     seen?: HassEntity;
+    /** Where the dial sits, and the Panorama effect behind it (resolved from "background"). */
+    device: string;
+    column: number;
+    effect?: string;
 };
 
 const CONFIRM_MS = 3000;
@@ -105,9 +117,56 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         ha.onIcons(() => {
             for (const inst of this.instances.values()) this.render(inst);
         });
+        // Other plugins' dials came, went or changed effect: "like the neighbour" follows
+        onBusPeers(() => this.arrangeBackgrounds());
         ha.onEntities((entities) => {
             for (const inst of this.instances.values()) if (this.fromHa(inst) && entities[inst.settings.entityId ?? ""] !== inst.seen) this.render(inst);
         });
+    }
+
+    /**
+     * Every dial's Panorama effect from its "background" setting ("like the neighbour" follows the
+     * dial next to it, also another plugin's): join or leave the shared Panorama.
+     */
+    private arrangeBackgrounds(): void {
+        const spots = [...this.instances.values()].map((i) => ({ context: i.id, device: i.device, column: i.column, background: i.settings.background }));
+        const effects = resolveBackgrounds(spots, busPeers());
+        for (const inst of this.instances.values()) {
+            const effect = effects.get(inst.id);
+            if (effect === inst.effect) continue;
+            inst.effect = effect;
+            if (effect) panorama.join(inst.id, inst.device, inst.column, effect, this.effectSettings(inst), () => this.render(inst));
+            else panorama.leave(inst.id);
+            inst.lastImage = undefined;
+            this.render(inst);
+        }
+    }
+
+    /** The effect's settings from HA: its colour follows the light's (unless switched off). */
+    private effectSettings(inst: Instance): Record<string, unknown> {
+        const s = inst.settings;
+        const e = this.fromHa(inst) ? ha.entities[s.entityId ?? ""] : undefined;
+        const rgb = e?.attributes.rgb_color;
+        if (s.effectLightColor === false || !Array.isArray(rgb) || rgb.length < 3) return {};
+        const color = `#${rgb.slice(0, 3).map((v) => Math.round(Number(v)).toString(16).padStart(2, "0")).join("")}`;
+        return { color, primaryColor: color };
+    }
+
+    /** A level 0..1 from an HA entity (e.g. power ÷ its maximum) that moves the effect, as audio does. */
+    private effectLevel(inst: Instance): number | undefined {
+        const id = inst.settings.effectLevelEntityId?.trim();
+        if (!id) return undefined;
+        const value = Number(ha.entities[id]?.state);
+        const max = Number(inst.settings.effectLevelMax) || 100;
+        return Number.isFinite(value) ? Math.min(1, Math.max(0, value / max)) : undefined;
+    }
+
+    /** The Panorama's slice behind the dial, keeping its colour and level up to date with HA. */
+    private background(inst: Instance): string | undefined {
+        if (!inst.effect) return undefined;
+        panorama.updateSettings(inst.id, this.effectSettings(inst));
+        panorama.setLevel(inst.id, this.effectLevel(inst));
+        return panorama.isActive(inst.id) ? panorama.renderSlice(inst.id) : undefined;
     }
 
     private fromHa(inst: Instance): boolean {
@@ -130,9 +189,12 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             sender: new LatestSender((v) => this.send(id, v), 150),
             adjustingUntil: 0,
             timers: [],
+            device: ev.action.device.id,
+            column: (ev.payload as { coordinates?: { column: number } }).coordinates?.column ?? 0,
         };
         this.instances.set(id, inst);
         this.listen(inst);
+        this.arrangeBackgrounds();
         this.render(inst);
     }
 
@@ -143,6 +205,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         this.toggle.forget(inst.id);
         this.haToggle.forget(inst.id);
         this.optimistic.clear(inst.id);
+        panorama.leave(inst.id);
         broker.release(inst.id);
         this.instances.delete(inst.id);
     }
@@ -152,6 +215,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         if (!inst) return;
         inst.settings = ev.payload.settings;
         this.listen(inst);
+        this.arrangeBackgrounds();
         this.render(inst);
     }
 
@@ -286,6 +350,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         const setpoint = this.setpoint(inst);
         const percent = d?.unit === "%" && r.min === 0 && r.max === 100;
         return renderSliderDial({
+            background: this.background(inst),
             look: lookOf(s),
             setpoint,
             setpointText: setpoint === undefined ? undefined : localNumber(formatNumber(setpoint, r.step, s.decimals)),
@@ -318,6 +383,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         if (broker.state === "unconfigured" || broker.state === "invalid") return renderSliderMessage(mdiKnob, t("key.no_broker"), true);
         if (!this.commandTopic(s)) return renderSliderMessage(mdiKnob, t("key.choose_topic"), false);
         return renderSliderDial({
+            background: this.background(inst),
             look: lookOf(s),
             setpoint,
             setpointText: setpoint === undefined ? undefined : s.percent ? String(toPercent(setpoint, r)) : localNumber(formatNumber(setpoint, r.step, s.decimals)),

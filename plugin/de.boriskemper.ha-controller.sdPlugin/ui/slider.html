@@ -55,6 +55,16 @@
     <pi-icon-picker setting="icon" none-label="pi.icon" reset-label="kit.threshold_remove"></pi-icon-picker>
   </pi-section>
 
+  <pi-section class="hac-win" title="pi.background">
+    <pi-select setting="background" source="backgrounds" placeholder="pi.background_auto"></pi-select>
+    <div data-show-when="source=ha" data-show-default="mqtt">
+      <pi-toggle setting="effectLightColor" data-default="true" label="pi.effect_light_color" hint="pi.effect_light_color_hint"></pi-toggle>
+    </div>
+    <hac-ha-entity setting="effectLevelEntityId" label="pi.effect_level" placeholder="pi.effect_level_placeholder"></hac-ha-entity>
+    <pi-field setting="effectLevelMax" label="pi.effect_level_max" placeholder="100" hint="pi.effect_level_hint"></pi-field>
+    <div class="pi-hint pi-padded" data-i18n="pi.background_hint"></div>
+  </pi-section>
+
   <pi-section class="hac-win" title="pi.colors">
     <pi-thresholds setting="thresholds" base-setting="color" base-default="#F7A600" unit-setting="unit" min-setting="min" max-setting="max" default-min="0" default-max="100"></pi-thresholds>
   </pi-section>

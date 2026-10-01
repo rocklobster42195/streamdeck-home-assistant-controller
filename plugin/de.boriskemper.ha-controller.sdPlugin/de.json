@@ -215,7 +215,17 @@
 			"states_none": "Noch keine Stufen",
 			"states_edit": "Bearbeiten: Namen, Icons, Farben, Reihenfolge …",
 			"color_caption": "Name in der Tastenfarbe",
-			"color_caption_hint": "Aus: weiß, auf jeder Farbe gut lesbar. An: in der Farbe der Taste (bei dunklen Farben schlechter lesbar)."
+			"color_caption_hint": "Aus: weiß, auf jeder Farbe gut lesbar. An: in der Farbe der Taste (bei dunklen Farben schlechter lesbar).",
+			"background": "Hintergrund",
+			"background_auto": "Wie der Nachbar",
+			"background_none": "Kein Effekt",
+			"background_hint": "Ein Panorama-Effekt hinter dem Dial. „Wie der Nachbar“ übernimmt den Effekt des Dials daneben, auch von MA-C oder XR-C: dann läuft ein Panorama über alle (das Plugin ganz links rechnet ihn). Wer Werte ganz genau lesen will, wählt „Kein Effekt“.",
+			"effect_light_color": "Farbe vom Licht",
+			"effect_light_color_hint": "Der Effekt nimmt die Farbe der Lampe an (bei Lampen mit Farbe).",
+			"effect_level": "Bewegung aus einer Entity",
+			"effect_level_placeholder": "z. B. sensor.waschmaschine_leistung",
+			"effect_level_max": "Maximum",
+			"effect_level_hint": "Der Wert geteilt durch das Maximum bewegt den Effekt (Tempo, Dichte), wie Musik es tut: z. B. Leistung 0–2000 W."
 		},
 		"Value": "Wert",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis.",

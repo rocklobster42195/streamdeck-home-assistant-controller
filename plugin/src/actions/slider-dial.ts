@@ -270,7 +270,8 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         const setpoint = this.setpoint(inst);
         const percent = d?.unit === "%" && r.min === 0 && r.max === 100;
         return renderSliderDial({
-            look: s.look === "ring" ? "ring" : "half",
+            // A thermostat looks like HA's thermostat card (unless the ring was chosen)
+            look: s.look === "ring" ? "ring" : e?.entity_id.startsWith("climate.") ? "thermostat" : "half",
             setpoint,
             setpointText: setpoint === undefined ? undefined : localNumber(formatNumber(setpoint, r.step, s.decimals)),
             actual: d?.actual,

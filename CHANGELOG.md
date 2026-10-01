@@ -18,6 +18,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - MQ-C (MQTT Controller) becomes **HA-C, Home Assistant Controller**: one plugin for Home Assistant and MQTT. New plugin id `de.boriskemper.ha-controller`, logo on Endeavour blue. Nothing was published as HA-C, so no settings move.
 
 ### Added
+- **Thermostat look** on the Slider dial for HA thermostats, as Home Assistant's thermostat card: a ring open at the bottom with a handle at the setpoint and a dot at the room temperature; inside the mode, the setpoint large (small decimals, raised unit), the room temperature in the gap. Coloured up to the setpoint while on, grey while off.
 - **Colour picker** (from the kit) everywhere a colour is chosen, including the Multi-state states and the colour ranges: 17 standard colours, recent colours, colour wheel with brightness, hex and R/G/B.
 - Slider dial on a thermostat: a push steps through its modes (auto → heat → off, as HA lists them); the mode shows in the corner in HA's words, the dial dims while off.
 - **States in your language:** an HA state that isn't a number shows as HA writes it, in Stream Deck's language ("Bewölkt" for cloudy, "Geöffnet" for an open door), also for the states of a Multi-state key; HA's own texts (`frontend/get_translations`).

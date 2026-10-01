@@ -127,7 +127,15 @@ export class MqcTopic extends HTMLElement {
                         `<button type="button" class="pi-option mqc-hit" data-n="${n}"><span class="pi-select-text"><span class="pi-label">${escapeHtml(h.topic)}</span><span class="pi-option-sub">${escapeHtml(h.value || "—")}</span></span></button>`,
                 )
                 .join("") + more;
-        list.querySelectorAll<HTMLElement>(".mqc-hit").forEach((el) => el.addEventListener("click", () => this.choose(this.hits[Number(el.dataset.n)].topic)));
+        // mousedown, not click: a click first blurs the input, whose change event would save the
+        // typed search text and close the list before the click lands
+        list.querySelectorAll<HTMLElement>(".mqc-hit").forEach((el) =>
+            el.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                this.choose(this.hits[Number(el.dataset.n)].topic);
+                this.querySelector<HTMLInputElement>("input")!.blur();
+            }),
+        );
     }
 
     private renderInfo(): void {

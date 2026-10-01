@@ -42,6 +42,21 @@
                     "Image": "imgs/actions/switch/key"
                 }
             ]
+        },
+        {
+            "Name": "Value",
+            "UUID": "de.boriskemper.mqtt-controller.value",
+            "Icon": "imgs/actions/value/icon",
+            "Tooltip": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",
+            "PropertyInspectorPath": "ui/value.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/value/key"
+                }
+            ]
         }
     ]
 }

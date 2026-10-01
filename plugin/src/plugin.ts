@@ -1,6 +1,7 @@
 import streamDeck from "@elgato/streamdeck";
 import { setKitLogger } from "@rocklobster42195/streamdeck-kit";
 import { SwitchKey } from "./actions/switch-key";
+import { ValueKey } from "./actions/value-key";
 import { startMqcBus, trackMqcActions } from "./bus/mqc-bus";
 import { startConnection } from "./mqtt/connection";
 import { initPiBridge } from "./pi/handlers";
@@ -10,6 +11,7 @@ streamDeck.logger.setLevel("info");
 setKitLogger(streamDeck.logger);
 
 streamDeck.actions.registerAction(new SwitchKey());
+streamDeck.actions.registerAction(new ValueKey());
 initPiBridge();
 trackMqcActions();
 

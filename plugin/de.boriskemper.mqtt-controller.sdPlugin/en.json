@@ -68,7 +68,21 @@
 			"state_offline": "Not reachable",
 			"state_denied": "Access denied: check user name and password",
 			"state_invalid": "That is not a broker address",
-			"state_unconfigured": "Enter your broker's address"
-		}
+			"state_unconfigured": "Enter your broker's address",
+			"value_help": "Shows the value the device reports, coloured by your colour ranges.",
+			"value_topic_hint": "Where the device reports the value. Type to search all topics on the broker.",
+			"unit": "Unit",
+			"unit_placeholder": "e.g. °C, W, %",
+			"decimals": "Decimals",
+			"decimals_placeholder": "As sent",
+			"look_text": "Text",
+			"look_gauge": "Half circle",
+			"min": "Minimum",
+			"max": "Maximum",
+			"colors": "Colours",
+			"icon": "Icon (optional)"
+		},
+		"Value": "Value",
+		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge."
 	}
 }

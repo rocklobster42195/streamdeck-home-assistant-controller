@@ -15,7 +15,9 @@
         "lint": "eslint plugin/src",
         "icons": "node tools/generate-icons.mjs",
         "check": "npm run build && npm test && npm run lint && npm run validate -w mqc-plugin",
-        "sim:switch": "node tools/sd-sim/switch.mjs sim-out"
+        "sim:switch": "node tools/sd-sim/switch.mjs sim-out",
+        "sim:value": "node tools/sd-sim/value.mjs sim-out",
+        "pi:preview": "node tools/pi-preview.mjs"
     },
     "devDependencies": {
         "@tsconfig/node24": "^24.0.5",
@@ -25,6 +27,7 @@
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.62.1",
         "vitest": "^4.1.10",
-        "ws": "^8.21.3"
+        "ws": "^8.21.3",
+        "puppeteer-core": "^25.12.0"
     }
 }

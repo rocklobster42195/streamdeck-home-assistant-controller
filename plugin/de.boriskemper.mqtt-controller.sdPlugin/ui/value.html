@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Value</title>
+  <link rel="stylesheet" href="pi-theme.css" />
+  <link rel="stylesheet" href="mqc.css" />
+  <script src="locales.generated.js"></script>
+  <script src="pi.js"></script>
+</head>
+
+<body hidden>
+  <div class="pi-hint mqc-help" data-i18n="pi.value_help"></div>
+
+  <pi-section title="pi.device">
+    <mqc-topic setting="stateTopic" label="pi.state_topic" placeholder="pi.topic_search_placeholder" hint="pi.value_topic_hint"></mqc-topic>
+    <mqc-json-field setting="field" topic-setting="stateTopic" label="pi.field"></mqc-json-field>
+    <pi-field setting="unit" label="pi.unit" placeholder="pi.unit_placeholder"></pi-field>
+    <pi-field setting="decimals" label="pi.decimals" placeholder="pi.decimals_placeholder"></pi-field>
+  </pi-section>
+
+  <pi-section title="pi.display">
+    <pi-choice setting="look" default="text" columns="2" data-options='[
+      {"value":"text","label":"pi.look_text","icon":"text"},
+      {"value":"gauge","label":"pi.look_gauge","icon":"gauge"}
+    ]'></pi-choice>
+    <pi-field setting="min" label="pi.min" placeholder="0" data-show-when="look=gauge" data-show-default="text"></pi-field>
+    <pi-field setting="max" label="pi.max" placeholder="100" data-show-when="look=gauge" data-show-default="text"></pi-field>
+    <pi-field setting="label" label="pi.label" placeholder="pi.label_placeholder"></pi-field>
+    <pi-icon-picker setting="icon" none-label="pi.icon" reset-label="kit.threshold_remove"></pi-icon-picker>
+  </pi-section>
+
+  <pi-section title="pi.colors">
+    <pi-thresholds setting="thresholds" base-setting="color" base-default="#FFFFFF" unit-setting="unit" min-setting="min" max-setting="max" default-min="0" default-max="100"></pi-thresholds>
+  </pi-section>
+
+  <pi-section title="pi.advanced">
+    <mqc-topic setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></mqc-topic>
+  </pi-section>
+
+  <mqc-connection-card></mqc-connection-card>
+
+  <div class="pi-footer"><span data-plugin-version>MQ-C</span></div>
+</body>
+
+</html>

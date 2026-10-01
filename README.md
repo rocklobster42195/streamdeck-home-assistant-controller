@@ -4,7 +4,7 @@ Switch and show anything on your MQTT broker from your Stream Deck: lights and p
 
 > Unofficial community plugin. Not affiliated with Elgato.
 
-**Status:** early. The Switch key works; more actions follow (see [Planned](#planned)).
+**Status:** early. The Switch and Value keys work; more actions follow (see [Planned](#planned)).
 
 ## Contents
 
@@ -29,6 +29,16 @@ Switches a light, plug or anything else with two states, and shows the state the
 - A question mark means MQ-C hasn't received a known value yet.
 - Pick any icon from the Material Design Icons for on and off, a colour and a name.
 - Without a state topic (a gate that reports nothing), the key sends on and off by turns.
+
+### Value *(key)*
+
+Shows a value with its unit: a temperature, power, humidity, a door's state.
+
+- **Text:** the value large, the unit below, the name at the top, optionally with an icon.
+- **Half circle:** a gauge between minimum and maximum, the value inside it.
+- **Colours:** a base colour and as many ranges as you like ("from 25 °C: red"). In the half circle, the ranges show as bands and the arc takes the colour of the range the value is in. A bar in the settings previews them.
+- Decimals as the device sends them, or rounded to a number you choose. Text that isn't a number ("open") shows as it is.
+- Offline look like the Switch key; a dash until the first value arrives.
 
 ## Setting up a key
 
@@ -67,8 +77,8 @@ MQ-C works the same without other plugins.
 
 ## Planned
 
-- **Value** key (temperature, power, with colours at thresholds), **Publish** key (scenes, a gate), **Multi-state** key (fan 1 → 2 → 3 → off), **Slider** dial (brightness, setpoint).
-- A **half-circle gauge** for the Slider dial and the Value key: colour ranges, a marker for the setpoint and the actual value as the arc, e.g. for a thermostat.
+- **Publish** key (scenes, a gate), **Multi-state** key (fan 1 → 2 → 3 → off), **Slider** dial (brightness, setpoint).
+- The **half-circle gauge** on the Slider dial, with a marker for the setpoint and the actual value as the arc, e.g. for a thermostat.
 - **Home Assistant MQTT discovery:** pick "Living room light" instead of a topic.
 - A topic **browser** (tree), **Listen** (operate the device and see which topic changes) and **Test** (send once and see whether the device answers).
 
@@ -78,6 +88,8 @@ MQ-C works the same without other plugins.
 npm install
 npm run check        # build, tests, lint, manifest check
 npm run sim:switch   # Switch keys against an in-process broker with invented devices
+npm run sim:value    # Value keys in both looks with colour ranges
+npm run pi:preview   # the settings pages in a browser, with invented topics
 npm run watch        # rebuild and restart the plugin in Stream Deck
 ```
 

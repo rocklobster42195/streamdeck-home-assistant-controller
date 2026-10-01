@@ -68,7 +68,21 @@
 			"state_offline": "Nicht erreichbar",
 			"state_denied": "Zugriff verweigert: Benutzername und Passwort prüfen",
 			"state_invalid": "Das ist keine Broker-Adresse",
-			"state_unconfigured": "Gib die Adresse deines Brokers ein"
-		}
+			"state_unconfigured": "Gib die Adresse deines Brokers ein",
+			"value_help": "Zeigt den Wert, den das Gerät meldet, eingefärbt nach deinen Farbbereichen.",
+			"value_topic_hint": "Hier meldet das Gerät den Wert. Tippen durchsucht alle Topics auf dem Broker.",
+			"unit": "Einheit",
+			"unit_placeholder": "z. B. °C, W, %",
+			"decimals": "Nachkommastellen",
+			"decimals_placeholder": "Wie gesendet",
+			"look_text": "Text",
+			"look_gauge": "Halbkreis",
+			"min": "Minimum",
+			"max": "Maximum",
+			"colors": "Farben",
+			"icon": "Icon (optional)"
+		},
+		"Value": "Wert",
+		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Zeigt einen Wert mit Einheit, z. B. eine Temperatur oder Leistung, als Text oder im Halbkreis."
 	}
 }

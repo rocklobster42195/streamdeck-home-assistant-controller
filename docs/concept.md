@@ -110,8 +110,7 @@ Idea (to be decided): the PI stays short (device, name, icon, "More settings …
 
 ## Panorama effects across plugins (grilled 2026-10-01, next)
 
-Grill notes in the kit: `C:\dev\streamdeck-kit
-otes6-10-01-cross-plugin-panorama-grill.md`. HA-C's Slider dials get the kit's Panorama effects behind all looks (scrims behind ring, value and name). One Panorama runs across adjacent dials of different plugins: the plugin with the leftmost dial leads and streams the others their SVG slices over deckbus; its dial's settings apply. Without a partner, HA-C runs its own Panorama over its own dials. HA-C's effects can take their colour from the light and a level from an HA entity. Order: kit, MA-C + XR-C, then HA-C.
+Grill notes in the kit: `notes/2026-10-01-cross-plugin-panorama-grill.md` (in `C:/dev/streamdeck-kit`). HA-C's Slider dials get the kit's Panorama effects behind all looks (scrims behind ring, value and name). One Panorama runs across adjacent dials of different plugins: the plugin with the leftmost dial leads and streams the others their SVG slices over deckbus; its dial's settings apply. Without a partner, HA-C runs its own Panorama over its own dials. HA-C's effects can take their colour from the light and a level from an HA entity. Order: kit, MA-C + XR-C, then HA-C.
 
 ## The deck as a device in Home Assistant (grilled 2026-10-01, to build later)
 

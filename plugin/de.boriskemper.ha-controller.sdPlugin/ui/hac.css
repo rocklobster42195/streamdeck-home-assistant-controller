@@ -80,7 +80,9 @@ hac-device { display: flex; flex-direction: column; gap: 6px; }
 /* Short PI and settings window (one page, see pi-ui/window.ts) */
 body:not(.hac-window):not(.hac-inline) .hac-win { display: none !important; }
 .hac-window .hac-pi-only, .hac-inline hac-more { display: none !important; }
+hac-more { display: flex; flex-direction: column; gap: 6px; }
 hac-more .hac-more-button { width: 100%; }
+.hac-more-hint { padding: 0 4px; }
 .hac-sources { display: flex; flex-direction: column; gap: 2px; }
 .hac-source-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 12px; background: var(--pi-card, transparent); border: 1px solid var(--pi-control-border); border-radius: var(--pi-radius); color: inherit; font: inherit; cursor: pointer; text-align: left; }
 .hac-source-row .pi-label { flex-grow: 1; }

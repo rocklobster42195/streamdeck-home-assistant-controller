@@ -5,6 +5,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Changed
+- A key that isn't set up yet says so under its blue "Set up …" button (pick a device, or set it up with a topic).
 - The device picker also finds entities by their kind, in German and English: "Thermostat" or "Heizung" finds every climate entity, "Rollladen" every cover, "Lampe" every light.
 - The device picker lists up to 300 entities without a search (was 80), so entities without an area at the end aren't cut off.
 - Numbers on keys and dials use Stream Deck's language: "19,4 °C" in German. What goes to a device keeps the point; IP addresses and versions stay as they are.

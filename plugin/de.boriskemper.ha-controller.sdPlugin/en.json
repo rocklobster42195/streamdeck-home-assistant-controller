@@ -203,7 +203,8 @@
 			"connections": "Connections",
 			"step_from_ha": "From Home Assistant",
 			"slider_ha_hint": "Range, step and unit come from Home Assistant: lights, fans and covers in % (push switches them on and off), a thermostat with its setpoint and the room temperature on the arc (push changes its mode, e.g. auto → heat → off), numbers with their own range. A step of your own, e.g. 1, replaces HA's.",
-			"hide_label": "No name"
+			"hide_label": "No name",
+			"set_up_hint": "Not set up yet: pick a device above, or set the key up here (e.g. with an MQTT topic)."
 		},
 		"Value": "Value",
 		"Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.": "Show a value with its unit, e.g. a temperature or power, as text or on a half-circle gauge.",

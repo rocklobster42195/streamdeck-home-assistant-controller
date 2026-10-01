@@ -1,6 +1,7 @@
 // The short PI's way into the settings window:
-// <hac-more ready-when="entityId,stateTopic">: "More settings …", or "Set up …" while none of the
-//   listed settings is filled in. Opens the window; when it can't, the PI shows everything inline.
+// <hac-more ready-when="entityId,stateTopic">: "More settings …", or "Set up …" (blue, with a line
+//   saying why) while none of the listed settings is filled in. Opens the window; when it can't,
+//   the PI shows everything inline.
 // <hac-sources>: one line per connection (Home Assistant, MQTT broker) with its state; a click
 //   opens the window at the connections. While nothing is set up it asks for that instead.
 import { escapeHtml, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
@@ -18,7 +19,7 @@ export class HacMore extends HTMLElement {
     private off: (() => void) | undefined;
 
     connectedCallback(): void {
-        this.innerHTML = `<button type="button" class="pi-button hac-more-button"></button>`;
+        this.innerHTML = `<button type="button" class="pi-button hac-more-button"></button><span class="pi-hint hac-more-hint" hidden>${escapeHtml(t("pi.set_up_hint"))}</span>`;
         this.querySelector("button")!.addEventListener("click", () => {
             if (!openSettingsWindow()) showInline();
         });
@@ -37,6 +38,8 @@ export class HacMore extends HTMLElement {
         const button = this.querySelector("button")!;
         button.textContent = t(ready ? "pi.more_settings" : "pi.set_up_key");
         button.classList.toggle("pi-button-primary", !ready);
+        // Why the button is blue: the key isn't set up yet
+        this.querySelector<HTMLElement>(".hac-more-hint")!.hidden = ready;
     }
 }
 

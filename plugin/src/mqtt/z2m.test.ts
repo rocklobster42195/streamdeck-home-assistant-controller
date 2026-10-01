@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { availabilityTopic } from "../discovery/ha-config";
-import { deviceAvailability, stateRequest } from "./z2m";
+import { stateRequest } from "./z2m";
 
 describe("zigbee2mqtt", () => {
     it("asks only zigbee2mqtt-style devices for their state", () => {
@@ -12,12 +12,10 @@ describe("zigbee2mqtt", () => {
         expect(stateRequest("zigbee2mqtt/+", "zigbee2mqtt/+/set")).toBeUndefined();
     });
 
-    it("uses the device's availability when discovery names only the bridge", () => {
-        expect(deviceAvailability("zigbee2mqtt/bridge/state", "zigbee2mqtt/Stern")).toBe("zigbee2mqtt/Stern/availability");
-        expect(deviceAvailability("zigbee2mqtt/bridge/state", "zigbee2mqtt/bridge/info")).toBe("zigbee2mqtt/bridge/state");
-        expect(deviceAvailability("zigbee2mqtt/bridge/state", "other/Stern")).toBe("zigbee2mqtt/bridge/state");
-        expect(deviceAvailability("tele/plug/LWT", "stat/plug/POWER")).toBe("tele/plug/LWT");
+    it("follows the discovery config's availability, as HA does", () => {
+        // Availability off for the device: only the bridge is named, an old retained "offline" on
+        // the device's own topic must not grey the key out
         const stern = { state_topic: "zigbee2mqtt/Stern", availability: [{ topic: "zigbee2mqtt/bridge/state", value_template: "{{ value_json.state }}" }] };
-        expect(availabilityTopic(stern)).toBe("zigbee2mqtt/Stern/availability");
+        expect(availabilityTopic(stern)).toBe("zigbee2mqtt/bridge/state");
     });
 });

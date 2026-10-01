@@ -177,8 +177,7 @@ Decided 2026-10-01: MQ-C joins deckbus from v1 with `status` (broker reachable, 
 
 ## Backup and templates
 
-Decided for the whole plugin family on 2026-10-01 (kit notes `C:\dev\streamdeck-kit
-otes6-10-01-backup-grill.md`): Stream Deck's profile export keeps the layout; the kit backs up connections and plugin data (one file, all plugins over deckbus, secrets encrypted on request) and offers templates (one key's settings without a place, no secrets). MQ-C is the first plugin to use it; its planned device templates become templates shipped with the plugin.
+Decided for the whole plugin family on 2026-10-01 (kit notes `C:\dev\streamdeck-kit\notes\2026-10-01-backup-grill.md`): Stream Deck's profile export keeps the layout; the kit backs up connections and plugin data (one file, all plugins over deckbus, secrets encrypted on request) and offers templates (one key's settings without a place, no secrets). MQ-C is the first plugin to use it; its planned device templates become templates shipped with the plugin.
 
 ## Testing
 

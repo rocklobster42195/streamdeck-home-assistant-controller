@@ -90,6 +90,7 @@ export type DeviceItem = {
 export type PiRequest =
     | { event: "reconnect" }
     | { event: "ha-reconnect" }
+    | { event: "window-opened"; width: number; height: number; scale: number }
     | { event: "ha-find"; requestId: number }
     | { event: "ha-attributes"; requestId: number; entityId: string }
     | { event: "ha-entity-list"; requestId: number }

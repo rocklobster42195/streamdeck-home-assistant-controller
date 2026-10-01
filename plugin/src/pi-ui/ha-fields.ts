@@ -20,7 +20,7 @@ export class HacHaAttribute extends HTMLElement {
     private requestId = 0;
     private entity = "";
     private state: string | undefined;
-    private attributes: { name: string; value: string }[] = [];
+    private attrs: { name: string; value: string }[] = [];
     private offs: (() => void)[] = [];
 
     private get setting(): string {
@@ -36,7 +36,7 @@ export class HacHaAttribute extends HTMLElement {
             sd.onMessage((msg: PiPush) => {
                 if (msg?.event === "ha-attributes-result" && msg.requestId === this.requestId) {
                     this.state = msg.state;
-                    this.attributes = msg.attributes;
+                    this.attrs = msg.attributes;
                     this.render();
                 } else if (msg?.event === "ha-status" && msg.status.state === "online") {
                     this.load(true);
@@ -63,14 +63,14 @@ export class HacHaAttribute extends HTMLElement {
         if (id) sd.sendToPlugin({ event: "ha-attributes", requestId: this.requestId, entityId: id });
         else {
             this.state = undefined;
-            this.attributes = [];
+            this.attrs = [];
         }
         this.render();
     }
 
     private render(): void {
         const current = str((sd.settings as Record<string, unknown>)[this.setting]);
-        const options = [{ value: "", label: `${t("pi.attribute_state")}${this.state !== undefined ? ` (${this.state})` : ""}` }, ...this.attributes.map((a) => ({ value: a.name, label: `${a.name} (${a.value})` }))];
+        const options = [{ value: "", label: `${t("pi.attribute_state")}${this.state !== undefined ? ` (${this.state})` : ""}` }, ...this.attrs.map((a) => ({ value: a.name, label: `${a.name} (${a.value})` }))];
         // A chosen attribute the entity doesn't report right now stays selectable
         if (current && !options.some((o) => o.value === current)) options.push({ value: current, label: current });
         const select = this.querySelector("select")!;

@@ -88,15 +88,19 @@ hac-more .hac-more-button { width: 100%; }
 .hac-connections { display: flex; flex-direction: column; gap: 6px; }
 
 body.hac-window { max-width: 760px; margin: 0 auto; padding: 8px 28px 32px; }
-/* Menu with scroll spy (pi-ui/window-nav.ts): a fixed column on the left of the content */
-.hac-window-nav { display: none; }
+/* Menu with scroll spy (pi-ui/window-nav.ts): a bar at the top that stays while scrolling, and a
+   fixed column on the left in a wide window */
+.hac-window-nav { display: flex; gap: 4px; overflow-x: auto; position: sticky; top: 0; z-index: 20; background: var(--pi-bg); padding: 6px 0; margin: 0 -4px; }
+.hac-window-nav a { color: var(--pi-text-2, #9a9aa0); text-decoration: none; padding: 6px 10px; border-radius: 8px; font-size: 13px; white-space: nowrap; }
+.hac-window-nav a:hover { color: var(--pi-text); background: var(--pi-control); }
+.hac-window-nav a.active { color: var(--pi-text); background: var(--pi-control); box-shadow: inset 0 -2px 0 var(--pi-accent, #3d8bfd); }
 @media (min-width: 640px) {
     body.hac-window { margin: 0; padding-left: 196px; }
-    .hac-window-nav { display: flex; flex-direction: column; gap: 2px; position: fixed; top: 56px; left: 16px; width: 160px; }
-    .hac-window-nav a { color: var(--pi-text-2, #9a9aa0); text-decoration: none; padding: 7px 12px; border-radius: 8px; border-left: 3px solid transparent; font-size: 13px; }
-    .hac-window-nav a:hover { color: var(--pi-text); background: var(--pi-control); }
-    .hac-window-nav a.active { color: var(--pi-text); background: var(--pi-control); border-left-color: var(--pi-accent, #3d8bfd); }
+    .hac-window-nav { flex-direction: column; gap: 2px; position: fixed; top: 56px; left: 16px; width: 160px; padding: 0; margin: 0; background: none; overflow: visible; }
+    .hac-window-nav a { padding: 7px 12px; white-space: normal; border-left: 3px solid transparent; }
+    .hac-window-nav a.active { box-shadow: none; border-left-color: var(--pi-accent, #3d8bfd); }
 }
+
 .hac-window-title { font-size: 20px; font-weight: 600; margin: 12px 0 4px; }
 .hac-window .hac-device-list { max-height: 520px; }
 @media (min-width: 700px) {

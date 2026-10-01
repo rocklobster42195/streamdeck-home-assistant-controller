@@ -51,6 +51,7 @@ sd.onReady(() => {
         document.title = title;
         document.body.insertAdjacentHTML("afterbegin", `<div class="hac-window-title">${escapeHtml(title)}</div>`);
         initWindowNav();
+        sd.sendToPlugin({ event: "window-opened", width: window.innerWidth, height: window.innerHeight, scale: window.devicePixelRatio });
         // The section asked for ("#connections") exists only now
         if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
     }

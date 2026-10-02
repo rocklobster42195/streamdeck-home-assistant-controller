@@ -4,6 +4,9 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 
 ## [Unreleased]
 
+### Added
+- **The Panorama behind a Slider dial follows Home Assistant:** colour from any entity (a lamp's colour, a text helper with "#FF8800", "255,136,0" or "red", or an attribute; empty: the dial's own lamp as before, "none": no colour), speed and density from number entities (From/To, else the helper's own range, else 0–100). Values from HA win over picked ones across the whole Panorama, also over other plugins' dials; turning an effect dial counts until the value in HA changes. Replaces the "Colour from the light" toggle.
+
 ### Changed
 - **The family's key look** (the kit's key style, as MA-C): a switched-on key gets a tinted plate and a rounded frame in its colour; names are bold captions, white by default (readable on every colour) or in the key's colour ("Name in the key's colour" in the window), cut with "…" when too long.
 - **A Stream Deck title replaces HA-C's name:** while you type a title in Stream Deck, the key draws no name of its own, so the two never overlap.

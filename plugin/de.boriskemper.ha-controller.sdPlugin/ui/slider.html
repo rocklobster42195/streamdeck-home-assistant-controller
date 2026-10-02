@@ -57,9 +57,19 @@
 
   <pi-section class="hac-win" title="pi.background">
     <pi-select setting="background" source="backgrounds" placeholder="pi.background_auto"></pi-select>
-    <div data-show-when="source=ha" data-show-default="mqtt">
-      <pi-toggle setting="effectLightColor" data-default="true" label="pi.effect_light_color" hint="pi.effect_light_color_hint"></pi-toggle>
+    <hac-ha-entity setting="effectColorEntityId" label="pi.effect_color" placeholder="pi.effect_color_placeholder"></hac-ha-entity>
+    <hac-ha-attribute setting="effectColorAttribute" entity-setting="effectColorEntityId" hint="pi.effect_color_hint"></hac-ha-attribute>
+    <hac-ha-entity setting="effectSpeedEntityId" label="pi.effect_speed" placeholder="pi.effect_number_placeholder"></hac-ha-entity>
+    <div class="hac-pair">
+      <pi-field setting="effectSpeedMin" label="pi.effect_min" placeholder="pi.effect_range_auto"></pi-field>
+      <pi-field setting="effectSpeedMax" label="pi.effect_max" placeholder="pi.effect_range_auto"></pi-field>
     </div>
+    <hac-ha-entity setting="effectDensityEntityId" label="pi.effect_density" placeholder="pi.effect_number_placeholder"></hac-ha-entity>
+    <div class="hac-pair">
+      <pi-field setting="effectDensityMin" label="pi.effect_min" placeholder="pi.effect_range_auto"></pi-field>
+      <pi-field setting="effectDensityMax" label="pi.effect_max" placeholder="pi.effect_range_auto"></pi-field>
+    </div>
+    <div class="pi-hint pi-padded" data-i18n="pi.effect_number_hint"></div>
     <hac-ha-entity setting="effectLevelEntityId" label="pi.effect_level" placeholder="pi.effect_level_placeholder"></hac-ha-entity>
     <pi-field setting="effectLevelMax" label="pi.effect_level_max" placeholder="100" hint="pi.effect_level_hint"></pi-field>
     <div class="pi-hint pi-padded" data-i18n="pi.background_hint"></div>

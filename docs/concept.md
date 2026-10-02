@@ -120,6 +120,7 @@ Grill notes: `notes/2026-10-01-ha-device-grill.md`. In short:
 - **How:** with a broker, MQTT Discovery (as JSA's `ha.register()`): a bridge device "HA-C auf <PC>" and one device per deck (`via_device`); key presses also as events over the WebSocket connection, so they work without a broker. **Opt-in** at the connections, off by default; switching off removes the devices.
 - **v1 (HA-C):** deck connected/model, versions, family reachability (deckbus); night mode (HA-C keys dimmed, brightness 10–100 %), screensaver, identify; new actions **"Ereignis"** (event entity per key: short/long/double, dial rotate/push) and **"Meldung"** (`notify.send_message` shows on the deck's Meldung keys until acknowledged).
 - **v2 (family):** night mode passed on over deckbus and implemented by the other plugins; more deckbus content (e.g. MA-C playing now, X-Air levels) as sensors on the bridge.
+- **Panorama as an HA light** (grilled 2026-10-02): per deck a light "Panorama" (on/off, colour, brightness), a `select` for the effect and `number`s for speed and density, so automations drive the deck's Panorama directly. The Slider's entity fields (colour, speed, density, built 2026-10-02) stay the way to use any other entity.
 - **When:** after the kit backup and the README pass.
 
 ## Shared code: the kit

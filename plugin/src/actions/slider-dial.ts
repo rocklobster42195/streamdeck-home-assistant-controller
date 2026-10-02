@@ -22,6 +22,7 @@ import { mdiKnob } from "@mdi/js";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { ha } from "../ha/connection";
 import { haDial, modeCall, nextMode, type HaDial } from "../ha/dial";
+import { haEffectColor, haEffectNumber, noEffectColor } from "../ha/effect-inputs";
 import { busPeers, onBusPeers, panorama } from "../bus/hac-bus";
 import { haName } from "../ha/entities";
 import { haIconPath } from "../ha/icons";
@@ -66,8 +67,18 @@ export type SliderDialSettings = JsonObject &
         availabilityTopic?: string;
         /** Panorama effect behind the dial: unset/"auto" = like the neighbour, "none", or an effect id. */
         background?: string;
-        /** The effect's colour follows an HA light's colour (default on). */
+        /** Before the colour field: false = no colour from the dial's own light. */
         effectLightColor?: boolean;
+        /** HA entity whose colour the effect takes (empty: the dial's own light; "none": no colour), optionally an attribute of it. */
+        effectColorEntityId?: string;
+        effectColorAttribute?: string;
+        /** HA entities whose numbers set the effect's speed and density (range: min/max, else the helper's own, else 0–100). */
+        effectSpeedEntityId?: string;
+        effectSpeedMin?: string;
+        effectSpeedMax?: string;
+        effectDensityEntityId?: string;
+        effectDensityMin?: string;
+        effectDensityMax?: string;
         /** An HA entity whose value (÷ effectLevelMax) moves the effect, like an audio level. */
         effectLevelEntityId?: string;
         effectLevelMax?: string;
@@ -135,21 +146,37 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             const effect = effects.get(inst.id);
             if (effect === inst.effect) continue;
             inst.effect = effect;
-            if (effect) panorama.join(inst.id, inst.device, inst.column, effect, this.effectSettings(inst), () => this.render(inst));
+            if (effect) {
+                panorama.join(inst.id, inst.device, inst.column, effect, {}, () => this.render(inst));
+                panorama.updateLive(inst.id, this.effectLive(inst));
+            }
             else panorama.leave(inst.id);
             inst.lastImage = undefined;
             this.render(inst);
         }
     }
 
-    /** The effect's settings from HA: its colour follows the light's (unless switched off). */
-    private effectSettings(inst: Instance): Record<string, unknown> {
+    /**
+     * What HA puts into the effect (colour, speed, density): live settings, so they win over the
+     * picked ones of every dial in the group, also another plugin's.
+     */
+    private effectLive(inst: Instance): Record<string, unknown> {
         const s = inst.settings;
-        const e = this.fromHa(inst) ? ha.entities[s.entityId ?? ""] : undefined;
-        const rgb = e?.attributes.rgb_color;
-        if (s.effectLightColor === false || !Array.isArray(rgb) || rgb.length < 3) return {};
-        const color = `#${rgb.slice(0, 3).map((v) => Math.round(Number(v)).toString(16).padStart(2, "0")).join("")}`;
-        return { color, primaryColor: color };
+        const live: Record<string, unknown> = {};
+        const colorId = s.effectColorEntityId?.trim();
+        if (!noEffectColor(colorId)) {
+            // Empty field: the dial's own light (as before the field, unless that was switched off)
+            const own = !colorId && this.fromHa(inst) && s.effectLightColor !== false ? s.entityId : undefined;
+            const color = haEffectColor(ha.entities[colorId || own || ""], colorId ? s.effectColorAttribute : undefined);
+            if (color) Object.assign(live, { color, primaryColor: color });
+        }
+        if (inst.effect) {
+            const speed = haEffectNumber(ha.entities[s.effectSpeedEntityId?.trim() ?? ""], inst.effect, "savedSpeed", s.effectSpeedMin, s.effectSpeedMax);
+            const density = haEffectNumber(ha.entities[s.effectDensityEntityId?.trim() ?? ""], inst.effect, "savedDensity", s.effectDensityMin, s.effectDensityMax);
+            if (speed !== undefined) live.savedSpeed = speed;
+            if (density !== undefined) live.savedDensity = density;
+        }
+        return live;
     }
 
     /** A level 0..1 from an HA entity (e.g. power ÷ its maximum) that moves the effect, as audio does. */
@@ -161,10 +188,10 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         return Number.isFinite(value) ? Math.min(1, Math.max(0, value / max)) : undefined;
     }
 
-    /** The Panorama's slice behind the dial, keeping its colour and level up to date with HA. */
+    /** The Panorama's slice behind the dial, keeping colour, speed, density and level up to date with HA. */
     private background(inst: Instance): string | undefined {
         if (!inst.effect) return undefined;
-        panorama.updateSettings(inst.id, this.effectSettings(inst));
+        panorama.updateLive(inst.id, this.effectLive(inst));
         panorama.setLevel(inst.id, this.effectLevel(inst));
         return panorama.isActive(inst.id) ? panorama.renderSlice(inst.id) : undefined;
     }

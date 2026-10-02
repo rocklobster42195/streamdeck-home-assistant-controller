@@ -115,3 +115,9 @@ body.hac-window { max-width: 760px; margin: 0 auto; padding: 0 16px 32px; }
 @media (min-width: 700px) {
     .hac-window .hac-connections { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 }
+
+/* Two short fields side by side (e.g. From / To) */
+.hac-pair { display: grid; grid-template-columns: 1fr 1fr; }
+.pi-card > .hac-pair { border-top: none; }
+.hac-pair > .pi-field { padding-top: 0; }
+.hac-pair > .pi-field + .pi-field { padding-left: 0; }

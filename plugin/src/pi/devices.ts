@@ -97,9 +97,10 @@ async function haItems(action: ActionKind): Promise<DeviceItem[]> {
     try {
         reg = await ha.registry();
     } catch {
-        reg = { areas: [], devices: [], entities: [] };
+        reg = { areas: [], labels: [], devices: [], entities: [] };
     }
     const areas = new Map(reg.areas.map((a) => [a.area_id, a.name]));
+    const labelNames = new Map(reg.labels.map((l) => [l.label_id, l.name]));
     const devices = new Map(reg.devices.map((d) => [d.id, d]));
     const entries = new Map(reg.entities.map((e) => [e.entity_id, e]));
     const items: (DeviceItem & { sortArea: string; sortDevice: string })[] = [];
@@ -110,6 +111,8 @@ async function haItems(action: ActionKind): Promise<DeviceItem[]> {
         const device = entry?.device_id ? devices.get(entry.device_id) : undefined;
         const area = areas.get(entry?.area_id ?? device?.area_id ?? "") ?? "";
         const deviceName = device?.name_by_user ?? device?.name ?? "";
+        // The entity's and its device's labels, searchable by name
+        const labels = [...new Set([...(entry?.labels ?? []), ...(device?.labels ?? [])])].map((id) => labelNames.get(id) ?? "").join(" ");
         const name = haName(e) ?? e.entity_id;
         items.push({
             id: e.entity_id,
@@ -119,7 +122,7 @@ async function haItems(action: ActionKind): Promise<DeviceItem[]> {
             sub: [deviceName && !name.startsWith(deviceName) ? deviceName : "", e.entity_id].filter(Boolean).join(" · "),
             extra: !!entry?.entity_category,
             icon: haListIcon(e),
-            search: `${name} ${e.entity_id} ${deviceName} ${area} ${KIND_WORDS[domainOf(e.entity_id)] ?? ""}`.toLowerCase(),
+            search: `${name} ${e.entity_id} ${deviceName} ${area} ${labels} ${KIND_WORDS[domainOf(e.entity_id)] ?? ""}`.toLowerCase(),
             sortArea: area,
             sortDevice: deviceName,
         });

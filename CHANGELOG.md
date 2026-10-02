@@ -13,6 +13,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 - Keys confirm in their own colour instead of Stream Deck's green check: a disc grows, a white check mark draws itself (Trigger in its colour, Yellow Sea by default); errors show an exclamation mark on red instead of the yellow triangle. The Slider dial shows the red alert on its touch strip too.
 - A key that isn't set up yet says so under its blue "Set up …" button (pick a device, or set it up with a topic).
 - The device picker also finds entities by their kind, in German and English: "Thermostat" or "Heizung" finds every climate entity, "Rollladen" every cover, "Lampe" every light.
+- The device picker also finds HA entities by their labels (and their device's labels), as it does by area.
 - The device picker lists up to 300 entities without a search (was 80), so entities without an area at the end aren't cut off.
 - Numbers on keys and dials use Stream Deck's language: "19,4 °C" in German. What goes to a device keeps the point; IP addresses and versions stay as they are.
 - Value key with an icon: the icon large at the top and two lines under it (value and second value, or name and value), as other HA plugins show it; long names end in "…".

@@ -17,7 +17,9 @@ export type HaState = "unconfigured" | "invalid" | "connecting" | "online" | "of
 /** What the picker needs from HA's registries (only the fields HA-C reads). */
 export type HaRegistry = {
     areas: { area_id: string; name: string }[];
-    devices: { id: string; name: string | null; name_by_user: string | null; area_id: string | null }[];
+    /** The labels the user made in HA (entities and devices carry their ids). */
+    labels: { label_id: string; name: string }[];
+    devices: { id: string; name: string | null; name_by_user: string | null; area_id: string | null; labels?: string[] }[];
     entities: {
         entity_id: string;
         device_id: string | null;
@@ -25,6 +27,7 @@ export type HaRegistry = {
         entity_category: string | null;
         hidden_by: string | null;
         disabled_by: string | null;
+        labels?: string[];
         /** The icon the user set on the entity in HA. */
         icon?: string | null;
         /** The integration the entity comes from, and its key in the integration's icon table. */
@@ -106,16 +109,18 @@ export class HaConnection {
         return Object.keys(this.entities).length;
     }
 
-    /** Areas, devices and entity entries; read once a minute at most. */
+    /** Areas, labels, devices and entity entries; read once a minute at most. */
     registry(): Promise<HaRegistry> {
         const conn = this.connection;
-        if (!conn) return Promise.resolve({ areas: [], devices: [], entities: [] });
+        if (!conn) return Promise.resolve({ areas: [], labels: [], devices: [], entities: [] });
         if (this.registryCache && Date.now() - this.registryCache.at < REGISTRY_MS) return this.registryCache.value;
         const value = Promise.all([
             conn.sendMessagePromise<HaRegistry["areas"]>({ type: "config/area_registry/list" }),
             conn.sendMessagePromise<HaRegistry["devices"]>({ type: "config/device_registry/list" }),
             conn.sendMessagePromise<HaRegistry["entities"]>({ type: "config/entity_registry/list" }),
-        ]).then(([areas, devices, entities]) => ({ areas, devices, entities }));
+            // Labels came with HA 2024.4; without them the picker still works
+            conn.sendMessagePromise<HaRegistry["labels"]>({ type: "config/label_registry/list" }).catch(() => []),
+        ]).then(([areas, devices, entities, labels]) => ({ areas, labels, devices, entities }));
         this.registryCache = { at: Date.now(), value };
         value.catch(() => (this.registryCache = undefined));
         return value;

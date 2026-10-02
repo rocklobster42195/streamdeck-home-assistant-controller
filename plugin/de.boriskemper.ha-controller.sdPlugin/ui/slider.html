@@ -55,8 +55,9 @@
     <pi-icon-picker setting="icon" none-label="pi.icon" reset-label="kit.threshold_remove"></pi-icon-picker>
   </pi-section>
 
+  <pi-panorama class="pi-win"></pi-panorama>
+
   <pi-section class="pi-win" title="pi.background">
-    <pi-select setting="background" source="backgrounds" placeholder="pi.background_auto"></pi-select>
     <hac-ha-entity setting="effectColorEntityId" label="pi.effect_color" placeholder="pi.effect_color_placeholder"></hac-ha-entity>
     <hac-ha-attribute setting="effectColorAttribute" entity-setting="effectColorEntityId" hint="pi.effect_color_hint"></hac-ha-attribute>
     <hac-ha-entity setting="effectSpeedEntityId" label="pi.effect_speed" placeholder="pi.effect_number_placeholder"></hac-ha-entity>
@@ -72,7 +73,6 @@
     <div class="pi-hint pi-padded" data-i18n="pi.effect_number_hint"></div>
     <hac-ha-entity setting="effectLevelEntityId" label="pi.effect_level" placeholder="pi.effect_level_placeholder"></hac-ha-entity>
     <pi-field setting="effectLevelMax" label="pi.effect_level_max" placeholder="100" hint="pi.effect_level_hint"></pi-field>
-    <div class="pi-hint pi-padded" data-i18n="pi.background_hint"></div>
   </pi-section>
 
   <pi-section class="pi-win" title="pi.colors">
@@ -104,6 +104,8 @@
     <hac-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></hac-topic>
     <pi-toggle setting="retain" label="pi.retain" hint="pi.retain_hint"></pi-toggle>
   </pi-section>
+
+  <pi-panorama class="pi-pi-only" summary></pi-panorama>
 
   <pi-more ready-when="entityId,stateTopic,commandTopic" setup-hint="pi.set_up_hint"></pi-more>
   <hac-sources class="pi-pi-only"></hac-sources>

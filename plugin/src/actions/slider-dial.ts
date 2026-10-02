@@ -16,14 +16,14 @@ import streamDeck, {
     type WillDisappearEvent,
 } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
-import { isFeedbackPlaying, LatestSender, OptimisticStore, playFeedback, resolveBackgrounds } from "@rocklobster42195/streamdeck-kit";
+import { isFeedbackPlaying, LatestSender, OptimisticStore, playFeedback, rowStateFromSettings } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiKnob } from "@mdi/js";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { ha } from "../ha/connection";
 import { haDial, modeCall, nextMode, type HaDial } from "../ha/dial";
 import { haEffectColor, haEffectNumber, noEffectColor } from "../ha/effect-inputs";
-import { busPeers, onBusPeers, panorama } from "../bus/hac-bus";
+import { panorama, panoramaRows } from "../bus/hac-bus";
 import { haName } from "../ha/entities";
 import { haIconPath } from "../ha/icons";
 import { broker } from "../mqtt/connection";
@@ -65,7 +65,10 @@ export type SliderDialSettings = JsonObject &
         label?: string;
         icon?: string;
         availabilityTopic?: string;
-        /** Panorama effect behind the dial: unset/"auto" = like the neighbour, "none", or an effect id. */
+        /** The row's Panorama as this dial stored it, and whether the dial shows it (see the kit's panorama/rows.ts). */
+        panorama?: JsonObject;
+        panoramaMember?: boolean;
+        /** Before rows: "auto", "none" or an effect id (taken over once). */
         background?: string;
         /** Before the colour field: false = no colour from the dial's own light. */
         effectLightColor?: boolean;
@@ -98,10 +101,9 @@ type Instance = {
     lastImage?: string;
     /** The HA entity last drawn, to redraw only when it changes. */
     seen?: HassEntity;
-    /** Where the dial sits, and the Panorama effect behind it (resolved from "background"). */
+    /** Where the dial sits (its row is the device's dials). */
     device: string;
     column: number;
-    effect?: string;
 };
 
 const CONFIRM_MS = 3000;
@@ -128,32 +130,9 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         ha.onIcons(() => {
             for (const inst of this.instances.values()) this.render(inst);
         });
-        // Other plugins' dials came, went or changed effect: "like the neighbour" follows
-        onBusPeers(() => this.arrangeBackgrounds());
         ha.onEntities((entities) => {
             for (const inst of this.instances.values()) if (this.fromHa(inst) && entities[inst.settings.entityId ?? ""] !== inst.seen) this.render(inst);
         });
-    }
-
-    /**
-     * Every dial's Panorama effect from its "background" setting ("like the neighbour" follows the
-     * dial next to it, also another plugin's): join or leave the shared Panorama.
-     */
-    private arrangeBackgrounds(): void {
-        const spots = [...this.instances.values()].map((i) => ({ context: i.id, device: i.device, column: i.column, background: i.settings.background }));
-        const effects = resolveBackgrounds(spots, busPeers());
-        for (const inst of this.instances.values()) {
-            const effect = effects.get(inst.id);
-            if (effect === inst.effect) continue;
-            inst.effect = effect;
-            if (effect) {
-                panorama.join(inst.id, inst.device, inst.column, effect, {}, () => this.render(inst));
-                panorama.updateLive(inst.id, this.effectLive(inst));
-            }
-            else panorama.leave(inst.id);
-            inst.lastImage = undefined;
-            this.render(inst);
-        }
     }
 
     /**
@@ -170,9 +149,10 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             const color = haEffectColor(ha.entities[colorId || own || ""], colorId ? s.effectColorAttribute : undefined);
             if (color) Object.assign(live, { color, primaryColor: color });
         }
-        if (inst.effect) {
-            const speed = haEffectNumber(ha.entities[s.effectSpeedEntityId?.trim() ?? ""], inst.effect, "savedSpeed", s.effectSpeedMin, s.effectSpeedMax);
-            const density = haEffectNumber(ha.entities[s.effectDensityEntityId?.trim() ?? ""], inst.effect, "savedDensity", s.effectDensityMin, s.effectDensityMax);
+        const effect = panoramaRows.effectOf(inst.id);
+        if (effect) {
+            const speed = haEffectNumber(ha.entities[s.effectSpeedEntityId?.trim() ?? ""], effect, "savedSpeed", s.effectSpeedMin, s.effectSpeedMax);
+            const density = haEffectNumber(ha.entities[s.effectDensityEntityId?.trim() ?? ""], effect, "savedDensity", s.effectDensityMin, s.effectDensityMax);
             if (speed !== undefined) live.savedSpeed = speed;
             if (density !== undefined) live.savedDensity = density;
         }
@@ -190,7 +170,13 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
 
     /** The Panorama's slice behind the dial, keeping colour, speed, density and level up to date with HA. */
     private background(inst: Instance): string | undefined {
-        if (!inst.effect) return undefined;
+        if (!panoramaRows.effectOf(inst.id)) return undefined;
+        // An unchecked dial stays in the row's geometry, but shows nothing and puts nothing in
+        if (!panoramaRows.isMember(inst.id)) {
+            panorama.updateLive(inst.id, {});
+            panorama.setLevel(inst.id, undefined);
+            return undefined;
+        }
         panorama.updateLive(inst.id, this.effectLive(inst));
         panorama.setLevel(inst.id, this.effectLevel(inst));
         return panorama.isActive(inst.id) ? panorama.renderSlice(inst.id) : undefined;
@@ -221,7 +207,17 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         };
         this.instances.set(id, inst);
         this.listen(inst);
-        this.arrangeBackgrounds();
+        panoramaRows.add(id, {
+            device: inst.device,
+            column: inst.column,
+            label: () => inst.settings.label?.trim() || (this.fromHa(inst) ? haName(ha.entities[inst.settings.entityId ?? ""]) : undefined) || inst.settings.entityId || inst.settings.stateTopic || "",
+            state: () => rowStateFromSettings(inst.settings),
+            save: (patch) => {
+                inst.settings = { ...inst.settings, ...patch } as SliderDialSettings;
+                void inst.action.setSettings(inst.settings);
+            },
+            redraw: () => this.render(inst),
+        });
         this.render(inst);
     }
 
@@ -232,7 +228,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         this.toggle.forget(inst.id);
         this.haToggle.forget(inst.id);
         this.optimistic.clear(inst.id);
-        panorama.leave(inst.id);
+        panoramaRows.remove(inst.id);
         broker.release(inst.id);
         this.instances.delete(inst.id);
     }
@@ -242,7 +238,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         if (!inst) return;
         inst.settings = ev.payload.settings;
         this.listen(inst);
-        this.arrangeBackgrounds();
+        panoramaRows.changed(inst.id);
         this.render(inst);
     }
 

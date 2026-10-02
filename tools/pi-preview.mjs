@@ -8,6 +8,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 
+import { listEffects } from "@rocklobster42195/streamdeck-kit";
+const PANORAMA_EFFECTS = listEffects();
 const require = createRequire(path.resolve("plugin/package.json"));
 const { WebSocketServer } = require("ws");
 const mdi = require("@mdi/js");
@@ -87,6 +89,12 @@ wss.on("connection", (ws) => {
                 if (p.event === "pi-ready") {
                     toPi({ event: "ha-status", status: scenario.ha });
                     toPi({ event: "status", status: scenario.status });
+                    // The Slider's Panorama section: a row with dials of three plugins
+                    toPi({ event: "panorama-row", device: "deck", effect: "particles", settings: { savedSpeed: 2 }, effects: PANORAMA_EFFECTS, dials: [
+                        { column: 0, plugin: "MA-C", label: "Living Room", member: true, self: false },
+                        { column: 1, plugin: "HA-C", label: "Heizung Bad", member: true, self: true },
+                        { column: 2, plugin: "XR-C", label: "Vocals", member: false, self: false },
+                    ] });
                 } else if (p.event === "ha-find") setTimeout(() => toPi({ event: "ha-find-result", requestId: p.requestId, found: [{ name: "Zuhause", url: "http://192.168.1.20:8123", version: "2026.9.4" }] }), 800);
                 else if (p.event === "options") toPi({ event: "options-result", requestId: p.requestId, source: p.source, items: p.source === "mdi-icons" ? mdiOptions(p.params?.q) : [] });
                 else if (p.event === "topics") {

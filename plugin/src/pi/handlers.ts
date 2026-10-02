@@ -4,7 +4,6 @@
 // settings panel is open, HAC listens to every topic ("#"), so the search sees the whole broker.
 import streamDeck from "@elgato/streamdeck";
 import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";
-import { backgroundOptions } from "@rocklobster42195/streamdeck-kit";
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
 import { reconnectBroker, reconnectHa } from "../connections";
 import { ha } from "../ha/connection";
@@ -18,6 +17,7 @@ import { shortAddress } from "../mqtt/url";
 import { initHaDiscovery } from "../discovery/ha-discovery";
 import { initDevicePicker } from "./devices";
 import { initExplore } from "./explore";
+import { panoramaRows } from "../bus/hac-bus";
 import type { ConnectionStatus, HaStatus, PiPush, TopicHit } from "./protocol";
 
 const PI_OWNER = "settings-panel";
@@ -26,8 +26,8 @@ const MAX_HITS = 40;
 export function initPiBridge(): void {
     piBridge.init();
     piBridge.registerOptions("mdi-icons", mdiOptions);
-    // Dial backgrounds: like the neighbour (default), none, or one of the kit's Panorama effects
-    piBridge.registerOptions("backgrounds", () => backgroundOptions({ auto: streamDeck.i18n.t("pi.background_auto"), none: streamDeck.i18n.t("pi.background_none") }));
+    // The Slider dials' Panorama section (<pi-panorama>): the row's effect, dials and settings
+    panoramaRows.attachPi(piBridge);
     piBridge.handle("window-opened", (msg) => {
         streamDeck.logger.info(`[pi] settings window ${msg.width}×${msg.height} at ${msg.scale}×`);
     });

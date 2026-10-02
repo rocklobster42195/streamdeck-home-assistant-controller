@@ -1,18 +1,16 @@
 // Entry of the property inspector bundle (ui/pi.js): the kit's components plus HA-C's connection
 // cards (Home Assistant, MQTT broker), topic field and JSON field picker. The same page runs as the
-// short PI and, with "?window", as the settings window (see window.ts).
-import { definePiComponents, initConditionalVisibility, sd, t, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
+// short PI and, with "?window", as the settings window (the kit's src/pi/window.ts).
+import { definePiComponents, initConditionalVisibility, initSettingsWindow, isSettingsWindow, sd, settingsWindowShown, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
 import { mdiCancel, mdiChartDonut, mdiCircleSlice5, mdiFormatText, mdiGauge, mdiHorseshoe, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
 import { HacConnectionCard, HacHaCard } from "./connection-card";
 import { HacDevice } from "./device-picker";
 import { HacHaAttribute, HacHaEntity } from "./ha-fields";
 import { HacJsonField } from "./json-field";
-import { HacMore, HacSources, HacStatesSummary } from "./more";
+import { HacSources, HacStatesSummary } from "./more";
 import { HacStates } from "./states-field";
 import { HacTest } from "./test-button";
 import { HacTopic } from "./topic-field";
-import { isSettingsWindow, mirrorOpener, shareConnection } from "./window";
-import { initWindowNav } from "./window-nav";
 
 /** MDI paths for <pi-choice data-options='[{"icon":"…"}]'> tiles. */
 const CHOICE_ICONS: Record<string, string> = { text: mdiFormatText, gauge: mdiGauge, none: mdiCancel, toggle: mdiToggleSwitchOutline, send: mdiSend, ring: mdiChartDonut, open: mdiHorseshoe, pie: mdiCircleSlice5 };
@@ -27,7 +25,6 @@ sd.onReady(() => {
     customElements.define("hac-json-field", HacJsonField);
     customElements.define("hac-states", HacStates);
     customElements.define("hac-test", HacTest);
-    customElements.define("hac-more", HacMore);
     customElements.define("hac-ha-attribute", HacHaAttribute);
     customElements.define("hac-ha-entity", HacHaEntity);
     customElements.define("hac-sources", HacSources);
@@ -47,25 +44,9 @@ sd.onReady(() => {
         }),
     );
     document.body.hidden = false;
-    if (isSettingsWindow()) {
-        // The name goes into the window's title bar; the page itself starts with the menu
-        document.title = `HA-C · ${t(document.body.dataset.title ?? "")}`;
-        initWindowNav();
-        // Stream Deck opens windows at 500×650 and ignores sizes and resizeTo; the size is logged
-        sd.sendToPlugin({ event: "window-opened", width: window.innerWidth, height: window.innerHeight, scale: window.devicePixelRatio });
-        // The section asked for ("#connections") exists only now
-        if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
-    }
+    settingsWindowShown();
+    // Stream Deck opens windows at 500×650 and ignores sizes and resizeTo; the size is logged
+    if (isSettingsWindow()) sd.sendToPlugin({ event: "window-opened", width: window.innerWidth, height: window.innerHeight, scale: window.devicePixelRatio });
 });
 
-if (isSettingsWindow()) {
-    document.addEventListener("DOMContentLoaded", () => {
-        document.body.classList.add("hac-window");
-        if (!mirrorOpener()) {
-            document.body.hidden = false;
-            document.body.innerHTML = `<p class="pi-hint hac-window-alone">Open this window from the key's settings in Stream Deck.</p>`;
-        }
-    });
-} else {
-    shareConnection();
-}
+initSettingsWindow({ name: "HA-C" });

@@ -14,9 +14,9 @@
 <body hidden data-title="Value">
   <div class="pi-hint hac-help" data-i18n="pi.value_help"></div>
 
-  <hac-device action="value"></hac-device>
+  <hac-device data-window-section="pi.pick_device" action="value"></hac-device>
 
-  <pi-section class="hac-win" title="pi.mqtt_topics" data-show-when="source=mqtt" data-show-default="mqtt">
+  <pi-section class="pi-win" title="pi.mqtt_topics" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic setting="stateTopic" label="pi.state_topic" placeholder="pi.topic_search_placeholder" hint="pi.value_topic_hint"></hac-topic>
     <hac-json-field setting="field" topic-setting="stateTopic" label="pi.field"></hac-json-field>
     <pi-field setting="unit" label="pi.unit" placeholder="pi.unit_placeholder"></pi-field>
@@ -40,11 +40,11 @@
     <pi-toggle setting="hideLabel" label="pi.hide_label"></pi-toggle>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.icons">
+  <pi-section class="pi-win" title="pi.icons">
     <pi-icon-picker setting="icon" none-label="pi.icon" reset-label="kit.threshold_remove"></pi-icon-picker>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.second_line">
+  <pi-section class="pi-win" title="pi.second_line">
     <div data-show-when="source=ha" data-show-default="mqtt">
       <hac-ha-entity setting="secondEntityId" label="pi.entity" placeholder="pi.same_entity"></hac-ha-entity>
       <hac-ha-attribute setting="secondAttribute" entity-setting="secondEntityId" fallback-setting="entityId"></hac-ha-attribute>
@@ -57,11 +57,11 @@
     <pi-field setting="secondDecimals" label="pi.decimals" placeholder="pi.decimals_placeholder" hint="pi.second_line_hint"></pi-field>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.colors">
+  <pi-section class="pi-win" title="pi.colors">
     <pi-thresholds setting="thresholds" base-setting="color" base-default="#FFFFFF" unit-setting="unit" min-setting="min" max-setting="max" default-min="0" default-max="100"></pi-thresholds>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.on_press">
+  <pi-section class="pi-win" title="pi.on_press">
     <pi-choice setting="pressAction" default="none" columns="3" data-options='[
       {"value":"none","label":"pi.press_none","icon":"none"},
       {"value":"toggle","label":"pi.press_toggle","icon":"toggle"},
@@ -92,14 +92,14 @@
     </div>
   </pi-section>
 
-  <pi-section class="hac-win" title="pi.advanced" data-show-when="source=mqtt" data-show-default="mqtt">
+  <pi-section class="pi-win" title="pi.advanced" data-show-when="source=mqtt" data-show-default="mqtt">
     <hac-topic no-explore setting="availabilityTopic" label="pi.availability_topic" hint="pi.availability_topic_hint"></hac-topic>
   </pi-section>
 
-  <hac-more class="hac-pi-only" ready-when="entityId,stateTopic"></hac-more>
-  <hac-sources class="hac-pi-only"></hac-sources>
+  <pi-more ready-when="entityId,stateTopic" setup-hint="pi.set_up_hint"></pi-more>
+  <hac-sources class="pi-pi-only"></hac-sources>
 
-  <div id="connections" class="hac-win hac-connections">
+  <div id="connections" data-window-section="pi.connections" class="pi-win hac-connections">
     <hac-ha-card></hac-ha-card>
     <hac-connection-card></hac-connection-card>
   </div>

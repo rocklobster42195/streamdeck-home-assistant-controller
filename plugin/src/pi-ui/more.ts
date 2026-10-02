@@ -1,48 +1,11 @@
-// The short PI's way into the settings window:
-// <hac-more ready-when="entityId,stateTopic">: "More settings …", or "Set up …" (blue, with a line
-//   saying why) while none of the listed settings is filled in. Opens the window; when it can't,
-//   the PI shows everything inline.
+// HA-C's lines in the short PI that open the settings window (the button itself is the kit's <pi-more>):
 // <hac-states-summary>: the Multi-state states in one line, opening the window at them.
 // <hac-sources>: one line per connection (Home Assistant, MQTT broker) with its state; a click
 //   opens the window at the connections. While nothing is set up it asks for that instead.
-import { escapeHtml, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
+import { escapeHtml, openSettingsWindow, sd, showSettingsInline, t } from "@rocklobster42195/streamdeck-kit/pi";
 import type { ConnectionStatus, HaStatus, PiPush } from "../pi/protocol";
-import { openSettingsWindow } from "./window";
 
 const filled = (v: unknown): boolean => typeof v === "string" && v.trim() !== "";
-
-/** No window: show the window-only parts in the PI itself. */
-function showInline(): void {
-    document.body.classList.add("hac-inline");
-}
-
-export class HacMore extends HTMLElement {
-    private off: (() => void) | undefined;
-
-    connectedCallback(): void {
-        this.innerHTML = `<button type="button" class="pi-button hac-more-button"></button><span class="pi-hint hac-more-hint" hidden>${escapeHtml(t("pi.set_up_hint"))}</span>`;
-        this.querySelector("button")!.addEventListener("click", () => {
-            if (!openSettingsWindow()) showInline();
-        });
-        this.off = sd.onSettings(() => this.render());
-        this.render();
-    }
-
-    disconnectedCallback(): void {
-        this.off?.();
-    }
-
-    private render(): void {
-        const s = sd.settings as Record<string, unknown>;
-        const keys = (this.getAttribute("ready-when") ?? "").split(",").map((k) => k.trim()).filter(Boolean);
-        const ready = keys.some((k) => filled(s[k]));
-        const button = this.querySelector("button")!;
-        button.textContent = t(ready ? "pi.more_settings" : "pi.set_up_key");
-        button.classList.toggle("pi-button-primary", !ready);
-        // Why the button is blue: the key isn't set up yet
-        this.querySelector<HTMLElement>(".hac-more-hint")!.hidden = ready;
-    }
-}
 
 /**
  * <hac-states-summary>: the Multi-state key's states in one line ("3 states: auto · color · …") in
@@ -53,7 +16,7 @@ export class HacStatesSummary extends HTMLElement {
 
     connectedCallback(): void {
         this.addEventListener("click", () => {
-            if (!openSettingsWindow("states")) showInline();
+            if (!openSettingsWindow("states")) showSettingsInline();
         });
         this.off = sd.onSettings(() => this.render());
         this.render();
@@ -96,7 +59,7 @@ export class HacSources extends HTMLElement {
         );
         this.addEventListener("click", (e) => {
             if (!(e.target as HTMLElement).closest("button")) return;
-            if (!openSettingsWindow("connections")) showInline();
+            if (!openSettingsWindow("connections")) showSettingsInline();
         });
         this.render();
     }

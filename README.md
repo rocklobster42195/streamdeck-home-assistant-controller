@@ -57,7 +57,7 @@ Switches a light, plug or anything else with two states, and shows the state the
 
 Shows a value: a temperature, power, humidity, a door's state, the weather.
 
-- **Looks:** **Text** (the value large, the unit below, optionally with an icon on top) or **Half circle** (a gauge between minimum and maximum).
+- **Looks:** **Text** (the value large, the unit below, optionally with an icon on top) **Half circle** (a gauge between minimum and maximum) or **Open** (the same on a ring open at the bottom, like the Slider dial: the value in the middle, the colour ranges as bands, e.g. for CO2).
 - **Second line (optional):** another value below the first, e.g. humidity under the temperature.
 - **Attributes:** besides the state, any attribute of an entity, e.g. a thermostat's `current_temperature` or the weather's `wind_speed`.
 - **Colours:** a base colour and as many ranges as you like ("from 25 °C: red").

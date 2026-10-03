@@ -1,16 +1,17 @@
-// The Value key in two looks. "Text": the name at the top, the value large in its zone's colour,
+// The Value key in three looks. "Text": the name at the top, the value large in its zone's colour,
 // the unit below; with a second value, both on their own line; with an icon, the icon large at the
 // top and two lines under it. "Gauge": the half circle with colour ranges and the value inside it,
-// a second value at the bottom. Offline: dimmed with a cloud badge; before a value arrives: a dash. When a press
+// a second value at the bottom. "Open": the same on a ring open at the bottom (horseshoe), the
+// value in the middle, min and max at the ends. Offline: dimmed with a cloud badge; before a value arrives: a dash. When a press
 // switches something, the key looks like the Switch key: on = tinted plate, frame and icon in the
 // colour; off = a grey icon.
-import { escapeXml, halfArc, KEY_TIERS, keyActiveFrame, keyActivePlate, measureArialWidth, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
+import { escapeXml, halfArc, KEY_TIERS, keyActiveFrame, keyActivePlate, measureArialWidth, openRing, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
 import { localNumber } from "../format";
 import { mdiCloudOffOutline } from "@mdi/js";
 import { BG, FONT, icon, SIZE, svgUri } from "./svg";
 
 export type ValueKeyView = {
-    look: "text" | "gauge";
+    look: "text" | "gauge" | "open";
     text?: string;
     number?: number;
     unit?: string;
@@ -35,10 +36,11 @@ export function renderValueKey(v: ValueKeyView): string {
     const parts = [`<rect width="${SIZE}" height="${SIZE}" fill="${BG}"/>`];
     if (on) parts.push(keyActivePlate(v.toggle!.color));
     if (v.look === "gauge") parts.push(...gauge(v, color));
+    else if (v.look === "open") parts.push(...horseshoe(v, color));
     else parts.push(...textLook(v, color));
     if (on) parts.push(keyActiveFrame(v.toggle!.color));
     // Text look: the name sits at the top, so the badge goes bottom right; gauge: the free top corner
-    if (v.offline) parts.push(v.look === "gauge" ? icon(mdiCloudOffOutline, SIZE - 28, 4, 24, "#ff6b6b") : icon(mdiCloudOffOutline, SIZE - 32, SIZE - 32, 26, "#ff6b6b"));
+    if (v.offline) parts.push(v.look !== "text" ? icon(mdiCloudOffOutline, SIZE - 28, 4, 24, "#ff6b6b") : icon(mdiCloudOffOutline, SIZE - 32, SIZE - 32, 26, "#ff6b6b"));
     return svgUri(parts);
 }
 
@@ -122,6 +124,27 @@ function iconInk(v: ValueKeyView, plain: string): string {
     if (v.offline) return DIM;
     if (!v.toggle) return plain;
     return v.toggle.on ? v.toggle.color : KEY_TIERS.off;
+}
+
+/** The horseshoe: the ring with the colour ranges as bands, the value inside, min and max at the ends. */
+function horseshoe(v: ValueKeyView, color: string): string[] {
+    const cx = SIZE / 2;
+    const cy = 68;
+    const parts = openRing({ cx, cy, r: 52, width: 11, min: v.min, max: v.max, value: v.offline ? undefined : v.number, zones: v.zones, zoneOpacity: v.offline ? 0.15 : 0.35 });
+    const value = v.text ?? "–";
+    const unit = v.unit?.trim();
+    // Value in the middle, the unit under it
+    parts.push(text(value, cx, unit ? cy + 6 : cy + 11, fit(value, 32, 80, true, 14), color, 700));
+    if (unit) parts.push(text(unit, cx, cy + 26, fit(unit, 15, 70, false, 10), v.offline ? DIM : "#c8c8cc", 400));
+    // Min and max under the ring's ends
+    parts.push(text(short(v.min), cx - 37, 124, 12, DIM, 400), text(short(v.max), cx + 37, 124, 12, DIM, 400));
+    // In the opening: the second value, else the name, else the icon
+    const label = v.second?.trim() || v.label?.trim();
+    if (label) {
+        const size = fit(label, 16, 60, true, 10);
+        parts.push(text(clip(label, size, 60, true), cx, 136, size, v.offline ? DIM : "#c8c8cc", 600));
+    } else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, iconInk(v, "#c8c8cc")));
+    return parts;
 }
 
 function text(s: string, x: number, y: number, size: number, color: string, weight: number): string {

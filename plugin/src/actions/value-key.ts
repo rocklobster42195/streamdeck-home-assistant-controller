@@ -27,7 +27,7 @@ export type ValueKeySettings = TopicKeySettings &
         unit?: string;
         /** Decimals to show; empty keeps the device's precision. */
         decimals?: string;
-        look?: "text" | "gauge";
+        look?: "text" | "gauge" | "open";
         min?: string;
         max?: string;
         /** Colour below the first threshold. */
@@ -130,7 +130,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         const v = fromHa ? shownValue(haV.payload, undefined, s.decimals) : shownValue(this.payload(s.stateTopic), s.field, s.decimals);
         const toggled = fromHa ? (s.pressAction === "toggle" && s.pressEntityId?.trim() ? this.haToggle.state(inst.id, s.pressEntityId.trim()) : undefined) : pressState(s, this.toggle, inst.id);
         return renderValueKey({
-            look: s.look === "gauge" ? "gauge" : "text",
+            look: s.look === "gauge" || s.look === "open" ? s.look : "text",
             text: v.text,
             number: v.number,
             unit: s.unit?.trim() || (fromHa ? haV.unit : undefined),

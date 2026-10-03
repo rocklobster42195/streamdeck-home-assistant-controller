@@ -30,12 +30,13 @@
   </pi-section>
 
   <pi-section title="pi.display">
-    <pi-choice setting="look" default="text" columns="2" data-options='[
+    <pi-choice setting="look" default="text" columns="3" data-options='[
       {"value":"text","label":"pi.look_text","icon":"text"},
-      {"value":"gauge","label":"pi.look_gauge","icon":"gauge"}
+      {"value":"gauge","label":"pi.look_gauge","icon":"gauge"},
+      {"value":"open","label":"pi.look_open","icon":"open"}
     ]'></pi-choice>
-    <pi-field setting="min" label="pi.min" placeholder="0" data-show-when="look=gauge" data-show-default="text"></pi-field>
-    <pi-field setting="max" label="pi.max" placeholder="100" data-show-when="look=gauge" data-show-default="text"></pi-field>
+    <pi-field setting="min" label="pi.min" placeholder="0" data-show-when="look=gauge,open" data-show-default="text"></pi-field>
+    <pi-field setting="max" label="pi.max" placeholder="100" data-show-when="look=gauge,open" data-show-default="text"></pi-field>
     <pi-field setting="label" label="pi.label" placeholder="pi.label_placeholder"></pi-field>
     <pi-toggle setting="hideLabel" label="pi.hide_label"></pi-toggle>
   </pi-section>

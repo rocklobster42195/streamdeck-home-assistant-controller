@@ -57,6 +57,8 @@ try {
         },
         { column: 3 },
     );
+    // The horseshoe look with colour ranges as bands (like a CO2 key)
+    sim.add("value", { stateTopic: "zigbee2mqtt/Wohnzimmer Klima", field: "humidity", unit: "%", decimals: "0", look: "open", min: "0", max: "100", icon: "mdiBed", thresholds: [{ from: 40, color: "#f5c542" }, { from: 60, color: "#ff5a5a" }], color: "#3ddc84" }, { column: 3, row: 1 });
     const door = sim.add("value", { stateTopic: "home/door/state", label: "Haustür", icon: "mdiDoor", pressAction: "send", sendTopic: "hac/test/door/open", sendPayload: '{"open":true}' }, { column: 0, row: 1 });
     const missing = sim.add("value", { stateTopic: "nothing/here", label: "Leer", unit: "°C" }, { column: 1, row: 1 });
     sim.add("value", {}, { column: 2, row: 1 });

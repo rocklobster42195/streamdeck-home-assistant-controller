@@ -62,7 +62,7 @@ Shows a value: a temperature, power, humidity, a door's state, the weather.
 - **Attributes:** besides the state, any attribute of an entity, e.g. a thermostat's `current_temperature` or the weather's `wind_speed`.
 - **Colours:** a base colour and as many ranges as you like ("from 25 °C: red").
 - **Numbers and states as HA writes them:** with a decimal comma in German, and states in Stream Deck's language ("Bewölkt" rather than "cloudy").
-- **On press (optional):** switch another entity (e.g. the light in the room whose temperature the key shows; a frame shows while it is on), or run a scene, script, button or automation. With MQTT: switch something, or send a fixed payload.
+- **On press (optional):** switch another entity (e.g. the light in the room whose temperature the key shows; the key then shows on and off like the Switch key), or run a scene, script, button or automation. With MQTT: switch something, or send a fixed payload.
 
 ### Trigger *(key)*
 

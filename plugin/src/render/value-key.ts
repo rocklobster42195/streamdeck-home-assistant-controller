@@ -1,9 +1,10 @@
 // The Value key in two looks. "Text": the name at the top, the value large in its zone's colour,
 // the unit below; with a second value, both on their own line; with an icon, the icon large at the
 // top and two lines under it. "Gauge": the half circle with colour ranges and the value inside it,
-// a second value at the bottom. Offline: dimmed with a cloud badge; before a value arrives: a dash. A frame shows that what a press
-// switches is on.
-import { escapeXml, halfArc, measureArialWidth, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
+// a second value at the bottom. Offline: dimmed with a cloud badge; before a value arrives: a dash. When a press
+// switches something, the key looks like the Switch key: on = tinted plate, frame and icon in the
+// colour; off = a grey icon.
+import { escapeXml, halfArc, KEY_TIERS, keyActiveFrame, keyActivePlate, measureArialWidth, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
 import { localNumber } from "../format";
 import { mdiCloudOffOutline } from "@mdi/js";
 import { BG, FONT, icon, SIZE, svgUri } from "./svg";
@@ -22,18 +23,20 @@ export type ValueKeyView = {
     min: number;
     max: number;
     offline: boolean;
-    /** Colour of a frame around the key (what a press switches is on); none when undefined. */
-    frame?: string;
+    /** What a press switches, in the Switch key's look; none when the press doesn't switch. */
+    toggle?: { on: boolean; color: string };
 };
 
 const DIM = "#7a7a80";
 
 export function renderValueKey(v: ValueKeyView): string {
     const color = v.offline ? DIM : v.number !== undefined ? zoneColor(v.number, v.zones) : v.zones[0].color;
+    const on = v.toggle?.on === true && !v.offline;
     const parts = [`<rect width="${SIZE}" height="${SIZE}" fill="${BG}"/>`];
-    if (v.frame) parts.push(`<rect x="3" y="3" width="${SIZE - 6}" height="${SIZE - 6}" rx="14" fill="none" stroke="${v.frame}" stroke-width="5"${v.offline ? ' opacity="0.35"' : ""}/>`);
+    if (on) parts.push(keyActivePlate(v.toggle!.color));
     if (v.look === "gauge") parts.push(...gauge(v, color));
     else parts.push(...textLook(v, color));
+    if (on) parts.push(keyActiveFrame(v.toggle!.color));
     // Text look: the name sits at the top, so the badge goes bottom right; gauge: the free top corner
     if (v.offline) parts.push(v.look === "gauge" ? icon(mdiCloudOffOutline, SIZE - 28, 4, 24, "#ff6b6b") : icon(mdiCloudOffOutline, SIZE - 32, SIZE - 32, 26, "#ff6b6b"));
     return svgUri(parts);
@@ -70,7 +73,7 @@ function textLook(v: ValueKeyView, color: string): string[] {
  */
 function iconLook(v: ValueKeyView, color: string): string[] {
     const soft = v.offline ? DIM : "#c8c8cc";
-    const parts = [icon(v.icon!, 40, 6, 64, v.offline ? DIM : "#e8e8ec")];
+    const parts = [icon(v.icon!, 40, 6, 64, iconInk(v, "#e8e8ec"))];
     const unit = v.unit?.trim();
     const first = `${v.text ?? "–"}${unit ? ` ${unit}` : ""}`;
     const second = v.second?.trim();
@@ -110,8 +113,15 @@ function gauge(v: ValueKeyView, color: string): string[] {
         const size = fit(label, 17, SIZE - 50, true, 11);
         parts.push(text(clip(label, size, SIZE - 50, true), cx, 132, size, v.offline ? DIM : "#c8c8cc", 600));
     }
-    else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, v.offline ? DIM : "#c8c8cc"));
+    else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, iconInk(v, "#c8c8cc")));
     return parts;
+}
+
+/** The icon's colour: as the Switch key's while a press switches something (on: its colour, off: grey). */
+function iconInk(v: ValueKeyView, plain: string): string {
+    if (v.offline) return DIM;
+    if (!v.toggle) return plain;
+    return v.toggle.on ? v.toggle.color : KEY_TIERS.off;
 }
 
 function text(s: string, x: number, y: number, size: number, color: string, weight: number): string {

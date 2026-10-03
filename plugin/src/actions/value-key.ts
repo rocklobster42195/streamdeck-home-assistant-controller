@@ -3,7 +3,7 @@
 // colour ranges; with HA, the state or one of the entity's attributes. Optionally a second, smaller
 // value below (another attribute or entity, or another topic). A press (HA: on another entity, MQTT:
 // on topics) can do nothing,
-// switch something on and off (framed while on), or send a fixed payload.
+// switch something on and off (then it looks like the Switch key), or send a fixed payload.
 import streamDeck, { action } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
@@ -141,7 +141,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
             min: numberSetting(s.min, 0),
             max: numberSetting(s.max, 100),
             offline: this.isOffline(inst),
-            frame: toggled === "on" ? s.pressColor || ACCENT : undefined,
+            toggle: toggled === undefined ? undefined : { on: toggled === "on", color: s.pressColor || ACCENT },
         });
     }
 }

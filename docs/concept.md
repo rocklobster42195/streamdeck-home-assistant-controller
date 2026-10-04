@@ -20,7 +20,7 @@ The existing Home Assistant plugin by Christoph Giesche is free and widespread b
 | Display name | **Home Assistant Controller**, public short name **HA-C** (internally HAC; pattern <system>-C) |
 | UUID | `de.boriskemper.ha-controller` (MQ-C's `de.boriskemper.mqtt-controller` was never public) |
 | Repository | `rocklobster42195/streamdeck-ha-controller`, private until release |
-| Folder | `C:\dev\ha-controller` (moved from `C:\dev\mqtt-controller` with its history on 2026-10-01) |
+| Folder | `C:\dev\streamdeck\home-assistant-controller` (moved from `C:\dev\mqtt-controller` with its history on 2026-10-01) |
 | Logo | the Rocklobster lobster on **Endeavour `#005DA0`** from the house palette |
 | Disclaimer | unofficial; not affiliated with Elgato or Home Assistant / the Open Home Foundation; no third-party logos |
 
@@ -110,7 +110,7 @@ Idea (to be decided): the PI stays short (device, name, icon, "More settings …
 
 ## Panorama effects across plugins (grilled 2026-10-01, next)
 
-Grill notes in the kit: `notes/2026-10-01-cross-plugin-panorama-grill.md` (in `C:/dev/streamdeck-kit`). HA-C's Slider dials get the kit's Panorama effects behind all looks (scrims behind ring, value and name). One Panorama runs across adjacent dials of different plugins: the plugin with the leftmost dial leads and streams the others their SVG slices over deckbus; its dial's settings apply. Without a partner, HA-C runs its own Panorama over its own dials. HA-C's effects can take their colour from the light and a level from an HA entity. Order: kit, MA-C + XR-C, then HA-C.
+Grill notes in the kit: `notes/2026-10-01-cross-plugin-panorama-grill.md` (in `C:/dev/streamdeck/streamdeck-kit`). HA-C's Slider dials get the kit's Panorama effects behind all looks (scrims behind ring, value and name). One Panorama runs across adjacent dials of different plugins: the plugin with the leftmost dial leads and streams the others their SVG slices over deckbus; its dial's settings apply. Without a partner, HA-C runs its own Panorama over its own dials. HA-C's effects can take their colour from the light and a level from an HA entity. Order: kit, MA-C + XR-C, then HA-C.
 
 ## The deck as a device in Home Assistant (grilled 2026-10-01, to build later)
 
@@ -136,7 +136,7 @@ Everything specific to Music Assistant stays in MAC. Files that mix both (e.g. `
 
 ### Added 2026-09-27 (from the X-Air Controller grill)
 
-These additions come from the XAC grill: `C:\dev\xair-controller\notes\2026-09-27-xair-controller-grill.md`, Q15–Q20.
+These additions come from the XAC grill: `C:\dev\streamdeck\xair-controller\notes\2026-09-27-xair-controller-grill.md`, Q15–Q20.
 
 - **Gauge family** `render/gauge/`, built during the carve-out, because MQC needs it for Value and Slider:
   - `scale` maps a value to a position (linear, dB or log, with ticks and labels);
@@ -162,7 +162,7 @@ These additions come from the XAC grill: `C:\dev\xair-controller\notes\2026-09-2
   - `pi-connection-card`: status, address and login, plus a discovery slot and a hint line;
   - a **styleguide page** in the settings preview.
 - **Dev kit:** a second package in the same repository, `@rocklobster42195/streamdeck-dev-kit`, used as a devDependency and part of the carve-out. Its CLI `sdkit` offers `sim`, `pi-preview`, `screenshot`, `pi-shots`, `store-assets`, `translate` (including the unused-keys check) and `version|release|pack`. `puppeteer-core` is needed only here. Scenarios and fakes stay in each plugin and hook in through `sdkit.config.mjs`. The two packages are versioned together.
-- **Kit bus "deckbus"** (grilled on 2026-09-28; details in `C:\dev\streamdeck-kit\notes\2026-09-28-kit-bus-grill.md`): Stream Deck has no API for plugins to talk to each other, so the kit brings its own bus. It is **deliberately open**: any plugin, and even local apps, can join through a protocol spec (`docs/deckbus-protocol.md` in the kit repo), without our kit and in any language.
+- **Kit bus "deckbus"** (grilled on 2026-09-28; details in `C:\dev\streamdeck\streamdeck-kit\notes\2026-09-28-kit-bus-grill.md`): Stream Deck has no API for plugins to talk to each other, so the kit brings its own bus. It is **deliberately open**: any plugin, and even local apps, can join through a protocol spec (`docs/deckbus-protocol.md` in the kit repo), without our kit and in any language.
   - **No master, a mesh:**
     - Every plugin opens its own pipe or socket in one of 16 slots and connects directly to the others.
     - There is no election and no state that is lost with a peer: each plugin owns its soft state and sends it again after every reconnect.
@@ -211,7 +211,7 @@ Decided 2026-10-01: MQ-C joins deckbus from v1 with `status` (broker reachable, 
 
 ## Backup and templates
 
-Decided for the whole plugin family on 2026-10-01 (kit notes `C:\dev\streamdeck-kit\notes\2026-10-01-backup-grill.md`): Stream Deck's profile export keeps the layout; the kit backs up connections and plugin data (one file, all plugins over deckbus, secrets encrypted on request) and offers templates (one key's settings without a place, no secrets). MQ-C is the first plugin to use it; its planned device templates become templates shipped with the plugin.
+Decided for the whole plugin family on 2026-10-01 (kit notes `C:\dev\streamdeck\streamdeck-kit\notes\2026-10-01-backup-grill.md`): Stream Deck's profile export keeps the layout; the kit backs up connections and plugin data (one file, all plugins over deckbus, secrets encrypted on request) and offers templates (one key's settings without a place, no secrets). MQ-C is the first plugin to use it; its planned device templates become templates shipped with the plugin.
 
 ## Testing
 

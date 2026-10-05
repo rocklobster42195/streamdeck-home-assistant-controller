@@ -82,3 +82,5 @@ JSA webhooks (`ha.onWebhook`, port 3001) are bidirectional, which fits exactly:
 - **Home Assistant as the source of alerts:** doorbell, washing machine finished or an alarm triggers the alert overlay across the deck (sent through `ha_c_command`, spread across all plugins by the bus).
 - **HA states drive the whole suite:** away, night or movie night set the night mode and scenes in every plugin.
 - **HA sensors** go into gauges and sparklines, and can also tint MA-C's Panorama effects.
+- **deckbus states become HA entities** (SA-C grill 2026-10-05, `system-audio-controller/notes/2026-10-05-sac-future-grill.md`): HA-C mirrors other plugins' bus states through the JSA mini-integration, e.g. SA-C's "call active" as `binary_sensor` (app as attribute), mic muted, active output device, and the active audio scene as `select` (HA can trigger scenes too). The other plugins know nothing about HA.
+- **The Multi-state key moves into the kit** (same grill): the key and its states editor become kit code; HA-C, MQ-C and SA-C (App output key, scene key) build on it.

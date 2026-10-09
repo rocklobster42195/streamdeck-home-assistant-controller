@@ -4,6 +4,9 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 
 ## [Unreleased]
 
+### Fixed
+- **Fixed: a dial in a shared Panorama stayed black** after its plugin (or another one in the row) restarted, until the plugin leading the row restarted too (kit 0.1.0-alpha.7).
+
 ### Added
 - **Value key: open ring** as a third look (next to Text and Half circle): the value in the middle, the colour ranges as faint bands on the ring, minimum and maximum at its ends, the second value, name or icon in the opening — e.g. a CO2 key from green to red.
 - **One Panorama per row:** the Slider's Panorama section (in the settings window) chooses the effect for the whole row of dials, also over MA-C's and XR-C's dials, shows the row's dials with a checkbox each (unchecked: no effect behind that dial, it runs on behind the others) and the effect's settings once for the row; the short panel shows one line. Replaces "Like the neighbour". The fields for colour, speed and density from HA moved to "Panorama from Home Assistant".

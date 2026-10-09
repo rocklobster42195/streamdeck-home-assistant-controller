@@ -3,6 +3,8 @@
 	"Name": "Home Assistant Controller",
 	"Category": "Home Assistant Controller",
 	"Localization": {
+		"Cover Light": "Coverlicht",
+		"Lamps in Home Assistant in the cover colour of what plays on the deck; off brings them back as they were.": "Lampen in Home Assistant in der Coverfarbe dessen, was auf dem Deck spielt; aus stellt sie wieder her, wie sie waren.",
 		"Switch": "Schalter",
 		"Switch a light or plug on and off, and see its state.": "Schaltet eine Lampe oder Steckdose ein und aus und zeigt ihren Zustand.",
 		"key": {
@@ -86,6 +88,13 @@
 			"ha_device": "Stream Deck in Home Assistant",
 			"ha_device_show": "Stream Deck in Home Assistant anzeigen",
 			"ha_device_hint": "Mit MQTT-Broker erscheint das Gerät „HA-C auf <PC>“ mit dem Sensor „Coverfarbe“ (die Farbe des aktiven Players). Ohne Broker nur sensor.ha_c_cover_color, bis Home Assistant neu startet. Ausschalten entfernt beides wieder.",
+			"cover_light_help": "Drücken: die Lampen leuchten in der Farbe des Covers und wechseln mit jedem Titel. Nochmal drücken: die Lampen werden wieder wie vorher.",
+			"lamps": "Lampen",
+			"no_lamps": "Keine Farblampen in Home Assistant gefunden.",
+			"player": "Player",
+			"transition": "Übergang",
+			"brightness": "Helligkeit",
+			"brightness_hint": "0: die Lampen behalten ihre Helligkeit.",
 			"connect": "Verbinden",
 			"change": "Ändern",
 			"done": "Fertig",

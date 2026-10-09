@@ -173,6 +173,19 @@ export class HaConnection {
         }
     }
 
+    /** Call a service with its data as given (targets inside, e.g. several lights or none); false when it failed. */
+    async callService(domain: string, service: string, data: Record<string, unknown>): Promise<boolean> {
+        const conn = this.connection;
+        if (!conn) return false;
+        try {
+            await callService(conn, domain, service, data);
+            return true;
+        } catch (e) {
+            this.log.warn(`[ha] ${domain}.${service}: ${JSON.stringify(e)}`);
+            return false;
+        }
+    }
+
     onState(fn: () => void): () => void {
         this.stateListeners.add(fn);
         return () => this.stateListeners.delete(fn);

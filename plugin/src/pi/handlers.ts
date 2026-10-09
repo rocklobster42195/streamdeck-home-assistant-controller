@@ -5,6 +5,8 @@
 import streamDeck from "@elgato/streamdeck";
 import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
+import { playerOptions } from "@rocklobster42195/streamdeck-kit";
+import { hacPlayers } from "../bus/hac-players";
 import { reconnectBroker, reconnectHa } from "../connections";
 import { ha } from "../ha/connection";
 import { haAttributes, haName } from "../ha/entities";
@@ -26,6 +28,9 @@ const MAX_HITS = 40;
 export function initPiBridge(): void {
     piBridge.init();
     piBridge.registerOptions("mdi-icons", mdiOptions);
+    // The Coverlicht key: the deck's players, and the lamps that can take a colour
+    piBridge.registerOptions("players", () => playerOptions(hacPlayers.players()));
+    piBridge.registerOptions("color-lights", () => colorLights());
     // The Slider dials' Panorama section (<pi-panorama>): the row's effect, dials and settings
     panoramaRows.attachPi(piBridge);
     piBridge.handle("window-opened", (msg) => {
@@ -103,4 +108,14 @@ function preview(payload: string): string {
 
 function json(msg: PiPush): PiPushMessage {
     return msg as unknown as PiPushMessage;
+}
+
+const COLOR_MODES = new Set(["hs", "rgb", "rgbw", "rgbww", "xy"]);
+
+/** Lights with a colour mode, by name. */
+function colorLights(): { value: string; label: string; sub: string }[] {
+    return Object.values(ha.entities)
+        .filter((e) => e.entity_id.startsWith("light.") && (e.attributes.supported_color_modes as string[] | undefined)?.some((m) => COLOR_MODES.has(m)))
+        .map((e) => ({ value: e.entity_id, label: haName(e) ?? e.entity_id, sub: e.entity_id }))
+        .sort((a, b) => a.label.localeCompare(b.label));
 }

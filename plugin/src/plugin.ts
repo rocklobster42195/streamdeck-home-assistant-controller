@@ -1,6 +1,7 @@
 import streamDeck from "@elgato/streamdeck";
 import { setKitLogger } from "@rocklobster42195/streamdeck-kit";
 import { SwitchKey } from "./actions/switch-key";
+import { CoverLightKey } from "./actions/cover-light-key";
 import { MultiStateKey } from "./actions/multi-state-key";
 import { PublishKey } from "./actions/publish-key";
 import { SliderDial } from "./actions/slider-dial";
@@ -19,6 +20,7 @@ streamDeck.actions.registerAction(new ValueKey());
 streamDeck.actions.registerAction(new PublishKey());
 streamDeck.actions.registerAction(new MultiStateKey());
 streamDeck.actions.registerAction(new SliderDial());
+streamDeck.actions.registerAction(new CoverLightKey());
 initPiBridge();
 trackHacActions();
 

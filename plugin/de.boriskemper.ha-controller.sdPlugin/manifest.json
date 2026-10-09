@@ -110,6 +110,21 @@
                     "Image": "imgs/actions/slider/key"
                 }
             ]
+        },
+        {
+            "Name": "Cover Light",
+            "UUID": "de.boriskemper.ha-controller.cover-light",
+            "Icon": "imgs/actions/cover-light/icon",
+            "Tooltip": "Lamps in Home Assistant in the cover colour of what plays on the deck; off brings them back as they were.",
+            "PropertyInspectorPath": "ui/cover-light.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/cover-light/key"
+                }
+            ]
         }
     ]
 }

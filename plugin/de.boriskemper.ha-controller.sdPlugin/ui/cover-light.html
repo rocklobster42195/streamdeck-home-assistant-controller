@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cover Light</title>
+  <link rel="stylesheet" href="pi-theme.css" />
+  <link rel="stylesheet" href="hac.css" />
+  <script src="locales.generated.js"></script>
+  <script src="pi.js"></script>
+</head>
+
+<body hidden data-title="Cover Light">
+  <div class="pi-hint hac-help" data-i18n="pi.cover_light_help"></div>
+
+  <pi-section title="pi.lamps">
+    <pi-multi-select setting="lamps" source="color-lights" label-setting="lampNames" empty="pi.no_lamps"></pi-multi-select>
+  </pi-section>
+
+  <pi-section title="pi.player">
+    <pi-select setting="player" source="players" placeholder="kit.player_active_all"></pi-select>
+  </pi-section>
+
+  <pi-section title="pi.display">
+    <pi-field setting="label" label="pi.label"></pi-field>
+    <pi-range setting="transition" min="0" max="10" step="1" default="2" unit="s" label="pi.transition"></pi-range>
+    <pi-range setting="brightness" min="0" max="100" step="5" default="0" unit="%" label="pi.brightness" hint="pi.brightness_hint"></pi-range>
+  </pi-section>
+
+  <div id="connections" class="hac-connections">
+    <hac-ha-card></hac-ha-card>
+  </div>
+
+  <div class="pi-footer"><span data-plugin-version>HA-C</span></div>
+</body>
+
+</html>

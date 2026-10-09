@@ -72,6 +72,8 @@ export function onlineConfig(info: BridgeInfo) {
         default_entity_id: ONLINE_ENTITY,
         object_id: ONLINE_ENTITY.slice("binary_sensor.".length),
         device_class: "connectivity",
+        // A status of the device: listed under "Diagnostic", not with its controls and sensors
+        entity_category: "diagnostic",
         state_topic: t.status,
         payload_on: "online",
         payload_off: "offline",

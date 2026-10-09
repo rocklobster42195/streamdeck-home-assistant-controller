@@ -112,7 +112,7 @@ describe("HaDevice", () => {
     });
 
     it("Stream Deck online from the status topic; the switch: state ON/OFF, commands go to the keys", () => {
-        expect(onlineConfig(info)).toMatchObject({ device_class: "connectivity", state_topic: t.status, payload_on: "online", payload_off: "offline" });
+        expect(onlineConfig(info)).toMatchObject({ device_class: "connectivity", entity_category: "diagnostic", state_topic: t.status, payload_on: "online", payload_off: "offline" });
         const s = setup();
         const got: boolean[] = [];
         s.device.onCoverLight = (on) => got.push(on);

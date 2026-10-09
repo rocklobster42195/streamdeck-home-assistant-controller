@@ -1,6 +1,7 @@
 // The bridge device "HA-C auf <PC>" over MQTT Discovery (HA-device grill 2026-10-01, cover-light
 // grill 2026-10-09). Topics are keyed by the plugin's MQTT client id (kept across restarts), so a
-// second PC makes a second device. Its first entity: the sensor "Coverfarbe".
+// second PC makes a second device. Entities: the sensor "Coverfarbe", whether Stream Deck is
+// online (the broker's last will says "offline"), and the switch "Coverlicht" (the Cover Light keys).
 export type BridgeInfo = {
     /** The MQTT client id ("hac-1a2b3c4d"): node id and device identifier. */
     nodeId: string;
@@ -13,6 +14,8 @@ export type BridgeInfo = {
 
 /** The REST fallback's entity, and the entity id the discovered sensor asks for. */
 export const COVER_COLOR_ENTITY = "sensor.ha_c_cover_color";
+export const ONLINE_ENTITY = "binary_sensor.ha_c_stream_deck";
+export const COVER_LIGHT_ENTITY = "switch.ha_c_cover_light";
 
 export function bridgeTopics(nodeId: string) {
     return {
@@ -22,6 +25,12 @@ export function bridgeTopics(nodeId: string) {
             config: `homeassistant/sensor/${nodeId}/cover_color/config`,
             state: `ha-c/${nodeId}/cover_color`,
             attributes: `ha-c/${nodeId}/cover_color/attributes`,
+        },
+        online: { config: `homeassistant/binary_sensor/${nodeId}/online/config` },
+        coverLight: {
+            config: `homeassistant/switch/${nodeId}/cover_light/config`,
+            state: `ha-c/${nodeId}/cover_light`,
+            set: `ha-c/${nodeId}/cover_light/set`,
         },
     };
 }
@@ -49,6 +58,38 @@ export function coverColorConfig(info: BridgeInfo) {
         icon: "mdi:palette",
         state_topic: t.coverColor.state,
         json_attributes_topic: t.coverColor.attributes,
+        availability_topic: t.status,
+        device: bridgeDevice(info),
+    };
+}
+
+/** Whether Stream Deck (with HA-C) runs: "online" while connected, the last will says "offline". */
+export function onlineConfig(info: BridgeInfo) {
+    const t = bridgeTopics(info.nodeId);
+    return {
+        name: "Stream Deck",
+        unique_id: `${info.nodeId}_online`,
+        default_entity_id: ONLINE_ENTITY,
+        object_id: ONLINE_ENTITY.slice("binary_sensor.".length),
+        device_class: "connectivity",
+        state_topic: t.status,
+        payload_on: "online",
+        payload_off: "offline",
+        device: bridgeDevice(info),
+    };
+}
+
+/** The Cover Light keys as one switch: on while one is on; on/off switches the deck's keys. */
+export function coverLightConfig(info: BridgeInfo) {
+    const t = bridgeTopics(info.nodeId);
+    return {
+        name: de(info.language) ? "Coverlicht" : "Cover light",
+        unique_id: `${info.nodeId}_cover_light`,
+        default_entity_id: COVER_LIGHT_ENTITY,
+        object_id: COVER_LIGHT_ENTITY.slice("switch.".length),
+        icon: "mdi:lightbulb-auto",
+        state_topic: t.coverLight.state,
+        command_topic: t.coverLight.set,
         availability_topic: t.status,
         device: bridgeDevice(info),
     };

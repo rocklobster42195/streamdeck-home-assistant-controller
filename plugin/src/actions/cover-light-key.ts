@@ -32,6 +32,11 @@ export class CoverLightKey extends SingletonAction<Settings> {
         onActive: () => this.activeChanged(),
     });
 
+    constructor() {
+        super();
+        haDevice.onCoverLight = (on) => void this.lights.switchAll(on);
+    }
+
     /** After the global settings are read: the keys that were on go on again. */
     restore(): void {
         const now = Date.now();

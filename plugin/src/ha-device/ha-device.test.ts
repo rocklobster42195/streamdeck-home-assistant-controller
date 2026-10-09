@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Player } from "@rocklobster42195/streamdeck-kit";
 import { coverColorReport, rgbToHs } from "./cover-color";
 import { HaDevice } from "./ha-device";
-import { bridgeTopics, COVER_COLOR_ENTITY, coverColorConfig } from "./discovery";
+import { bridgeTopics, COVER_COLOR_ENTITY, coverColorConfig, onlineConfig } from "./discovery";
 
 const info = { nodeId: "hac-12345678", host: "PC", version: "1.0.0", language: "de" };
 const t = bridgeTopics(info.nodeId);
@@ -78,7 +78,7 @@ describe("HaDevice", () => {
         vi.useFakeTimers();
         const s = setup();
         s.device.setEnabled(true);
-        expect(s.published.map(([topic]) => topic)).toEqual([t.coverColor.config, t.status]);
+        expect(s.published.map(([topic]) => topic)).toEqual([t.coverColor.config, t.online.config, t.coverLight.config, t.status, t.coverLight.state]);
         s.published.length = 0;
         s.play({ color: "#ff0000" });
         s.play({ color: "#00ff00" });
@@ -109,6 +109,19 @@ describe("HaDevice", () => {
         expect(s.published.at(-2)?.[1]).toContain('"cover_light":true,"cover_light_lamps":["light.a"]');
         expect(s.published.at(-1)).toEqual([t.coverColor.state, "#ff0000", true]);
         vi.useRealTimers();
+    });
+
+    it("Stream Deck online from the status topic; the switch: state ON/OFF, commands go to the keys", () => {
+        expect(onlineConfig(info)).toMatchObject({ device_class: "connectivity", state_topic: t.status, payload_on: "online", payload_off: "offline" });
+        const s = setup();
+        const got: boolean[] = [];
+        s.device.onCoverLight = (on) => got.push(on);
+        s.device.setEnabled(true);
+        s.device.setCoverLight(true, ["light.a"]);
+        expect(s.published).toContainEqual([t.coverLight.state, "ON", true]);
+        s.retained(t.coverLight.set, "OFF");
+        s.retained(t.coverLight.set, "nonsense");
+        expect(got).toEqual([false]);
     });
 
     it("a colour that flashes and goes back within the settle time is not reported", () => {
@@ -142,12 +155,9 @@ describe("HaDevice", () => {
         s.play({ color: "#ff0000" });
         vi.advanceTimersByTime(2000);
         s.retained(t.coverColor.config, "{}");
-        expect(s.published.map(([topic, payload]) => [topic, payload])).toEqual([
-            [t.coverColor.config, ""],
-            [t.coverColor.attributes, ""],
-            [t.coverColor.state, ""],
-            [t.status, ""],
-        ]);
+        expect(s.published.map(([topic, payload]) => [topic, payload])).toEqual(
+            [t.coverColor.config, t.coverColor.attributes, t.coverColor.state, t.online.config, t.coverLight.config, t.coverLight.state, t.status].map((topic) => [topic, ""]),
+        );
         vi.useRealTimers();
     });
 

@@ -79,6 +79,17 @@ export class CoverLights {
         this.follow(id);
     }
 
+    /**
+     * All keys at once (the switch "Coverlicht" in HA): on switches on every known key with lamps,
+     * off every key that is on. Keys on pages not shown since the start aren't known.
+     */
+    async switchAll(on: boolean): Promise<void> {
+        for (const [id, k] of [...this.keys]) {
+            if (!!k.settings.active === on || !k.settings.lamps?.length) continue;
+            await this.press(id).catch(() => {});
+        }
+    }
+
     /** The keys that are on. */
     active(): { id: string; settings: CoverLightSettings }[] {
         return [...this.keys].filter(([, k]) => k.settings.active).map(([id, k]) => ({ id, settings: k.settings }));

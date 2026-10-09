@@ -87,7 +87,7 @@
 			"allow_self_signed_hint": "Only for mqtts:// or wss:// with your own certificate.",
 			"ha_device": "Stream Deck in Home Assistant",
 			"ha_device_show": "Show Stream Deck in Home Assistant",
-			"ha_device_hint": "With an MQTT broker, the device “HA-C on <PC>” appears with the sensor “Cover colour” (the active player's colour). Without a broker only sensor.ha_c_cover_color, until Home Assistant restarts. Switching off removes both again.",
+			"ha_device_hint": "With an MQTT broker, the device “HA-C on <PC>” appears with the sensor “Cover colour” (the active player's colour), “Stream Deck” (online or not) and the switch “Cover light” (switches the Cover Light keys). Without a broker only sensor.ha_c_cover_color, until Home Assistant restarts. Switching off removes it all again.",
 			"cover_light_help": "Press: the lamps light up in the cover's colour and change with every track. Press again: the lamps go back to how they were.",
 			"lamps": "Lamps",
 			"no_lamps": "No colour lamps found in Home Assistant.",

@@ -1,6 +1,7 @@
 // HA-C in Home Assistant (opt-in, "Stream Deck in Home Assistant anzeigen"; grills 2026-10-01 and
 // 2026-10-09): the bridge device "HA-C auf <PC>" over MQTT Discovery, with the sensor "Coverfarbe"
-// that follows the deck's active player (apps too). Without a broker the sensor is set through
+// that follows the deck's active player (apps too), "Stream Deck" (online or not) and the switch
+// "Coverlicht" (the Cover Light keys; switching it in HA switches them). Without a broker the sensor is set through
 // HA's REST API instead (no device; gone after an HA restart until written again). Switched off,
 // what HA-C put there is removed: the retained discovery topics are emptied, the REST state deleted.
 // Knows nothing of Stream Deck.
@@ -8,7 +9,7 @@ import { ACTIVE_ANY_PLAYER, type PlayerBoard } from "@rocklobster42195/streamdec
 import type { Broker } from "../mqtt/broker";
 import type { HaConnection } from "../ha/ha-connection";
 import { coverColorReport, type CoverColorReport } from "./cover-color";
-import { bridgeTopics, COVER_COLOR_ENTITY, coverColorConfig, type BridgeInfo } from "./discovery";
+import { bridgeTopics, COVER_COLOR_ENTITY, coverColorConfig, coverLightConfig, onlineConfig, type BridgeInfo } from "./discovery";
 
 /** How long a colour must stay before it is reported (a track change may flash a wrong one). */
 export const SETTLE_MS = 1000;
@@ -35,6 +36,8 @@ export class HaDevice {
     /** The Coverlicht keys: whether one is on, and their lamps (attributes of the sensor). */
     private light = { on: false, lamps: [] as string[] };
     private readonly offs: (() => void)[] = [];
+    /** The switch "Coverlicht" was switched in HA (set by the Cover Light keys). */
+    onCoverLight: ((on: boolean) => void) | undefined;
 
     constructor(private readonly o: HaDeviceOptions) {
         this.offs.push(
@@ -65,6 +68,7 @@ export class HaDevice {
     setCoverLight(on: boolean, lamps: string[]): void {
         if (on === this.light.on && JSON.stringify(lamps) === JSON.stringify(this.light.lamps)) return;
         this.light = { on, lamps };
+        this.writeCoverLight();
         this.playersChanged();
     }
 
@@ -78,14 +82,17 @@ export class HaDevice {
         const info = this.o.info();
         if (!info) return;
         const t = bridgeTopics(info.nodeId);
-        // Listen to our own config topic: a retained one while off is ours to remove
-        if (this.o.broker.state === "online" && this.subscribed !== t.coverColor.config) {
-            this.o.broker.subscribe(t.coverColor.config, OWNER);
-            this.subscribed = t.coverColor.config;
+        // Listen to our own config topics (a retained one while off is ours to remove) and the switch
+        if (this.o.broker.state === "online" && this.subscribed !== info.nodeId) {
+            for (const topic of [t.coverColor.config, t.online.config, t.coverLight.config, t.coverLight.set]) this.o.broker.subscribe(topic, OWNER);
+            this.subscribed = info.nodeId;
         }
         if (this.mode === "mqtt" && this.o.broker.state === "online") {
             this.o.broker.publish(t.coverColor.config, JSON.stringify(coverColorConfig(info)), { retain: true, qos: 1 });
+            this.o.broker.publish(t.online.config, JSON.stringify(onlineConfig(info)), { retain: true, qos: 1 });
+            this.o.broker.publish(t.coverLight.config, JSON.stringify(coverLightConfig(info)), { retain: true, qos: 1 });
             this.o.broker.publish(t.status, "online", { retain: true, qos: 1 });
+            this.writeCoverLight();
             if (this.report) this.write(this.report);
         }
         if (this.mode === "rest" && this.o.ha.state === "online" && this.report) this.write(this.report);
@@ -97,11 +104,16 @@ export class HaDevice {
 
     private message(topic: string, payload: string): void {
         const info = this.o.info();
-        if (!info || this.mode === "mqtt" || !payload) return;
+        if (!info || !payload) return;
         const t = bridgeTopics(info.nodeId);
-        if (topic !== t.coverColor.config) return;
+        if (topic === t.coverLight.set) {
+            if (this.mode === "mqtt" && (payload === "ON" || payload === "OFF")) this.onCoverLight?.(payload === "ON");
+            return;
+        }
+        if (this.mode === "mqtt" || ![t.coverColor.config, t.online.config, t.coverLight.config].includes(topic)) return;
         // Off (or REST): empty the retained topics, so HA removes the device
-        for (const old of [t.coverColor.config, t.coverColor.attributes, t.coverColor.state, t.status]) this.o.broker.publish(old, "", { retain: true, qos: 1 });
+        const old = [t.coverColor.config, t.coverColor.attributes, t.coverColor.state, t.online.config, t.coverLight.config, t.coverLight.state, t.status];
+        for (const o of old) this.o.broker.publish(o, "", { retain: true, qos: 1 });
     }
 
     /** A state we set over REST earlier (it has no registry entry; the MQTT sensor has one). */
@@ -128,6 +140,12 @@ export class HaDevice {
             this.report = r;
             this.write(r);
         }, this.o.settleMs ?? SETTLE_MS);
+    }
+
+    private writeCoverLight(): void {
+        const info = this.o.info();
+        if (!info || this.mode !== "mqtt") return;
+        this.o.broker.publish(bridgeTopics(info.nodeId).coverLight.state, this.light.on ? "ON" : "OFF", { retain: true });
     }
 
     private write(r: CoverColorReport): void {

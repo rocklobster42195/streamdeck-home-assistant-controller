@@ -17,3 +17,4 @@ sim-out/
 .vscode/
 **/*.sdPlugin/cache/
 old-prototype-installed/
+settings-import.json

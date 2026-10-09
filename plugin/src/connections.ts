@@ -1,6 +1,7 @@
 // The plugin's two sources, set up in Stream Deck's global settings: Home Assistant (address and
 // long-lived token) and the MQTT broker (address, login, client id kept across restarts). Either
 // one may stay unconfigured.
+import fs from "node:fs";
 import streamDeck from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { ha } from "./ha/connection";
@@ -27,18 +28,23 @@ export type GlobalSettings = {
 } & JsonObject;
 
 let current: GlobalSettings = {};
+/** Whether the stored settings were read: nothing may be written before (it would replace them). */
+let loaded = false;
 
 /** Call after streamDeck.connect(): reads the settings (creating the client id once) and connects. */
 export async function startConnections(): Promise<void> {
     // HA writes states in Stream Deck's language ("Bewölkt" rather than "cloudy")
     ha.language = streamDeck.info.application.language || "en";
     streamDeck.settings.onDidReceiveGlobalSettings<GlobalSettings>((ev) => apply(ev.settings));
-    const settings = await streamDeck.settings.getGlobalSettings<GlobalSettings>();
+    const imported = takeImport();
+    const settings = { ...(await streamDeck.settings.getGlobalSettings<GlobalSettings>()), ...imported };
     if (!settings.clientId) {
         settings.clientId = newClientId();
         await streamDeck.settings.setGlobalSettings(settings);
     }
     apply(settings);
+    loaded = true;
+    if (Object.keys(imported).length) await streamDeck.settings.setGlobalSettings(current);
 }
 
 /** The global settings as last seen. */
@@ -48,8 +54,29 @@ export function globalSettings(): GlobalSettings {
 
 /** Stores plugin-owned global settings (the PI keeps its own fields). */
 export function saveGlobalSettings(patch: Partial<GlobalSettings>): void {
+    // Before the stored settings are read, writing would wipe the connections (restore() saves later)
+    if (!loaded) return;
     current = { ...current, ...patch };
     void streamDeck.settings.setGlobalSettings(current);
+}
+
+/**
+ * One-time import: a "settings-import.json" next to the plugin's manifest is merged into the global
+ * settings at start and deleted (repairs settings that were lost).
+ */
+function takeImport(): Partial<GlobalSettings> {
+    const file = "settings-import.json";
+    if (!fs.existsSync(file)) return {};
+    try {
+        const patch = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<GlobalSettings>;
+        streamDeck.logger.info(`[settings] imported ${Object.keys(patch).join(", ")}`);
+        return patch;
+    } catch (e) {
+        streamDeck.logger.warn(`[settings] import failed: ${String(e)}`);
+        return {};
+    } finally {
+        fs.rmSync(file, { force: true });
+    }
 }
 
 /** Try the broker again now (its card's "Connect" button, or after "access denied"). */

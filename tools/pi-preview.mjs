@@ -14,6 +14,12 @@ const require = createRequire(path.resolve("plugin/package.json"));
 const { WebSocketServer } = require("ws");
 const mdi = require("@mdi/js");
 
+/** Invented option lists for the Coverlicht key's panel. */
+const PREVIEW_OPTIONS = {
+    "color-lights": ["Bad Spiegel", "Esstisch", "Flur Decke", "Herrenzimmer Stehlampe", "Küche Leiste", "Lesesessel", "Schlafzimmer Nacht", "Wohnzimmer Decke", "Wohnzimmer Ecke", "Wohnzimmer TV"].map((n) => ({ value: `light.${n.toLowerCase().replace(/[^a-z]+/g, "_")}`, label: n, sub: `light.${n.toLowerCase().replace(/[^a-z]+/g, "_")}` })),
+    players: [{ value: "active", label: "kit.player_active" }, { value: "active:all", label: "kit.player_active_all" }, { value: "device:wz", label: "▶ Wohnzimmer", sub: "SO-C · MA-C" }],
+};
+
 /** The plugin's "mdi-icons" options: an exact name, or names containing every word. */
 const mdiOptions = (q = "") => {
     if (mdi[q]) return [{ value: q, label: q, icon: mdi[q] }];
@@ -96,7 +102,7 @@ wss.on("connection", (ws) => {
                         { column: 2, plugin: "XR-C", label: "Vocals", member: false, self: false },
                     ] });
                 } else if (p.event === "ha-find") setTimeout(() => toPi({ event: "ha-find-result", requestId: p.requestId, found: [{ name: "Zuhause", url: "http://192.168.1.20:8123", version: "2026.9.4" }] }), 800);
-                else if (p.event === "options") toPi({ event: "options-result", requestId: p.requestId, source: p.source, items: p.source === "mdi-icons" ? mdiOptions(p.params?.q) : [] });
+                else if (p.event === "options") toPi({ event: "options-result", requestId: p.requestId, source: p.source, items: p.source === "mdi-icons" ? mdiOptions(p.params?.q) : (PREVIEW_OPTIONS[p.source] ?? []) });
                 else if (p.event === "topics") {
                     const words = String(p.query ?? "").toLowerCase().split(/\s+/).filter(Boolean);
                     const hits = online ? Object.entries(topics).filter(([t]) => words.every((w) => t.toLowerCase().includes(w))).map(([topic, value]) => ({ topic, value, retained: true })) : [];

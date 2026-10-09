@@ -77,6 +77,17 @@ describe("CoverLights", () => {
         expect(s.calls.at(-1)?.[2]).toMatchObject({ hs_color: [240, 100] });
     });
 
+    it("a key that was on before a restart follows again before its page shows; active() lists it", async () => {
+        vi.useFakeTimers();
+        const s = setup({ "light.a": "on" });
+        s.lights.restore("K", { lamps: ["light.a"], active: true });
+        s.lights.restore("OFF", { lamps: ["light.a"] });
+        expect(s.lights.active().map((a) => a.id)).toEqual(["K"]);
+        s.play({ color: "#ff0000" });
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(s.calls).toHaveLength(1);
+    });
+
     it("a key that is on keeps following on another page", async () => {
         vi.useFakeTimers();
         const s = setup({ "light.a": "on" });

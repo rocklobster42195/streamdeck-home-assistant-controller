@@ -15,6 +15,9 @@ export type CoverColorReport = {
         artist?: string;
         /** The music service ("Spotify"), when the player says. */
         source?: string;
+        /** Whether a Coverlicht key is on, and the lamps it drives. */
+        cover_light?: boolean;
+        cover_light_lamps?: string[];
     };
 };
 

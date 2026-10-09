@@ -31,6 +31,8 @@ export type CoverLightsOptions = {
     draw: (id: string, image: string) => void;
     /** Stores a key's settings (on/off). */
     save: (id: string, settings: CoverLightSettings) => void;
+    /** A key was switched on or off (or an active key's settings changed). */
+    onActive?: () => void;
     settleMs?: number;
     gapMs?: number;
     now?: () => number;
@@ -67,6 +69,19 @@ export class CoverLights {
         } else this.keys.set(id, { settings, sentAt: 0 });
         this.follow(id);
         this.render(id);
+        if (settings.active) this.o.onActive?.();
+    }
+
+    /** A key that was on before the plugin restarted, on a page not shown yet: its lamps follow again. */
+    restore(id: string, settings: CoverLightSettings): void {
+        if (this.keys.has(id) || !settings.active) return;
+        this.keys.set(id, { settings, sentAt: 0 });
+        this.follow(id);
+    }
+
+    /** The keys that are on. */
+    active(): { id: string; settings: CoverLightSettings }[] {
+        return [...this.keys].filter(([, k]) => k.settings.active).map(([id, k]) => ({ id, settings: k.settings }));
     }
 
     /**
@@ -111,6 +126,7 @@ export class CoverLights {
         k.settings = { ...k.settings, active };
         this.o.save(id, k.settings);
         this.render(id);
+        this.o.onActive?.();
     }
 
     private changed(): void {

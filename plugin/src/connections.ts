@@ -22,6 +22,8 @@ export type GlobalSettings = {
     clientId?: string;
     /** "Stream Deck in Home Assistant anzeigen": the bridge device and its sensors (off by default). */
     haDevice?: boolean;
+    /** Coverlicht keys that are on, so they go on after a restart (id → settings, last seen). */
+    coverLights?: Record<string, { settings: JsonObject; seen: number }>;
 } & JsonObject;
 
 let current: GlobalSettings = {};
@@ -39,6 +41,17 @@ export async function startConnections(): Promise<void> {
     apply(settings);
 }
 
+/** The global settings as last seen. */
+export function globalSettings(): GlobalSettings {
+    return current;
+}
+
+/** Stores plugin-owned global settings (the PI keeps its own fields). */
+export function saveGlobalSettings(patch: Partial<GlobalSettings>): void {
+    current = { ...current, ...patch };
+    void streamDeck.settings.setGlobalSettings(current);
+}
+
 /** Try the broker again now (its card's "Connect" button, or after "access denied"). */
 export function reconnectBroker(): void {
     configureBroker(current, true);
@@ -50,8 +63,9 @@ export function reconnectHa(): void {
 }
 
 function apply(settings: GlobalSettings): void {
-    // The PI may save global settings without the client id it doesn't know about; keep ours
-    current = { ...settings, clientId: settings.clientId || current.clientId };
+    // The PI may save global settings without the client id it doesn't know about, or with an old
+    // copy of the Coverlicht keys (only the plugin writes those): keep ours
+    current = { ...settings, clientId: settings.clientId || current.clientId, coverLights: current.coverLights ?? settings.coverLights };
     configureHa(current);
     configureBroker(current);
     if (current.clientId) configureHaDevice(!!current.haDevice, current.clientId);

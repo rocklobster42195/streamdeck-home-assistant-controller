@@ -96,6 +96,21 @@ describe("HaDevice", () => {
         vi.useRealTimers();
     });
 
+    it("the Coverlicht switch position goes with the colour, also while nothing plays", () => {
+        vi.useFakeTimers();
+        const s = setup();
+        s.device.setEnabled(true);
+        s.play({ color: "#ff0000" });
+        vi.advanceTimersByTime(1000);
+        expect(s.published.at(-2)?.[1]).toContain('"cover_light":false');
+        s.play(undefined);
+        s.device.setCoverLight(true, ["light.a"]);
+        vi.advanceTimersByTime(1000);
+        expect(s.published.at(-2)?.[1]).toContain('"cover_light":true,"cover_light_lamps":["light.a"]');
+        expect(s.published.at(-1)).toEqual([t.coverColor.state, "#ff0000", true]);
+        vi.useRealTimers();
+    });
+
     it("a colour that flashes and goes back within the settle time is not reported", () => {
         vi.useFakeTimers();
         const s = setup();

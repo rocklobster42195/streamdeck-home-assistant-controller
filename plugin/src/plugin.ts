@@ -20,7 +20,8 @@ streamDeck.actions.registerAction(new ValueKey());
 streamDeck.actions.registerAction(new PublishKey());
 streamDeck.actions.registerAction(new MultiStateKey());
 streamDeck.actions.registerAction(new SliderDial());
-streamDeck.actions.registerAction(new CoverLightKey());
+const coverLightKey = new CoverLightKey();
+streamDeck.actions.registerAction(coverLightKey);
 initPiBridge();
 trackHacActions();
 
@@ -28,6 +29,8 @@ await streamDeck.connect();
 // Numbers on keys in Stream Deck's language (19,4 in German)
 setNumberLanguage(streamDeck.info.application.language);
 await startConnections();
+// Coverlicht keys that were on follow again, also on pages not shown yet
+coverLightKey.restore();
 streamDeck.logger.info("HA-C started");
 // deckbus: tell other plugins whether the broker is reachable (works without it if the bus can't start)
 void startHacBus();

@@ -32,6 +32,8 @@ export class HaDevice {
     private timer: ReturnType<typeof setTimeout> | undefined;
     private subscribed = "";
     private restChecked = false;
+    /** The Coverlicht keys: whether one is on, and their lamps (attributes of the sensor). */
+    private light = { on: false, lamps: [] as string[] };
     private readonly offs: (() => void)[] = [];
 
     constructor(private readonly o: HaDeviceOptions) {
@@ -56,6 +58,13 @@ export class HaDevice {
         this.enabled = on;
         this.restChecked = false;
         this.sync();
+        this.playersChanged();
+    }
+
+    /** The Coverlicht keys' switch position, reported with the colour. */
+    setCoverLight(on: boolean, lamps: string[]): void {
+        if (on === this.light.on && JSON.stringify(lamps) === JSON.stringify(this.light.lamps)) return;
+        this.light = { on, lamps };
         this.playersChanged();
     }
 
@@ -105,9 +114,11 @@ export class HaDevice {
 
     private playersChanged(): void {
         if (this.mode === "off") return;
-        const next = coverColorReport(this.o.board.resolve(ACTIVE_ANY_PLAYER));
-        // No colour: the sensor keeps the last one
-        if (!next || same(next, this.pending ?? this.report)) return;
+        // No colour: the sensor keeps the last one (a switched Coverlicht key still updates it)
+        const base = coverColorReport(this.o.board.resolve(ACTIVE_ANY_PLAYER)) ?? this.pending ?? this.report;
+        if (!base) return;
+        const next: CoverColorReport = { state: base.state, attributes: { ...base.attributes, cover_light: this.light.on, cover_light_lamps: this.light.lamps } };
+        if (same(next, this.pending ?? this.report)) return;
         this.pending = next;
         clearTimeout(this.timer);
         this.timer = setTimeout(() => {

@@ -10,6 +10,8 @@ export type BrokerConfig = {
     password?: string;
     allowSelfSigned?: boolean;
     clientId: string;
+    /** The last will: what the broker publishes when HA-C goes away without saying goodbye. */
+    will?: { topic: string; payload: string; retain?: boolean };
 };
 
 /** "denied": the broker refused the login; HAC stops retrying until the settings change. */
@@ -42,7 +44,7 @@ export class Broker {
 
     /** Apply settings; reconnects only when something relevant changed (or `force`). */
     configure(config: BrokerConfig, force = false): void {
-        const key = JSON.stringify([config.url?.trim(), config.user ?? "", config.password ?? "", !!config.allowSelfSigned, config.clientId]);
+        const key = JSON.stringify([config.url?.trim(), config.user ?? "", config.password ?? "", !!config.allowSelfSigned, config.clientId, config.will ?? null]);
         if (key === this.configKey && !force) return;
         this.configKey = key;
         this.close();
@@ -129,6 +131,7 @@ export class Broker {
             connectTimeout: 8000,
             rejectUnauthorized: !config.allowSelfSigned,
             protocolVersion: 4,
+            ...(config.will ? { will: { topic: config.will.topic, payload: Buffer.from(config.will.payload), retain: !!config.will.retain, qos: 1 as const } } : {}),
         };
         const client = mqtt.connect(address.url, opts);
         this.client = client;

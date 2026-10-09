@@ -10,6 +10,7 @@ import { ha } from "../ha/connection";
 import { shortHaAddress } from "../ha/url";
 import { broker } from "../mqtt/connection";
 import { shortAddress } from "../mqtt/url";
+import { hacPlayers } from "./hac-players";
 
 let bus: DeckBus | undefined;
 let lastStatus = "";
@@ -36,6 +37,8 @@ export async function startHacBus(): Promise<void> {
     bus.setState("actions", actions.list());
     panorama.connect(bus);
     panoramaRows.connect(bus);
+    // Read only: HA-C has no players, it reports the others' cover colour to Home Assistant
+    hacPlayers.connect(bus);
     shareStatus();
     if (!(await bus.start())) return;
     streamDeck.logger.info(`[deckbus] HA-C in slot ${bus.slot}`);

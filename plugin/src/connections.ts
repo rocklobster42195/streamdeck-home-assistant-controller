@@ -4,6 +4,7 @@
 import streamDeck from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { ha } from "./ha/connection";
+import { configureHaDevice, haDeviceWill } from "./ha-device/device";
 import { newClientId } from "./mqtt/broker";
 import { broker } from "./mqtt/connection";
 
@@ -19,6 +20,8 @@ export type GlobalSettings = {
     allowSelfSigned?: boolean;
     /** Generated once ("hac-1a2b3c4d") so the broker recognises the plugin. */
     clientId?: string;
+    /** "Stream Deck in Home Assistant anzeigen": the bridge device and its sensors (off by default). */
+    haDevice?: boolean;
 } & JsonObject;
 
 let current: GlobalSettings = {};
@@ -51,6 +54,7 @@ function apply(settings: GlobalSettings): void {
     current = { ...settings, clientId: settings.clientId || current.clientId };
     configureHa(current);
     configureBroker(current);
+    if (current.clientId) configureHaDevice(!!current.haDevice, current.clientId);
 }
 
 function configureHa(s: GlobalSettings, force = false): void {
@@ -58,5 +62,6 @@ function configureHa(s: GlobalSettings, force = false): void {
 }
 
 function configureBroker(s: GlobalSettings, force = false): void {
-    broker.configure({ url: s.brokerUrl, user: s.brokerUser, password: s.brokerPassword, allowSelfSigned: s.allowSelfSigned, clientId: s.clientId || newClientId() }, force);
+    const clientId = s.clientId || newClientId();
+    broker.configure({ url: s.brokerUrl, user: s.brokerUser, password: s.brokerPassword, allowSelfSigned: s.allowSelfSigned, clientId, will: haDeviceWill(!!s.haDevice, clientId) }, force);
 }

@@ -47,6 +47,7 @@ const MAX_RETRY_MS = 30_000;
 export class HaConnection {
     private conn: Connection | undefined;
     private configKey = "";
+    private token = "";
     /** Bumped by every configure(), so a slow attempt for old settings is dropped. */
     private attempt = 0;
     private retryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -77,6 +78,7 @@ export class HaConnection {
         if (key === this.configKey && !force) return;
         this.configKey = key;
         this.close();
+        this.token = config.token?.trim() ?? "";
         this.entities = {};
         this.version = undefined;
         this.registryCache = undefined;
@@ -124,6 +126,35 @@ export class HaConnection {
         this.registryCache = { at: Date.now(), value };
         value.catch(() => (this.registryCache = undefined));
         return value;
+    }
+
+    /**
+     * Set a state through the REST API (`POST /api/states/<entity_id>`): an entity without a
+     * device or unique id that lasts until HA restarts. False when not connected or refused.
+     */
+    async setRestState(entityId: string, state: string, attributes: Record<string, unknown>): Promise<boolean> {
+        return this.rest("POST", entityId, JSON.stringify({ state, attributes }));
+    }
+
+    /** Remove a state set through the REST API. */
+    async deleteRestState(entityId: string): Promise<boolean> {
+        return this.rest("DELETE", entityId);
+    }
+
+    private async rest(method: "POST" | "DELETE", entityId: string, body?: string): Promise<boolean> {
+        if (this.state !== "online" || !this.address) return false;
+        try {
+            const res = await fetch(`${this.address.url}/api/states/${entityId}`, {
+                method,
+                headers: { Authorization: `Bearer ${this.token}`, "Content-Type": "application/json" },
+                body,
+            });
+            if (!res.ok && res.status !== 404) this.log.warn(`[ha] ${method} ${entityId}: HTTP ${res.status}`);
+            return res.ok;
+        } catch (e) {
+            this.log.warn(`[ha] ${method} ${entityId}: ${String(e)}`);
+            return false;
+        }
     }
 
     /**

@@ -4,6 +4,7 @@
 import { definePiComponents, initConditionalVisibility, initSettingsWindow, isSettingsWindow, sd, settingsWindowShown, translateDom, type PiChoice, type PiChoiceOption } from "@rocklobster42195/streamdeck-kit/pi";
 import { mdiCancel, mdiChartDonut, mdiCircleSlice5, mdiFormatText, mdiGauge, mdiHorseshoe, mdiSend, mdiToggleSwitchOutline } from "@mdi/js";
 import { HacConnectionCard, HacHaCard } from "./connection-card";
+import { HacDeviceCard } from "./device-card";
 import { HacDevice } from "./device-picker";
 import { HacHaAttribute, HacHaEntity } from "./ha-fields";
 import { HacJsonField } from "./json-field";
@@ -21,6 +22,7 @@ sd.onReady(() => {
     translateDom();
     definePiComponents();
     customElements.define("hac-ha-card", HacHaCard);
+    customElements.define("hac-device-card", HacDeviceCard);
     customElements.define("hac-connection-card", HacConnectionCard);
     customElements.define("hac-device", HacDevice);
     customElements.define("hac-topic", HacTopic);

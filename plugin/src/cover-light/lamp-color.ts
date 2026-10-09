@@ -17,14 +17,3 @@ export function lampColor(hex: string): LampColor | undefined {
     const [h, s] = rgbToHs(rgb);
     return s < GREY_BELOW ? { color_temp_kelvin: WARM_WHITE_KELVIN } : { hs_color: [h, Math.max(s, MIN_SATURATION)] };
 }
-
-/** The lamp colour as the key draws it (full brightness). */
-export function lampColorHex(c: LampColor): string {
-    if ("color_temp_kelvin" in c) return "#ffc98a";
-    const [h, s] = c.hs_color;
-    const f = (n: number) => {
-        const k = (n + h / 60) % 6;
-        return Math.round(255 * (1 - (s / 100) * Math.max(0, Math.min(k, 4 - k, 1))));
-    };
-    return `#${[f(5), f(3), f(1)].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
-}

@@ -1,11 +1,11 @@
-// The Coverlicht key in the family's look: on = the lamps' colour as plate, frame and icon (dimmed
+// The Coverlicht key in the family's look: on = the cover's colour as plate, frame and icon (dimmed
 // while the player pauses), off = a grey icon; no lamps or no Home Assistant: dimmed.
 import { mdiLightbulbAuto, mdiLightbulbAutoOutline } from "@mdi/js";
 import { KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keySvg } from "@rocklobster42195/streamdeck-kit";
 
 export type CoverLightView = {
     active: boolean;
-    /** The colour the lamps get (full brightness), when there is one. */
+    /** The cover's colour (as on the other keys), when there is one. */
     color?: string;
     playing: boolean;
     unavailable: boolean;

@@ -6,7 +6,7 @@
 import { ACTIVE_ANY_PLAYER, type PlayerBoard } from "@rocklobster42195/streamdeck-kit";
 import type { HaConnection } from "../ha/ha-connection";
 import { renderCoverLightKey } from "../render/cover-light-key";
-import { lampColor, lampColorHex, type LampColor } from "./lamp-color";
+import { lampColor, type LampColor } from "./lamp-color";
 
 export type CoverLightSettings = {
     lamps?: string[];
@@ -185,10 +185,10 @@ export class CoverLights {
         const k = this.keys.get(id);
         if (!k) return;
         const p = this.o.board.resolve(k.settings.player || ACTIVE_ANY_PLAYER);
-        const c = this.colorOf(k);
+        // The cover's colour, as on the family's other keys (the lamps get it vivid)
         const image = renderCoverLightKey({
             active: !!k.settings.active,
-            color: c ? lampColorHex(c) : undefined,
+            color: p?.color,
             playing: !!p?.playing,
             unavailable: this.o.ha.state !== "online" || !k.settings.lamps?.length,
             label: k.settings.label,

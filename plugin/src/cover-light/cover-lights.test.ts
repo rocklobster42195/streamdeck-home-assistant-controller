@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Player } from "@rocklobster42195/streamdeck-kit";
 import { CoverLights, sceneId, type CoverLightSettings } from "./cover-lights";
-import { lampColor, lampColorHex } from "./lamp-color";
+import { lampColor } from "./lamp-color";
 
 function setup(lit: Record<string, string> = {}) {
     let player: Partial<Player> | undefined;
@@ -39,7 +39,6 @@ describe("lamp colour", () => {
         expect(lampColor("#3a8dde")).toEqual({ hs_color: [209.6, 73.9] });
         expect(lampColor("#c8b4a0")).toEqual({ hs_color: [30, 60] });
         expect(lampColor("#808080")).toEqual({ color_temp_kelvin: 2700 });
-        expect(lampColorHex({ hs_color: [0, 100] })).toBe("#ff0000");
     });
 });
 

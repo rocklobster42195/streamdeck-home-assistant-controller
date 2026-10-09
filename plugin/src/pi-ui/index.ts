@@ -8,12 +8,14 @@ import { HacDevice } from "./device-picker";
 import { HacHaAttribute, HacHaEntity } from "./ha-fields";
 import { HacJsonField } from "./json-field";
 import { HacSources, HacStatesSummary } from "./more";
-import { HacStates } from "./states-field";
+import { initStatesCurrent } from "./states-current";
 import { HacTest } from "./test-button";
 import { HacTopic } from "./topic-field";
 
 /** MDI paths for <pi-choice data-options='[{"icon":"…"}]'> tiles. */
 const CHOICE_ICONS: Record<string, string> = { text: mdiFormatText, gauge: mdiGauge, none: mdiCancel, toggle: mdiToggleSwitchOutline, send: mdiSend, ring: mdiChartDonut, open: mdiHorseshoe, pie: mdiCircleSlice5 };
+
+initStatesCurrent();
 
 sd.onReady(() => {
     translateDom();
@@ -23,7 +25,6 @@ sd.onReady(() => {
     customElements.define("hac-device", HacDevice);
     customElements.define("hac-topic", HacTopic);
     customElements.define("hac-json-field", HacJsonField);
-    customElements.define("hac-states", HacStates);
     customElements.define("hac-test", HacTest);
     customElements.define("hac-ha-attribute", HacHaAttribute);
     customElements.define("hac-ha-entity", HacHaEntity);

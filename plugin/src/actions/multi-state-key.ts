@@ -4,7 +4,7 @@
 // the device doesn't confirm within 3 s.
 import streamDeck, { action } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
-import { OptimisticStore } from "@rocklobster42195/streamdeck-kit";
+import { OptimisticStore, renderMultiStateKey } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiFan, mdiFormatListNumbered } from "@mdi/js";
 import { ha } from "../ha/connection";
@@ -14,7 +14,6 @@ import { broker } from "../mqtt/connection";
 import { nextIndex, stateCommand, stateIndex, stateOptions } from "../mqtt/multi-state";
 import { readValue } from "../mqtt/payload";
 import { ACCENT } from "../render/svg";
-import { renderMultiStateKey } from "../render/multi-state-key";
 import { renderKeyHint } from "../render/switch-key";
 import { TopicKey, type KeyInstance, type TopicKeySettings } from "./topic-key";
 

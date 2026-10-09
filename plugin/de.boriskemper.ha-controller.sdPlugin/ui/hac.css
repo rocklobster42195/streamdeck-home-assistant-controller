@@ -30,17 +30,6 @@ hac-connection-card, hac-ha-card { display: flex; flex-direction: column; gap: 6
 .hac-field-row[aria-pressed="true"] { border-color: var(--pi-accent); background: var(--pi-selected); }
 
 /* Multi-state list */
-.hac-states { display: flex; flex-direction: column; gap: 4px; padding: 8px 12px 10px; }
-.hac-state-row { display: flex; gap: 6px; align-items: center; }
-.hac-state-row .pi-input { padding: 6px 8px; min-width: 0; }
-.hac-state-value { flex: 0 0 64px; font-family: Consolas, "SF Mono", monospace; font-size: 12px; }
-.hac-state-label { flex: 1 1 auto; }
-.hac-state-row .pi-color { width: 34px; height: 30px; }
-.hac-state-row .pi-icon-button { height: 30px; width: 30px; flex: none; font-size: 15px; }
-.hac-state-row .pi-icon-button:disabled { opacity: 0.3; cursor: default; }
-.hac-state-picker { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 8px; }
-.hac-state-picker .pi-icon-grid { padding: 0; }
-.hac-state-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 4px; }
 
 /* Browse and Listen under a topic field */
 .hac-explore { display: flex; flex-direction: column; gap: 6px; }

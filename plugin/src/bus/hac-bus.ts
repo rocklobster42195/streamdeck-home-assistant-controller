@@ -63,3 +63,8 @@ function shareStatus(): void {
 export function stopHacBus(): void {
     bus?.stop();
 }
+
+/** The other plugins on deckbus (name and version), for the diagnostics report. */
+export function deckPeers(): { name: string; version: string }[] {
+    return (bus ?? { peers: () => [] }).peers().map((p) => ({ name: p.name, version: p.version }));
+}

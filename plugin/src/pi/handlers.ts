@@ -3,7 +3,8 @@
 // and what HAC knows about one topic (its payload, JSON fields, a scheme suggestion). While a
 // settings panel is open, HAC listens to every topic ("#"), so the search sees the whole broker.
 import streamDeck from "@elgato/streamdeck";
-import { piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";
+import { deckPeers } from "../bus/hac-bus";
+import { registerDiagnostics, piBridge, type PiPushMessage } from "@rocklobster42195/streamdeck-kit/bridge";
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
 import { playerOptions } from "@rocklobster42195/streamdeck-kit";
 import { hacPlayers } from "../bus/hac-players";
@@ -27,6 +28,8 @@ const MAX_HITS = 40;
 
 export function initPiBridge(): void {
     piBridge.init();
+    // "Diagnostics" in the settings window: the log, a report to copy, the issue page
+    registerDiagnostics(piBridge, { issueUrl: "https://github.com/rocklobster42195/streamdeck-home-assistant-controller/issues", peers: deckPeers });
     piBridge.registerOptions("mdi-icons", mdiOptions);
     // The Coverlicht key: the deck's players, and the lamps that can take a colour
     piBridge.registerOptions("players", () => playerOptions(hacPlayers.players()));

@@ -52,4 +52,4 @@ sd.onReady(() => {
     if (isSettingsWindow()) sd.sendToPlugin({ event: "window-opened", width: window.innerWidth, height: window.innerHeight, scale: window.devicePixelRatio });
 });
 
-initSettingsWindow({ name: "HA-C" });
+initSettingsWindow({ name: "HA-C", helpUrl: "https://github.com/rocklobster42195/streamdeck-home-assistant-controller" });

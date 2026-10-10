@@ -3,6 +3,11 @@
 // in the colour; on a new colour only lamps that are on are recoloured (one switched off by hand
 // stays off); off: the snapshot comes back. A colour must stay for a second before it goes out,
 // and a key's lamps get at most one command every 2 s. Knows nothing of Stream Deck.
+//
+// The snapshot is the key's own (brightness and colour as HA shows them), restored with plain
+// light.turn_on calls and never with an effect: HA's scene snapshot also stores `effect`, and for
+// Zigbee2MQTT lamps that attribute is stale (the lamp never reports it), so restoring it started
+// "fireplace"/"candle" on a lamp that had been steady white (2026-10-10).
 import { ACTIVE_ANY_PLAYER, type PlayerBoard } from "@rocklobster42195/streamdeck-kit";
 import type { HaConnection } from "../ha/ha-connection";
 import { renderCoverLightKey } from "../render/cover-light-key";
@@ -18,8 +23,18 @@ export type CoverLightSettings = {
     /** Brightness in % the lamps get with every colour; empty: they keep theirs. */
     brightness?: number | string;
     label?: string;
-    /** Switched on (kept across restarts; the snapshot lives in HA until it restarts). */
+    /** Switched on (kept across restarts). */
     active?: boolean;
+    /** The lamps as they were when the key went on; what "off" restores. */
+    snapshot?: Record<string, LampSnapshot>;
+};
+
+/** One lamp's state before the key switched it: on with brightness and colour, or off. */
+export type LampSnapshot = {
+    on: boolean;
+    brightness?: number;
+    color_temp_kelvin?: number;
+    xy_color?: [number, number];
 };
 
 export const SETTLE_MS = 1000;
@@ -116,14 +131,21 @@ export class CoverLights {
         if (k.settings.active) {
             clearTimeout(k.timer);
             k.pending = k.sent = undefined;
-            this.set(id, k, false);
-            if (!(await this.o.ha.callService("scene", "turn_on", { entity_id: `scene.${sceneId(id)}`, transition }))) throw new Error("cover light: snapshot gone");
+            const snapshot = k.settings.snapshot;
+            this.set(id, k, false, undefined);
+            if (!snapshot) {
+                // Switched on by an older version: its snapshot is HA's scene
+                if (!(await this.o.ha.callService("scene", "turn_on", { entity_id: `scene.${sceneId(id)}`, transition }))) throw new Error("cover light: snapshot gone");
+                return;
+            }
+            const results = await Promise.all(lamps.map((l) => this.restoreLamp(l, snapshot[l], transition)));
+            if (results.includes(false)) throw new Error("cover light: lamps not restored");
             return;
         }
-        if (!(await this.o.ha.callService("scene", "create", { scene_id: sceneId(id), snapshot_entities: lamps }))) throw new Error("cover light: no snapshot");
+        const snapshot = Object.fromEntries(lamps.map((l) => [l, this.snapshotOf(l)]));
         k.switchOn = true;
         k.sent = undefined;
-        this.set(id, k, true);
+        this.set(id, k, true, snapshot);
         this.follow(id, true);
     }
 
@@ -133,8 +155,35 @@ export class CoverLights {
         this.keys.clear();
     }
 
-    private set(id: string, k: Key, active: boolean): void {
-        k.settings = { ...k.settings, active };
+    private snapshotOf(lamp: string): LampSnapshot {
+        const e = this.o.ha.entities[lamp];
+        if (e?.state !== "on") return { on: false };
+        const a = e.attributes ?? {};
+        const snap: LampSnapshot = { on: true };
+        if (typeof a.brightness === "number") snap.brightness = a.brightness;
+        // One colour only: the mode the lamp is in
+        if (a.color_mode === "color_temp" && typeof a.color_temp_kelvin === "number") snap.color_temp_kelvin = a.color_temp_kelvin;
+        else if (Array.isArray(a.xy_color) && a.xy_color.length === 2) snap.xy_color = [Number(a.xy_color[0]), Number(a.xy_color[1])];
+        else if (typeof a.color_temp_kelvin === "number") snap.color_temp_kelvin = a.color_temp_kelvin;
+        return snap;
+    }
+
+    /** Puts a lamp back as it was; no effect is ever sent (see the top of the file). */
+    private restoreLamp(lamp: string, snap: LampSnapshot | undefined, transition: number): Promise<boolean> {
+        // A lamp that joined the key after it went on has no snapshot: it stays as it is
+        if (!snap) return Promise.resolve(true);
+        if (!snap.on) return this.o.ha.callService("light", "turn_off", { entity_id: lamp, transition });
+        return this.o.ha.callService("light", "turn_on", {
+            entity_id: lamp,
+            transition,
+            ...(snap.brightness !== undefined ? { brightness: snap.brightness } : {}),
+            ...(snap.color_temp_kelvin !== undefined ? { color_temp_kelvin: snap.color_temp_kelvin } : {}),
+            ...(snap.xy_color ? { xy_color: snap.xy_color } : {}),
+        });
+    }
+
+    private set(id: string, k: Key, active: boolean, snapshot: Record<string, LampSnapshot> | undefined): void {
+        k.settings = { ...k.settings, active, snapshot };
         this.o.save(id, k.settings);
         this.render(id);
         this.o.onActive?.();

@@ -45,19 +45,32 @@ describe("lamp colour", () => {
 describe("CoverLights", () => {
     const settings: CoverLightSettings = { lamps: ["light.a", "light.b"], transition: 3 };
 
-    it("on: snapshot, then every lamp on in the colour; off: the snapshot back", async () => {
+    it("on: own snapshot, then every lamp on in the colour; off: lamps back, never with an effect", async () => {
         vi.useFakeTimers();
         const s = setup({ "light.a": "off", "light.b": "on" });
+        // A stale effect attribute (Zigbee2MQTT never reports it) must not come back
+        s.ha.entities["light.b"].attributes = { brightness: 254, color_mode: "color_temp", color_temp_kelvin: 2700, effect: "fireplace" };
         s.play({ color: "#ff0000" });
         s.lights.show("KEY1", settings);
         await s.lights.press("KEY1");
-        expect(s.calls[0]).toEqual(["scene", "create", { scene_id: sceneId("KEY1"), snapshot_entities: ["light.a", "light.b"] }]);
         expect(s.saved.at(-1)?.active).toBe(true);
+        expect(s.saved.at(-1)?.snapshot).toEqual({ "light.a": { on: false }, "light.b": { on: true, brightness: 254, color_temp_kelvin: 2700 } });
         await vi.advanceTimersByTimeAsync(0);
-        expect(s.calls[1]).toEqual(["light", "turn_on", { entity_id: ["light.a", "light.b"], transition: 3, hs_color: [0, 100] }]);
+        expect(s.calls[0]).toEqual(["light", "turn_on", { entity_id: ["light.a", "light.b"], transition: 3, hs_color: [0, 100] }]);
         await s.lights.press("KEY1");
-        expect(s.calls[2]).toEqual(["scene", "turn_on", { entity_id: `scene.${sceneId("KEY1")}`, transition: 3 }]);
+        expect(s.calls.slice(1)).toEqual([
+            ["light", "turn_off", { entity_id: "light.a", transition: 3 }],
+            ["light", "turn_on", { entity_id: "light.b", transition: 3, brightness: 254, color_temp_kelvin: 2700 }],
+        ]);
         expect(s.saved.at(-1)?.active).toBe(false);
+        expect(s.saved.at(-1)?.snapshot).toBeUndefined();
+    });
+
+    it("off for a key switched on by an older version: HA's scene comes back", async () => {
+        const s = setup({ "light.a": "on" });
+        s.lights.show("K", { lamps: ["light.a"], transition: 3, active: true });
+        await s.lights.press("K");
+        expect(s.calls).toEqual([["scene", "turn_on", { entity_id: `scene.${sceneId("K")}`, transition: 3 }]]);
     });
 
     it("a new colour: settled, only lamps that are on, at most one command per 2 s", async () => {

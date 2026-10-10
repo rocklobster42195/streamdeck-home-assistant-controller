@@ -5,6 +5,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Fixed
+- **Cover Light key: no dimming while the music is paused.** The key kept the cover's colour at half brightness during a pause; the lamps never changed, so it showed something that wasn't there. It shows the colour as it is.
 - **Fixed: A new cover's colour reached the Panorama late: the colour fade took four seconds instead of one (kit 0.1.0-alpha.23).**
 - **Fixed: Cover Light started a light effect (candle, fireplace) when switched off.** The key now remembers each lamp's brightness and colour itself and puts them back with plain light commands, never with an effect. Home Assistant's own snapshot also stored a lamp's "effect", which for Zigbee2MQTT lamps is stale and started a Hue effect on a lamp that had been steady white. A key that was already on when you update still switches off with the old snapshot, once.
 - **Fixed: a dial in a shared Panorama stayed black** after its plugin (or another one in the row) restarted, until the plugin leading the row restarted too (kit 0.1.0-alpha.7).

@@ -249,7 +249,6 @@ export class CoverLights {
         const image = renderCoverLightKey({
             active: !!k.settings.active,
             color: p?.color,
-            playing: !!p?.playing,
             unavailable: this.o.ha.state !== "online" || !k.settings.lamps?.length,
             label: k.settings.label,
         });

@@ -1,5 +1,6 @@
-// The Coverlicht key in the family's look: on = the cover's colour as plate, frame and icon (dimmed
-// while the player pauses), off = a grey icon; no lamps or no Home Assistant: dimmed.
+// The Coverlicht key in the family's look: on = the cover's colour as plate, frame and icon, off = a
+// grey icon; no lamps or no Home Assistant: dimmed. A pause doesn't change the key (the lamps keep
+// their colour then, too).
 import { mdiLightbulbAuto, mdiLightbulbAutoOutline } from "@mdi/js";
 import { KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keySvg } from "@rocklobster42195/streamdeck-kit";
 
@@ -7,13 +8,9 @@ export type CoverLightView = {
     active: boolean;
     /** The cover's colour (as on the other keys), when there is one. */
     color?: string;
-    playing: boolean;
     unavailable: boolean;
     label?: string;
 };
-
-/** Paused: the colour halfway to the key's black. */
-const DIM = 0.5;
 
 export function renderCoverLightKey(v: CoverLightView): string {
     const parts: string[] = [];
@@ -25,7 +22,7 @@ export function renderCoverLightKey(v: CoverLightView): string {
         return keySvg(parts);
     }
     if (v.active) {
-        const c = dim(v.color ?? KEY_TIERS.available, v.playing ? 1 : DIM);
+        const c = v.color ?? KEY_TIERS.available;
         parts.push(keyActivePlate(c));
         parts.push(keyIcon(mdiLightbulbAuto, place, c));
         if (label) parts.push(keyCaption(label, "#ffffff"));
@@ -35,12 +32,4 @@ export function renderCoverLightKey(v: CoverLightView): string {
         if (label) parts.push(keyCaption(label, "#c8c8cc"));
     }
     return keySvg(parts);
-}
-
-function dim(hex: string, f: number): string {
-    if (f >= 1) return hex;
-    const n = parseInt(hex.slice(1), 16);
-    const bg = 0x10;
-    const mix = (v: number) => Math.round(bg + (v - bg) * f);
-    return `#${[(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => mix(v).toString(16).padStart(2, "0")).join("")}`;
 }

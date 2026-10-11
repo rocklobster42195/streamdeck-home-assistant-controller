@@ -48,6 +48,9 @@
     ]'></pi-choice>
     <pi-field setting="label" label="pi.label" placeholder="pi.label_placeholder"></pi-field>
     <pi-toggle setting="hideLabel" label="pi.hide_label"></pi-toggle>
+    <div data-show-when="source=ha" data-show-default="mqtt">
+      <pi-toggle setting="fixedRingColor" label="pi.ring_fixed" hint="pi.ring_fixed_hint"></pi-toggle>
+    </div>
     <pi-field setting="decimals" label="pi.decimals" placeholder="pi.decimals_auto"></pi-field>
   </pi-section>
 

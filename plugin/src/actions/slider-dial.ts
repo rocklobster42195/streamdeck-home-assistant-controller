@@ -25,7 +25,7 @@ import { ha } from "../ha/connection";
 import { haDial, modeCall, nextMode, type HaDial } from "../ha/dial";
 import { Accelerator } from "../ha/acceleration";
 import { DialMode } from "../ha/dial-mode";
-import { activeEffect, effectCall, effectList, isSnapshot, levelCall, levelSpec, lightHs, lightLevels, lightSnapshot, snapshotCall, type HaCall, type LightLevel } from "../ha/light";
+import { activeEffect, effectCall, effectList, isSnapshot, levelCall, levelSpec, lightColor, lightHs, lightInfo, lightLevels, lightSnapshot, snapshotCall, type HaCall, type LightLevel } from "../ha/light";
 import { haEffectColor, haEffectNumber, noEffectColor } from "../ha/effect-inputs";
 import { panorama, panoramaRows } from "../bus/hac-bus";
 import { haName } from "../ha/entities";
@@ -89,6 +89,8 @@ export type SliderDialSettings = JsonObject &
         /** An HA entity whose value (÷ effectLevelMax) moves the effect, like an audio level. */
         effectLevelEntityId?: string;
         effectLevelMax?: string;
+        /** A light's ring keeps the fixed colour (or colour ranges) instead of following the lamp's colour. */
+        fixedRingColor?: boolean;
         /** A light's preset (a tap recalls it, a long tap saves it); a list so that more can come. */
         presets?: JsonObject[];
         retain?: boolean;
@@ -531,6 +533,9 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         const r = this.range(s, d);
         const setpoint = this.setpoint(inst);
         const percent = d?.unit === "%" && r.min === 0 && r.max === 100;
+        const off = d?.off === true || (d?.toggles === true && this.haToggle.state(inst.id, s.entityId) === "off");
+        // A light's ring wears the lamp's colour, unless a fixed colour or colour ranges are chosen
+        const lamp = this.isLight(inst) && !s.fixedRingColor && !s.color?.trim() && !s.thresholds?.length ? lightColor(e) : undefined;
         return renderSliderDial({
             background: this.background(inst),
             look: lookOf(s),
@@ -544,10 +549,10 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             min: r.min,
             max: r.max,
             rangeLabels: percent ? ["0", "100"] : undefined,
-            zones: zonesOf(s.color || "#F7A600", s.thresholds),
-            off: d?.off === true || (d?.toggles === true && this.haToggle.state(inst.id, s.entityId) === "off"),
-            // A thermostat's mode in HA's words ("Heizen", "Automatisch"); "Aus" shows as off
-            status: d?.modes && e && !d.off ? ha.stateText(e) : undefined,
+            zones: lamp ? [{ from: r.min, color: lamp }] : zonesOf(s.color || "#F7A600", s.thresholds),
+            off,
+            // A thermostat's mode in HA's words ("Heizen", "Automatisch"); "Aus" shows as off; a light's effect or colour temperature
+            status: d?.modes && e && !d.off ? ha.stateText(e) : this.isLight(inst) && !off ? lightInfo(e) : undefined,
             offText: t("key.off"),
             offline: ha.state !== "online" || !e || e.state === "unavailable",
             adjusting: Date.now() < inst.adjustingUntil,

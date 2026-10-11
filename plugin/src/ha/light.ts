@@ -168,3 +168,44 @@ export function snapshotCall(s: LightSnapshot): HaCall {
     if (s.effect) data.effect = s.effect;
     return { domain: "light", service: "turn_on", data };
 }
+
+/** The colour of white light at a colour temperature, between the warm and the cold ends of the scale. */
+export function kelvinColor(kelvin: number): string {
+    const stops = KELVIN_COLORS.slice(1);
+    if (kelvin <= stops[0][0]) return stops[0][1];
+    for (let i = 1; i < stops.length; i++) {
+        const [k1, c1] = stops[i];
+        if (kelvin > k1) continue;
+        const [k0, c0] = stops[i - 1];
+        const t = (kelvin - k0) / (k1 - k0);
+        const a = hexRgb(c0);
+        const b = hexRgb(c1);
+        return `#${a.map((v, j) => Math.round(v + (b[j] - v) * t).toString(16).padStart(2, "0")).join("")}`;
+    }
+    return stops[stops.length - 1][1];
+}
+
+function hexRgb(hex: string): [number, number, number] {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** The colour the lamp shows now (at full brightness, the dial shows the brightness itself); undefined when off or when it has none. */
+export function lightColor(e: HassEntity | undefined): string | undefined {
+    if (!e || domainOf(e.entity_id) !== "light" || e.state !== "on") return undefined;
+    const rgb = e.attributes.rgb_color;
+    if (Array.isArray(rgb) && rgb.length >= 3 && rgb.slice(0, 3).every((c) => num(c) !== undefined)) {
+        return `#${(rgb.slice(0, 3) as number[]).map((c) => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0")).join("")}`;
+    }
+    const kelvin = num(e.attributes.color_temp_kelvin);
+    return kelvin === undefined ? undefined : kelvinColor(kelvin);
+}
+
+/** A short line for the dial: the running effect, else the colour temperature while the lamp shows it. */
+export function lightInfo(e: HassEntity | undefined): string | undefined {
+    if (!e || domainOf(e.entity_id) !== "light" || e.state !== "on") return undefined;
+    const effect = activeEffect(e);
+    if (effect) return effect;
+    const kelvin = num(e.attributes.color_temp_kelvin);
+    return e.attributes.color_mode === "color_temp" && kelvin !== undefined ? `${Math.round(kelvin)} K` : undefined;
+}

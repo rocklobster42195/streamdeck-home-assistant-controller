@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { Accelerator } from "./acceleration";
 import { DialMode } from "./dial-mode";
-import { activeEffect, effectCall, hueColor, isSnapshot, levelCall, levelSpec, lightLevels, lightSnapshot, snapshotCall } from "./light";
+import { activeEffect, effectCall, hueColor, isSnapshot, kelvinColor, levelCall, levelSpec, lightColor, lightInfo, lightLevels, lightSnapshot, snapshotCall } from "./light";
 
 const entity = (entity_id: string, state: string, attributes: Record<string, unknown> = {}): HassEntity => ({ entity_id, state, attributes, last_changed: "", last_updated: "", context: { id: "", user_id: null, parent_id: null } });
 
@@ -163,5 +163,32 @@ describe("dial acceleration", () => {
         a.apply(1);
         expect(a.apply(3)).toBe(6);
         expect(a.apply(0)).toBe(0);
+    });
+});
+
+describe("light colour on the dial", () => {
+    it("shows the colour the lamp reports", () => {
+        expect(lightColor(entity("light.a", "on", { rgb_color: [255, 0, 128] }))).toBe("#ff0080");
+        expect(lightColor(entity("light.a", "on", { rgb_color: [300, -5, 0] }))).toBe("#ff0000");
+    });
+
+    it("turns a colour temperature into a white", () => {
+        expect(lightColor(entity("light.a", "on", { color_temp_kelvin: 2700 }))).toBe("#ffc07d");
+        expect(kelvinColor(1000)).toBe("#ffa84a");
+        expect(kelvinColor(9000)).toBe("#d3e2ff");
+        expect(kelvinColor(3100)).toMatch(/^#ff[c-d][0-9a-f]{3}$/);
+    });
+
+    it("has no colour when off, for a plain dimmer or a switch", () => {
+        expect(lightColor(entity("light.a", "off", { rgb_color: [255, 0, 0] }))).toBeUndefined();
+        expect(lightColor(entity("light.a", "on", { brightness: 100 }))).toBeUndefined();
+        expect(lightColor(entity("switch.a", "on", { rgb_color: [1, 2, 3] }))).toBeUndefined();
+    });
+
+    it("writes the effect, else the colour temperature", () => {
+        expect(lightInfo(entity("light.a", "on", { color_mode: "color_temp", color_temp_kelvin: 2700.4 }))).toBe("2700 K");
+        expect(lightInfo(entity("light.a", "on", { color_mode: "color_temp", color_temp_kelvin: 2700, effect: "Rainbow" }))).toBe("Rainbow");
+        expect(lightInfo(entity("light.a", "on", { color_mode: "hs", color_temp_kelvin: 2700, effect: "None" }))).toBeUndefined();
+        expect(lightInfo(entity("light.a", "off", { color_mode: "color_temp", color_temp_kelvin: 2700 }))).toBeUndefined();
     });
 });

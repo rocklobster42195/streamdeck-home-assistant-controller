@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { HassEntity } from "home-assistant-js-websocket";
+import { Accelerator } from "./acceleration";
 import { DialMode } from "./dial-mode";
 import { activeEffect, effectCall, hueColor, isSnapshot, levelCall, levelSpec, lightLevels, lightSnapshot, snapshotCall } from "./light";
 
@@ -128,5 +129,39 @@ describe("dial mode", () => {
         m.setLevels([]);
         expect(m.open).toBe(false);
         m.dispose();
+    });
+});
+
+describe("dial acceleration", () => {
+    const at = (times: number[]) => {
+        let i = 0;
+        return () => times[Math.min(i++, times.length - 1)];
+    };
+
+    it("keeps single notches exact", () => {
+        const a = new Accelerator(4, 150, 3, at([0, 1000, 2000]));
+        expect([a.apply(1), a.apply(1), a.apply(1)]).toEqual([1, 1, 1]);
+    });
+
+    it("grows with a fast spin up to the limit", () => {
+        const a = new Accelerator(3, 150, 3, at([0, 50, 100, 150, 200, 250, 300, 350, 400, 450]));
+        const steps = Array.from({ length: 10 }, () => a.apply(1));
+        expect(steps).toEqual([1, 1, 1, 2, 2, 2, 3, 3, 3, 3]);
+    });
+
+    it("starts over after a pause or in the other direction", () => {
+        const a = new Accelerator(4, 150, 1, at([0, 50, 100, 150, 600, 650, 700]));
+        expect([a.apply(1), a.apply(1), a.apply(1)]).toEqual([1, 2, 3]);
+        expect(a.apply(-1)).toBe(-1);
+        expect(a.apply(-1)).toBe(-1);
+        expect(a.apply(-1)).toBe(-2);
+        expect(a.apply(-1)).toBe(-3);
+    });
+
+    it("counts several notches in one event", () => {
+        const a = new Accelerator(5, 150, 3, at([0, 50]));
+        a.apply(1);
+        expect(a.apply(3)).toBe(6);
+        expect(a.apply(0)).toBe(0);
     });
 });

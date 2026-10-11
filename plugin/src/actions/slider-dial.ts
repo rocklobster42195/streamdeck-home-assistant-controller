@@ -23,6 +23,7 @@ import { mdiKnob } from "@mdi/js";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { ha } from "../ha/connection";
 import { haDial, modeCall, nextMode, type HaDial } from "../ha/dial";
+import { Accelerator } from "../ha/acceleration";
 import { DialMode } from "../ha/dial-mode";
 import { activeEffect, effectCall, effectList, isSnapshot, levelCall, levelSpec, lightHs, lightLevels, lightSnapshot, snapshotCall, type HaCall, type LightLevel } from "../ha/light";
 import { haEffectColor, haEffectNumber, noEffectColor } from "../ha/effect-inputs";
@@ -112,6 +113,9 @@ type Instance = {
     /** A light's settings mode: its levels, and which one is shown. */
     mode: DialMode<LightLevel>;
     levelSender: LatestSender<{ level: LightLevel; value: number }>;
+    /** Fast turning moves further per notch: a light's brightness and its colour temperature. */
+    brightnessPace: Accelerator;
+    kelvinPace: Accelerator;
     /** The effect level's vertical list. */
     effects?: ListController;
     /** The level the effect list was last opened for, to open it once per visit. */
@@ -122,6 +126,9 @@ type Instance = {
 
 const CONFIRM_MS = 3000;
 const ADJUST_MS = 1500;
+/** The largest multiplier of a fast spin: brightness steps 5 % (up to 20 %), colour temperature 100 K (up to 800 K). */
+const BRIGHTNESS_PACE = 4;
+const KELVIN_PACE = 8;
 /** How long a push must last to count as long. */
 const LONG_PUSH_MS = 500;
 const LEVEL_NAMES: Record<LightLevel, string> = { kelvin: "dial.kelvin", hue: "dial.hue", saturation: "dial.saturation", effect: "dial.effect" };
@@ -225,6 +232,8 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             column: (ev.payload as { coordinates?: { column: number } }).coordinates?.column ?? 0,
             mode: new DialMode<LightLevel>(() => this.render(inst)),
             levelSender: new LatestSender((v) => this.sendLevel(id, v.level, v.value), 150),
+            brightnessPace: new Accelerator(BRIGHTNESS_PACE),
+            kelvinPace: new Accelerator(KELVIN_PACE),
         };
         this.instances.set(id, inst);
         this.listen(inst);
@@ -272,7 +281,9 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         if (!inst) return;
         if (this.fromHa(inst) ? ha.state !== "online" || !this.dial(inst) : broker.state !== "online" || !this.commandTopic(inst.settings)) return;
         if (inst.mode.open) return this.rotateLevel(inst, ev.payload.ticks);
-        const value = stepValue(this.setpoint(inst), ev.payload.ticks, this.range(inst.settings, this.dial(inst)));
+        // A light's brightness speeds up when turned fast
+        const ticks = this.isLight(inst) ? inst.brightnessPace.apply(ev.payload.ticks) : ev.payload.ticks;
+        const value = stepValue(this.setpoint(inst), ticks, this.range(inst.settings, this.dial(inst)));
         this.optimistic.set(inst.id, { value }, CONFIRM_MS);
         inst.sender.push(value);
         inst.adjustingUntil = Date.now() + ADJUST_MS;
@@ -349,7 +360,8 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         const e = ha.entities[inst.settings.entityId ?? ""];
         const spec = levelSpec(e, level);
         if (!spec) return;
-        const value = stepValue(this.levelValue(inst, level), ticks, spec);
+        // Colour temperature covers thousands of Kelvin, so it speeds up too; hue and saturation stay exact
+        const value = stepValue(this.levelValue(inst, level), level === "kelvin" ? inst.kelvinPace.apply(ticks) : ticks, spec);
         this.levelValues.set(levelKey(inst.id, level), { value }, CONFIRM_MS);
         inst.levelSender.push({ level, value });
         inst.timers.forEach(clearTimeout);

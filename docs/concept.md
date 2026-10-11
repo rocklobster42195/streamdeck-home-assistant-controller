@@ -56,7 +56,7 @@ Dials get more than one value per entity type. Light comes first (media is cover
 - Built in HA-C first, without HA types (input: a list of levels), then moved into the kit once it has proved itself with light: the mode mechanics (normal ↔ settings, push = next level, tap = back, timeout).
 - Straight into the kit: a Kelvin gradient ring and a colour wheel ring as gauge variants, if they don't exist yet.
 
-Left out on purpose: a favourite value on double push (the preset replaces it). Open for later: acceleration when turning fast (brightness, Kelvin), a dial for a whole area or light group.
+Left out on purpose: a favourite value on double push (the preset replaces it). Acceleration (added 2026-10-11): while the notches follow each other within 150 ms in one direction, the step grows every 3 notches (brightness up to x4, i.e. 20 %; Kelvin up to x8, i.e. 800 K); a pause or the other direction starts over. Hue and saturation stay exact. Open for later: a dial for a whole area or light group.
 
 ## Actions in v1
 

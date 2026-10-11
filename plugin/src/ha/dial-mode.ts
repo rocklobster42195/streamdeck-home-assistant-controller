@@ -42,11 +42,11 @@ export class DialMode<L extends string> {
         return { index: this.index, count: this.levels.length };
     }
 
-    /** Go into the settings mode (at `start` if the entity offers it, else the first level); false when there is nothing to set. */
-    enter(start?: L): boolean {
+    /** Go into the settings mode (at the first level, so a push reaches every level); false when there is nothing to set. */
+    enter(): boolean {
         if (!this.levels.length) return false;
         this.isOpen = true;
-        this.index = Math.max(0, start === undefined ? 0 : this.levels.indexOf(start));
+        this.index = 0;
         this.touch();
         this.onChange();
         return true;

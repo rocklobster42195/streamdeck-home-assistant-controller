@@ -339,16 +339,18 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
     private longPush(inst: Instance): void {
         if (!inst.push) return;
         inst.push.long = true;
-        if (inst.mode.open) return;
-        // Start where the lamp is: at the colour temperature while it shows white, at the hue while it shows a colour
-        const e = ha.entities[inst.settings.entityId ?? ""];
-        inst.mode.enter(e?.attributes.color_mode === "color_temp" ? "kelvin" : lightHs(e) && e?.attributes.color_mode ? "hue" : undefined);
+        // Long push again leaves the mode, wherever one is (also in the effect list, where a push starts an effect)
+        if (inst.mode.open) return inst.mode.back();
+        inst.mode.enter();
     }
 
     /** A push in the settings mode: the next level; in the effect list it starts the marked effect. */
     private pushLevel(inst: Instance): void {
         if (inst.mode.active === "effect") {
-            const effect = effectList(ha.entities[inst.settings.entityId ?? ""])[inst.effects?.marked ?? -1];
+            // The first row of the list is "Back"; the effects follow
+            const marked = inst.effects?.marked ?? 0;
+            if (marked === 0) return inst.mode.back();
+            const effect = effectList(ha.entities[inst.settings.entityId ?? ""])[marked - 1];
             inst.mode.touch();
             if (effect) this.callHa(inst, effectCall(effect));
             return;
@@ -602,10 +604,10 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         // Open the list on the running effect once per visit
         if (inst.listed !== "effect") {
             inst.listed = "effect";
-            inst.effects.reset(names.length, Math.max(0, running ? names.indexOf(running) : 0), streamDeck.i18n.t(LEVEL_NAMES.effect));
-        } else if (inst.effects.length !== names.length) inst.effects.setLength(names.length);
+            inst.effects.reset(names.length + 1, running ? names.indexOf(running) + 1 : Math.min(1, names.length), streamDeck.i18n.t(LEVEL_NAMES.effect));
+        } else if (inst.effects.length !== names.length + 1) inst.effects.setLength(names.length + 1);
         return inst.effects.render({
-            row: (i) => (names[i] === undefined ? undefined : { title: names[i], active: names[i] === running }),
+            row: (i) => (i === 0 ? { title: `‹ ${streamDeck.i18n.t("dial.back")}` } : names[i - 1] === undefined ? undefined : { title: names[i - 1], active: names[i - 1] === running }),
             accent: "#F7A600",
             showImages: false,
         });

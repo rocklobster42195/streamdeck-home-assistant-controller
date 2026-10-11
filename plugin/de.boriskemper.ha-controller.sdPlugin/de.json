@@ -20,7 +20,8 @@
 			"kelvin": "Farbtemperatur",
 			"hue": "Farbton",
 			"saturation": "Sättigung",
-			"effect": "Effekt"
+			"effect": "Effekt",
+			"back": "Zurück"
 		},
 		"pi": {
 			"switch_help": "Drücken: ein- oder ausschalten. Die Taste zeigt den Zustand, den das Gerät meldet.",

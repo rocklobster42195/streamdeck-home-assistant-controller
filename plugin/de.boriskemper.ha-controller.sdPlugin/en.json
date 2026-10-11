@@ -20,7 +20,8 @@
 			"kelvin": "Colour temp.",
 			"hue": "Hue",
 			"saturation": "Saturation",
-			"effect": "Effect"
+			"effect": "Effect",
+			"back": "Back"
 		},
 		"pi": {
 			"switch_help": "Press: switch on or off. The key shows the state the device reports.",

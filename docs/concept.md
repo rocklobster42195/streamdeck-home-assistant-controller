@@ -34,7 +34,7 @@ Decided in the merge grill (Q4):
 
 The sections below describe the MQTT source as built.
 
-## Light dial: levels and preset (grilled 2026-10-11, to build)
+## Light dial: levels and preset (grilled 2026-10-11, built 2026-10-11, not yet tested on hardware)
 
 Dials get more than one value per entity type. Light comes first (media is covered by the sister apps MA-C and SA-C, so there is no media_player dial here). Climate, cover and the browse cases (select, scene, vacuum) follow the same mechanics later.
 
@@ -45,7 +45,7 @@ Dials get more than one value per entity type. Light comes first (media is cover
 
 **Settings mode** (entered by a **long push** on the dial):
 - Levels, only those the lamp can do (from `supported_color_modes` and `effect_list`): colour temperature (Kelvin, the lamp's own min/max) → colour (hue, saturation as a sub-level) → effect.
-- Turn: the value of the active level. Push: next level (round and round). In the effect level the vertical browse (kit `ListController`) runs through `effect_list` and push applies the effect; the first entry is "no effect".
+- Turn: the value of the active level. Push: next level (round and round). In the effect level the vertical browse (kit `ListController`) runs through `effect_list` as the lamp reports it (a "None" entry, if it has one, switches the effect off) and push starts the marked effect; the effect level is the last, so a tap leaves it.
 - Touch tap: **back** to the normal view. Back by itself after 10 s without input.
 - A plain dimmer has only brightness: no settings mode, nothing changes for it.
 

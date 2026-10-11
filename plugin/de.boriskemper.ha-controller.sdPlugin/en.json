@@ -16,6 +16,12 @@
 			"no_ha": "Set up HA",
 			"choose_device": "Choose a device"
 		},
+		"dial": {
+			"kelvin": "Colour temp.",
+			"hue": "Hue",
+			"saturation": "Saturation",
+			"effect": "Effect"
+		},
 		"pi": {
 			"switch_help": "Press: switch on or off. The key shows the state the device reports.",
 			"device": "Device",

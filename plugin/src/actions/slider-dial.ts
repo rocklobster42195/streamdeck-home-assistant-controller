@@ -9,6 +9,7 @@ import streamDeck, {
     type DialAction,
     type DialDownEvent,
     type DialRotateEvent,
+    type DialUpEvent,
     type DidReceiveSettingsEvent,
     SingletonAction,
     type TouchTapEvent,
@@ -16,12 +17,14 @@ import streamDeck, {
     type WillDisappearEvent,
 } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
-import { isFeedbackPlaying, LatestSender, OptimisticStore, playFeedback, rowStateFromSettings } from "@rocklobster42195/streamdeck-kit";
+import { isFeedbackPlaying, LatestSender, ListController, OptimisticStore, playFeedback, rowStateFromSettings } from "@rocklobster42195/streamdeck-kit";
 import { mdiPath } from "@rocklobster42195/streamdeck-kit/mdi";
 import { mdiKnob } from "@mdi/js";
 import type { HassEntity } from "home-assistant-js-websocket";
 import { ha } from "../ha/connection";
 import { haDial, modeCall, nextMode, type HaDial } from "../ha/dial";
+import { DialMode } from "../ha/dial-mode";
+import { activeEffect, effectCall, effectList, isSnapshot, levelCall, levelSpec, lightHs, lightLevels, lightSnapshot, snapshotCall, type HaCall, type LightLevel } from "../ha/light";
 import { haEffectColor, haEffectNumber, noEffectColor } from "../ha/effect-inputs";
 import { panorama, panoramaRows } from "../bus/hac-bus";
 import { haName } from "../ha/entities";
@@ -85,6 +88,8 @@ export type SliderDialSettings = JsonObject &
         /** An HA entity whose value (÷ effectLevelMax) moves the effect, like an audio level. */
         effectLevelEntityId?: string;
         effectLevelMax?: string;
+        /** A light's preset (a tap recalls it, a long tap saves it); a list so that more can come. */
+        presets?: JsonObject[];
         retain?: boolean;
         qos?: "0" | "1" | "2";
     };
@@ -104,15 +109,29 @@ type Instance = {
     /** Where the dial sits (its row is the device's dials). */
     device: string;
     column: number;
+    /** A light's settings mode: its levels, and which one is shown. */
+    mode: DialMode<LightLevel>;
+    levelSender: LatestSender<{ level: LightLevel; value: number }>;
+    /** The effect level's vertical list. */
+    effects?: ListController;
+    /** The level the effect list was last opened for, to open it once per visit. */
+    listed?: LightLevel;
+    /** A push that is decided on release (a long one opens the settings mode). */
+    push?: { timer: ReturnType<typeof setTimeout>; long: boolean };
 };
 
 const CONFIRM_MS = 3000;
 const ADJUST_MS = 1500;
+/** How long a push must last to count as long. */
+const LONG_PUSH_MS = 500;
+const LEVEL_NAMES: Record<LightLevel, string> = { kelvin: "dial.kelvin", hue: "dial.hue", saturation: "dial.saturation", effect: "dial.effect" };
 
 @action({ UUID: "de.boriskemper.ha-controller.slider" })
 export class SliderDial extends SingletonAction<SliderDialSettings> {
     private readonly instances = new Map<string, Instance>();
     private readonly optimistic = new OptimisticStore<{ value: number | undefined }>();
+    /** The settings mode's values, per dial and level. */
+    private readonly levelValues = new OptimisticStore<{ value: number | undefined }>();
     private readonly toggle = new Toggle((id) => this.redraw(id));
     private readonly haToggle = new HaToggle((id) => this.redraw(id));
 
@@ -204,6 +223,8 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             timers: [],
             device: ev.action.device.id,
             column: (ev.payload as { coordinates?: { column: number } }).coordinates?.column ?? 0,
+            mode: new DialMode<LightLevel>(() => this.render(inst)),
+            levelSender: new LatestSender((v) => this.sendLevel(id, v.level, v.value), 150),
         };
         this.instances.set(id, inst);
         this.listen(inst);
@@ -225,6 +246,10 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         const inst = this.instances.get(ev.action.id);
         if (!inst) return;
         inst.timers.forEach(clearTimeout);
+        if (inst.push) clearTimeout(inst.push.timer);
+        inst.mode.dispose();
+        inst.effects?.dispose();
+        for (const level of Object.keys(LEVEL_NAMES)) this.levelValues.clear(levelKey(inst.id, level as LightLevel));
         this.toggle.forget(inst.id);
         this.haToggle.forget(inst.id);
         this.optimistic.clear(inst.id);
@@ -246,6 +271,7 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         const inst = this.instances.get(ev.action.id);
         if (!inst) return;
         if (this.fromHa(inst) ? ha.state !== "online" || !this.dial(inst) : broker.state !== "online" || !this.commandTopic(inst.settings)) return;
+        if (inst.mode.open) return this.rotateLevel(inst, ev.payload.ticks);
         const value = stepValue(this.setpoint(inst), ev.payload.ticks, this.range(inst.settings, this.dial(inst)));
         this.optimistic.set(inst.id, { value }, CONFIRM_MS);
         inst.sender.push(value);
@@ -257,11 +283,116 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
     }
 
     override onDialDown(ev: DialDownEvent<SliderDialSettings>): void {
-        this.press(ev.action.id);
+        const inst = this.instances.get(ev.action.id);
+        if (!inst) return;
+        // A light with levels tells a push from a long push on release; everything else acts at once
+        if (!this.hasLevels(inst)) return this.press(inst.id);
+        inst.mode.touch();
+        if (inst.push) clearTimeout(inst.push.timer);
+        const push = { long: false, timer: setTimeout(() => this.longPush(inst), LONG_PUSH_MS) };
+        inst.push = push;
+    }
+
+    override onDialUp(ev: DialUpEvent<SliderDialSettings>): void {
+        const inst = this.instances.get(ev.action.id);
+        const push = inst?.push;
+        if (!inst || !push) return;
+        clearTimeout(push.timer);
+        inst.push = undefined;
+        if (push.long) return;
+        if (inst.mode.open) return this.pushLevel(inst);
+        this.press(inst.id);
     }
 
     override onTouchTap(ev: TouchTapEvent<SliderDialSettings>): void {
-        this.press(ev.action.id);
+        const inst = this.instances.get(ev.action.id);
+        if (!inst) return;
+        // In the settings mode a tap goes back; on a light it recalls the preset, a long tap saves it
+        if (inst.mode.open) return inst.mode.back();
+        if (this.isLight(inst)) return ev.payload.hold ? this.savePreset(inst) : this.recallPreset(inst);
+        this.press(inst.id);
+    }
+
+    private isLight(inst: Instance): boolean {
+        return this.fromHa(inst) && inst.settings.entityId?.startsWith("light.") === true;
+    }
+
+    /** Whether the dial's light has a settings mode (colour temperature, colour or effects). */
+    private hasLevels(inst: Instance): boolean {
+        return this.isLight(inst) && inst.mode.available.length > 0;
+    }
+
+    /** A long push opens the settings mode. */
+    private longPush(inst: Instance): void {
+        if (!inst.push) return;
+        inst.push.long = true;
+        if (!inst.mode.open) inst.mode.enter();
+    }
+
+    /** A push in the settings mode: the next level; in the effect list it starts the marked effect. */
+    private pushLevel(inst: Instance): void {
+        if (inst.mode.active === "effect") {
+            const effect = effectList(ha.entities[inst.settings.entityId ?? ""])[inst.effects?.marked ?? -1];
+            inst.mode.touch();
+            if (effect) this.callHa(inst, effectCall(effect));
+            return;
+        }
+        inst.mode.next();
+    }
+
+    /** Turn in the settings mode: the active level's value, or the effect list. */
+    private rotateLevel(inst: Instance, ticks: number): void {
+        inst.mode.touch();
+        const level = inst.mode.active;
+        if (!level) return;
+        if (level === "effect") return inst.effects?.rotate(ticks);
+        const e = ha.entities[inst.settings.entityId ?? ""];
+        const spec = levelSpec(e, level);
+        if (!spec) return;
+        const value = stepValue(this.levelValue(inst, level), ticks, spec);
+        this.levelValues.set(levelKey(inst.id, level), { value }, CONFIRM_MS);
+        inst.levelSender.push({ level, value });
+        inst.timers.forEach(clearTimeout);
+        inst.timers = [setTimeout(() => this.render(inst), CONFIRM_MS + 50)];
+        this.render(inst);
+    }
+
+    /** A level's value: the one just set while unconfirmed, else the reported one. */
+    private levelValue(inst: Instance, level: LightLevel): number | undefined {
+        const reported = levelSpec(ha.entities[inst.settings.entityId ?? ""], level)?.value;
+        return this.levelValues.apply(levelKey(inst.id, level), { value: reported }).value;
+    }
+
+    private sendLevel(id: string, level: LightLevel, value: number): Promise<void> {
+        const inst = this.instances.get(id);
+        if (!inst) return Promise.resolve();
+        // Hue and saturation each need the other half of the colour
+        const hs: [number, number] = [this.levelValue(inst, "hue") ?? lightHs(ha.entities[inst.settings.entityId ?? ""])?.[0] ?? 0, this.levelValue(inst, "saturation") ?? lightHs(ha.entities[inst.settings.entityId ?? ""])?.[1] ?? 100];
+        const call = levelCall(level, value, hs);
+        if (!call) return Promise.resolve();
+        return this.callHa(inst, call);
+    }
+
+    private callHa(inst: Instance, call: HaCall): Promise<void> {
+        streamDeck.logger.info(`[ha] ${call.domain}.${call.service} ${inst.settings.entityId} ${JSON.stringify(call.data)}`);
+        return ha.call(call.domain, call.service, inst.settings.entityId!, call.data).then((ok) => (ok ? undefined : this.alert(inst)));
+    }
+
+    /** Long tap: the lamp's state as it is now becomes the preset. */
+    private savePreset(inst: Instance): void {
+        const snap = lightSnapshot(ha.entities[inst.settings.entityId ?? ""]);
+        if (!snap || ha.state !== "online") return this.alert(inst);
+        inst.settings = { ...inst.settings, presets: [snap as unknown as JsonObject] };
+        void inst.action.setSettings(inst.settings);
+        this.ok(inst);
+    }
+
+    /** Tap: the lamp goes back to the preset. */
+    private recallPreset(inst: Instance): void {
+        const snap = inst.settings.presets?.[0];
+        if (!isSnapshot(snap) || ha.state !== "online") return this.alert(inst);
+        void this.callHa(inst, snapshotCall(snap));
+        this.ok(inst);
     }
 
     private press(id: string): void {
@@ -351,10 +482,24 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         });
     }
 
+    /** The kit's check mark on the touch strip (a preset saved or recalled). */
+    private ok(inst: Instance): void {
+        playFeedback(inst.id, { setImage: (image?: string) => inst.action.setFeedback({ "full-canvas": image ?? "" }) }, "ok", {
+            width: 200,
+            height: 100,
+            background: "#0a0a0a",
+            restore: () => {
+                inst.lastImage = undefined;
+                this.render(inst);
+            },
+        });
+    }
+
     private render(inst: Instance): void {
         // The alert owns the strip while it plays; the dial redraws when it ends
         if (isFeedbackPlaying(inst.id)) return;
         inst.seen = this.fromHa(inst) ? ha.entities[inst.settings.entityId ?? ""] : undefined;
+        inst.mode.setLevels(this.isLight(inst) ? lightLevels(inst.seen) : []);
         const image = this.image(inst);
         if (image === inst.lastImage) return;
         inst.lastImage = image;
@@ -368,6 +513,8 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
         if (ha.state === "unconfigured" || ha.state === "invalid") return renderSliderMessage(mdiKnob, t("key.no_ha"), true);
         if (!s.entityId?.trim()) return renderSliderMessage(mdiKnob, t("key.choose_device"), false);
         const e = ha.entities[s.entityId];
+        if (inst.mode.active !== "effect") inst.listed = undefined;
+        if (inst.mode.open) return this.levelImage(inst, e);
         const d = haDial(e);
         const r = this.range(s, d);
         const setpoint = this.setpoint(inst);
@@ -392,6 +539,53 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             offText: t("key.off"),
             offline: ha.state !== "online" || !e || e.state === "unavailable",
             adjusting: Date.now() < inst.adjustingUntil,
+        });
+    }
+
+    /** The settings mode: the active level's ring (colour temperature, hue, saturation) or the effect list. */
+    private levelImage(inst: Instance, e: HassEntity | undefined): string {
+        const s = inst.settings;
+        const t = (k: string) => streamDeck.i18n.t(k);
+        const level = inst.mode.active!;
+        const { index, count } = inst.mode.position;
+        const name = t(LEVEL_NAMES[level]);
+        if (level === "effect") return this.effectImage(inst, e);
+        const spec = levelSpec(e, level);
+        const value = this.levelValue(inst, level);
+        return renderSliderDial({
+            background: this.background(inst),
+            look: "open",
+            setpoint: value,
+            setpointText: value === undefined ? undefined : localNumber(formatNumber(value, spec?.step ?? 1)),
+            unit: spec?.unit,
+            label: name,
+            icon: mdiPath(s.icon) ?? haIconPath(e),
+            min: spec?.min ?? 0,
+            max: spec?.max ?? 100,
+            zones: spec?.zones ?? zonesOf("#F7A600", undefined),
+            off: false,
+            // Where the level sits among the others, e.g. 2/4
+            status: `${index + 1}/${count}`,
+            offText: t("key.off"),
+            offline: ha.state !== "online" || !e || e.state === "unavailable",
+            adjusting: Date.now() < inst.adjustingUntil,
+        });
+    }
+
+    /** The effect level: the lamp's effects as a vertical list, the running one marked. */
+    private effectImage(inst: Instance, e: HassEntity | undefined): string {
+        const names = effectList(e);
+        const running = activeEffect(e);
+        if (!inst.effects) inst.effects = new ListController({ id: inst.id, redraw: () => this.render(inst) });
+        // Open the list on the running effect once per visit
+        if (inst.listed !== "effect") {
+            inst.listed = "effect";
+            inst.effects.reset(names.length, Math.max(0, running ? names.indexOf(running) : 0), streamDeck.i18n.t(LEVEL_NAMES.effect));
+        } else if (inst.effects.length !== names.length) inst.effects.setLength(names.length);
+        return inst.effects.render({
+            row: (i) => (names[i] === undefined ? undefined : { title: names[i], active: names[i] === running }),
+            accent: "#F7A600",
+            showImages: false,
         });
     }
 
@@ -425,6 +619,10 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
             adjusting: Date.now() < inst.adjustingUntil,
         });
     }
+}
+
+function levelKey(id: string, level: LightLevel): string {
+    return `${id}:${level}`;
 }
 
 /** The chosen look; the open ring when none is chosen. */

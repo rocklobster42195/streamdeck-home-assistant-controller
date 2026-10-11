@@ -16,6 +16,12 @@
 			"no_ha": "HA einrichten",
 			"choose_device": "Gerät wählen"
 		},
+		"dial": {
+			"kelvin": "Farbtemperatur",
+			"hue": "Farbton",
+			"saturation": "Sättigung",
+			"effect": "Effekt"
+		},
 		"pi": {
 			"switch_help": "Drücken: ein- oder ausschalten. Die Taste zeigt den Zustand, den das Gerät meldet.",
 			"device": "Gerät",

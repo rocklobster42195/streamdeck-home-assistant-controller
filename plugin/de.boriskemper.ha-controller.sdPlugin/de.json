@@ -216,6 +216,8 @@
 			"connections": "Verbindungen",
 			"step_from_ha": "Von Home Assistant",
 			"slider_ha_hint": "Bereich, Schrittweite und Einheit kommen aus Home Assistant: Licht, Ventilator und Rollladen in % (Drücken schaltet an und aus), ein Thermostat mit seinem Sollwert und der Raumtemperatur im Bogen (Drücken wechselt den Modus, z. B. Automatisch → Heizen → Aus), Zahlen mit ihrem eigenen Bereich. Eine eigene Schrittweite, z. B. 1, ersetzt die von HA.",
+			"effect_light_color": "Lampenfarbe im Effekt",
+			"effect_light_color_hint": "Die Farbe der Lampe färbt den Effekt der ganzen Zeile, auch den der anderen Dials. Aus überlässt den Effekt den im Panorama gewählten Farben. Eine Farb-Entität darunter gilt immer.",
 			"ring_fixed": "Feste Ringfarbe",
 			"ring_fixed_hint": "Der Ring einer Lampe nimmt deren Farbe an (ihre Farbe, sonst ihr Weißton). Eingeschaltet behält er die unter Farben gewählte Farbe oder Farbbereiche. Dort gewählte Farben gelten immer.",
 			"hide_label": "Ohne Namen",

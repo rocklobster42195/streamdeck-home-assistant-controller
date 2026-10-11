@@ -16,6 +16,12 @@
 			"no_ha": "HA einrichten",
 			"choose_device": "Gerät wählen"
 		},
+		"dial": {
+			"kelvin": "Farbtemperatur",
+			"hue": "Farbton",
+			"saturation": "Sättigung",
+			"effect": "Effekt"
+		},
 		"pi": {
 			"switch_help": "Drücken: ein- oder ausschalten. Die Taste zeigt den Zustand, den das Gerät meldet.",
 			"device": "Gerät",
@@ -209,6 +215,8 @@
 			"connections": "Verbindungen",
 			"step_from_ha": "Von Home Assistant",
 			"slider_ha_hint": "Bereich, Schrittweite und Einheit kommen aus Home Assistant: Licht, Ventilator und Rollladen in % (Drücken schaltet an und aus), ein Thermostat mit seinem Sollwert und der Raumtemperatur im Bogen (Drücken wechselt den Modus, z. B. Automatisch → Heizen → Aus), Zahlen mit ihrem eigenen Bereich. Eine eigene Schrittweite, z. B. 1, ersetzt die von HA.",
+			"ring_fixed": "Feste Ringfarbe",
+			"ring_fixed_hint": "Der Ring einer Lampe nimmt deren Farbe an (ihre Farbe, sonst ihr Weißton). Eingeschaltet behält er die unter Farben gewählte Farbe oder Farbbereiche. Dort gewählte Farben gelten immer.",
 			"hide_label": "Ohne Namen",
 			"set_up_hint": "Noch nicht eingerichtet: wähle oben ein Gerät, oder richte die Taste hier ein (z. B. mit einem MQTT-Topic).",
 			"look_open": "Offen",

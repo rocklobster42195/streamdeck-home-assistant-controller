@@ -41,11 +41,11 @@ Dials get more than one value per entity type. Light comes first (media is cover
 **Normal view** (the brightness ring, as today):
 - Turn: brightness. Push: on/off.
 - Touch tap: **recall the preset**. Touch long tap: **save the current state as the preset**. Same gestures as the kit's volume dial (`ev.payload.hold` on `onTouchTap`; `VolumeDials.recall()` / `savePreset()`). This replaces today's tap = push.
-- No preset saved yet: a short note on the strip ("long tap to save").
+- No preset saved yet: a tap switches the lamp on or off as before (no warning).
 
 **Settings mode** (entered by a **long push** on the dial):
 - Levels, only those the lamp can do (from `supported_color_modes` and `effect_list`): colour temperature (Kelvin, the lamp's own min/max) → colour (hue, saturation as a sub-level) → effect.
-- Turn: the value of the active level. Push: next level (round and round). In the effect level the vertical browse (kit `ListController`) runs through `effect_list` as the lamp reports it (a "None" entry, if it has one, switches the effect off) and push starts the marked effect; the effect level is the last, so a tap leaves it.
+- Turn: the value of the active level. Push: next level; a push on the last level goes back to the normal view (the mode starts at the colour temperature while the lamp shows white, at the hue while it shows a colour). In the effect level the vertical browse (kit `ListController`) runs through `effect_list` as the lamp reports it (a "None" entry, if it has one, switches the effect off) and push starts the marked effect; the effect level is the last, so a tap leaves it.
 - Touch tap: **back** to the normal view. Back by itself after 10 s without input.
 - A plain dimmer has only brightness: no settings mode, nothing changes for it.
 

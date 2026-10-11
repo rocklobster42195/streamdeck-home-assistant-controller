@@ -98,11 +98,14 @@ describe("dial mode", () => {
         m.next();
         expect(m.active).toBe("b");
         m.next();
-        expect(m.active).toBe("a");
-        m.back();
+        // A push on the last level leaves the mode
         expect(m.open).toBe(false);
         expect(m.active).toBeUndefined();
-        expect(changed).toHaveBeenCalledTimes(4);
+        expect(m.enter("b")).toBe(true);
+        expect(m.active).toBe("b");
+        m.back();
+        expect(m.open).toBe(false);
+        expect(changed).toHaveBeenCalledTimes(5);
         m.dispose();
     });
 

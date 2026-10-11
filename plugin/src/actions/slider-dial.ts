@@ -339,7 +339,10 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
     private longPush(inst: Instance): void {
         if (!inst.push) return;
         inst.push.long = true;
-        if (!inst.mode.open) inst.mode.enter();
+        if (inst.mode.open) return;
+        // Start where the lamp is: at the colour temperature while it shows white, at the hue while it shows a colour
+        const e = ha.entities[inst.settings.entityId ?? ""];
+        inst.mode.enter(e?.attributes.color_mode === "color_temp" ? "kelvin" : lightHs(e) && e?.attributes.color_mode ? "hue" : undefined);
     }
 
     /** A push in the settings mode: the next level; in the effect list it starts the marked effect. */
@@ -404,7 +407,9 @@ export class SliderDial extends SingletonAction<SliderDialSettings> {
     /** Tap: the lamp goes back to the preset. */
     private recallPreset(inst: Instance): void {
         const snap = inst.settings.presets?.[0];
-        if (!isSnapshot(snap) || ha.state !== "online") return this.alert(inst);
+        // Without a preset a tap still switches the lamp, as it did before
+        if (!isSnapshot(snap)) return this.press(inst.id);
+        if (ha.state !== "online") return this.alert(inst);
         void this.callHa(inst, snapshotCall(snap));
         this.ok(inst);
     }

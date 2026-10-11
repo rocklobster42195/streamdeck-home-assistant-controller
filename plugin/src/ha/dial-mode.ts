@@ -1,6 +1,7 @@
 // The dial's two views: the normal one and the settings mode, where a push steps through the
 // levels (colour temperature, hue, ...) and a tap goes back. It knows nothing of Home Assistant: the
-// levels are names, and the mode closes by itself after a while without input.
+// levels are names, and the mode closes by itself after a while without input. A push on the last
+// level leaves the mode, so one never has to go on into a level one doesn't want.
 
 export class DialMode<L extends string> {
     private levels: L[] = [];
@@ -41,20 +42,21 @@ export class DialMode<L extends string> {
         return { index: this.index, count: this.levels.length };
     }
 
-    /** Go into the settings mode (at the first level); false when there is nothing to set. */
-    enter(): boolean {
+    /** Go into the settings mode (at `start` if the entity offers it, else the first level); false when there is nothing to set. */
+    enter(start?: L): boolean {
         if (!this.levels.length) return false;
         this.isOpen = true;
-        this.index = 0;
+        this.index = Math.max(0, start === undefined ? 0 : this.levels.indexOf(start));
         this.touch();
         this.onChange();
         return true;
     }
 
-    /** The next level, round and round. */
+    /** The next level; after the last one back to the normal view. */
     next(): void {
         if (!this.isOpen) return;
-        this.index = (this.index + 1) % this.levels.length;
+        if (this.index + 1 >= this.levels.length) return this.back();
+        this.index += 1;
         this.touch();
         this.onChange();
     }

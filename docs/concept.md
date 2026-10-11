@@ -34,6 +34,30 @@ Decided in the merge grill (Q4):
 
 The sections below describe the MQTT source as built.
 
+## Light dial: levels and preset (grilled 2026-10-11, to build)
+
+Dials get more than one value per entity type. Light comes first (media is covered by the sister apps MA-C and SA-C, so there is no media_player dial here). Climate, cover and the browse cases (select, scene, vacuum) follow the same mechanics later.
+
+**Normal view** (the brightness ring, as today):
+- Turn: brightness. Push: on/off.
+- Touch tap: **recall the preset**. Touch long tap: **save the current state as the preset**. Same gestures as the kit's volume dial (`ev.payload.hold` on `onTouchTap`; `VolumeDials.recall()` / `savePreset()`). This replaces today's tap = push.
+- No preset saved yet: a short note on the strip ("long tap to save").
+
+**Settings mode** (entered by a **long push** on the dial):
+- Levels, only those the lamp can do (from `supported_color_modes` and `effect_list`): colour temperature (Kelvin, the lamp's own min/max) → colour (hue, saturation as a sub-level) → effect.
+- Turn: the value of the active level. Push: next level (round and round). In the effect level the vertical browse (kit `ListController`) runs through `effect_list` and push applies the effect; the first entry is "no effect".
+- Touch tap: **back** to the normal view. Back by itself after 10 s without input.
+- A plain dimmer has only brightness: no settings mode, nothing changes for it.
+
+**Preset:** one per dial, kept in the action's settings (survives a restart). It is a snapshot: on/off, brightness, Kelvin or colour, effect, restricted to what the lamp can do. Saved as a list so that several presets can come later (each tap recalls the next). Feedback on the strip for saving and recalling.
+
+**Kit or plugin:**
+- Plugin (HA-C): the levels and how they derive from the entity, the service calls, the snapshot.
+- Built in HA-C first, without HA types (input: a list of levels), then moved into the kit once it has proved itself with light: the mode mechanics (normal ↔ settings, push = next level, tap = back, timeout).
+- Straight into the kit: a Kelvin gradient ring and a colour wheel ring as gauge variants, if they don't exist yet.
+
+Left out on purpose: a favourite value on double push (the preset replaces it). Open for later: acceleration when turning fast (brightness, Kelvin), a dial for a whole area or light group.
+
 ## Actions in v1
 
 | Action | Device | Behaviour |

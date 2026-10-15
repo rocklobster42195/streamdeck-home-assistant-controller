@@ -83,4 +83,11 @@ JSA webhooks (`ha.onWebhook`, port 3001) are bidirectional, which fits exactly:
 - **HA states drive the whole suite:** away, night or movie night set the night mode and scenes in every plugin.
 - **HA sensors** go into gauges and sparklines, and can also tint MA-C's Panorama effects.
 - **deckbus states become HA entities** (SA-C grill 2026-10-05, `system-audio-controller/notes/2026-10-05-sac-future-grill.md`): HA-C mirrors other plugins' bus states through the JSA mini-integration, e.g. SA-C's "call active" as `binary_sensor` (app as attribute), mic muted, active output device, and the active audio scene as `select` (HA can trigger scenes too). The other plugins know nothing about HA.
-- **The Multi-state key moves into the kit** (same grill): the key and its states editor become kit code; HA-C, MQ-C and SA-C (App output key, scene key) build on it.
+- **The Multi-state key moves into the kit** (same grill): the key and its states editor become kit code; HA-C, MQ-C and SA-C (App output key, scene key) build on it.
+
+- **Deck brightness without a brightness API: the suite draws itself dark** (idea 2026-10-15, user; not decided). The Stream Deck SDK has no brightness, but a plugin can draw its own keys and dials black. So the number from the JSA list above becomes a plain HA entity (`input_boolean.deck_blackout` for on/off or `input_number.deck_brightness` for 0–100 %; works without any integration, HA-C reads it like any entity), HA-C broadcasts it on deckbus as `display: { level: 0..1 }`, and the kit draws every key and dial through a black overlay with that opacity (one place for the key actions, the Panorama engine and the lists).
+  - Intermediate levels come for free, and a soft transition. The panel's backlight stays on; a black picture is practically dark.
+  - Not covered: actions a plugin draws itself outside the kit (SO-C's Multi-Control key) until they are connected one by one; a second PC (the bus is local).
+  - A black key still takes presses: **wake on touch** (the first touch lights the deck for about 10 s and isn't executed) is the nice-to-have.
+  - The level is a general kit setting, HA-C is one source of it; SA-C (a call), a key or another plugin could set it as well. The Stream Deck app's own screen saver and brightness overlap with it.
+  - Open: on/off only or a level (leaning: a level, on/off is its special case), wake on touch now or later.

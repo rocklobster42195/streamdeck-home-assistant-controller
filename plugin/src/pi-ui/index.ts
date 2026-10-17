@@ -8,6 +8,7 @@ import { HacDeviceCard } from "./device-card";
 import { HacDevice } from "./device-picker";
 import { HacHaAttribute, HacHaEntity } from "./ha-fields";
 import { HacJsonField } from "./json-field";
+import { HacProxyPassword } from "./proxy-password";
 import { HacSources, HacStatesSummary } from "./more";
 import { initStatesCurrent } from "./states-current";
 import { HacTest } from "./test-button";
@@ -30,6 +31,7 @@ sd.onReady(() => {
     customElements.define("hac-test", HacTest);
     customElements.define("hac-ha-attribute", HacHaAttribute);
     customElements.define("hac-ha-entity", HacHaEntity);
+    customElements.define("hac-proxy-password", HacProxyPassword);
     customElements.define("hac-sources", HacSources);
     customElements.define("hac-states-summary", HacStatesSummary);
     document.querySelectorAll<PiChoice & HTMLElement>("pi-choice[data-options]").forEach((el) => {

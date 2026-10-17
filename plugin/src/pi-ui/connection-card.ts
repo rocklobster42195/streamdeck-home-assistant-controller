@@ -117,7 +117,13 @@ export class HacHaCard extends SourceCard<HaStatus> {
                 <button type="button" class="pi-button hac-ha-find">${escapeHtml(t("pi.ha_find"))}</button>
                 <div class="hac-ha-found"></div>
             </div>
-            <pi-field setting="haToken" global type="password" label="pi.ha_token" hint="pi.ha_token_hint"></pi-field>`;
+            <pi-field setting="haToken" global type="password" label="pi.ha_token" hint="pi.ha_token_hint"></pi-field>
+            <details class="hac-proxy">
+                <summary class="pi-hint">${escapeHtml(t("pi.proxy"))}</summary>
+                <pi-field setting="proxyUrl" global label="pi.proxy_address" placeholder="pi.proxy_placeholder" hint="pi.proxy_hint"></pi-field>
+                <pi-field setting="proxyUser" global label="pi.proxy_user" placeholder="pi.proxy_user_placeholder"></pi-field>
+                <hac-proxy-password></hac-proxy-password>
+            </details>`;
     }
 
     protected onlineDetail(s: HaStatus): string {
@@ -133,6 +139,13 @@ export class HacHaCard extends SourceCard<HaStatus> {
     }
 
     protected override wire(): void {
+        // A proxy that is set stays visible; otherwise the section is folded away
+        const proxy = this.querySelector<HTMLDetailsElement>(".hac-proxy")!;
+        const openIfSet = () => {
+            if (filled((sd.globalSettings as Settings).proxyUrl)) proxy.open = true;
+        };
+        openIfSet();
+        this.offs.push(sd.onGlobalSettings(openIfSet));
         const button = this.querySelector<HTMLButtonElement>(".hac-ha-find")!;
         const list = this.querySelector<HTMLElement>(".hac-ha-found")!;
         button.addEventListener("click", () => {

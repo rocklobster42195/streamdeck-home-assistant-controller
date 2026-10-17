@@ -8,7 +8,7 @@ import { registerDiagnostics, piBridge, type PiPushMessage } from "@rocklobster4
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
 import { playerOptions } from "@rocklobster42195/streamdeck-kit";
 import { hacPlayers } from "../bus/hac-players";
-import { reconnectBroker, reconnectHa } from "../connections";
+import { proxyPasswordState, reconnectBroker, reconnectHa, setProxyPassword } from "../connections";
 import { ha } from "../ha/connection";
 import { haAttributes, haName } from "../ha/entities";
 import { shortHaAddress } from "../ha/url";
@@ -41,6 +41,10 @@ export function initPiBridge(): void {
     });
     piBridge.handle("reconnect", () => reconnectBroker());
     piBridge.handle("ha-reconnect", () => reconnectHa());
+    piBridge.handle("proxy-password", async (msg) => {
+        await setProxyPassword(String(msg.value ?? ""));
+        piBridge.schedulePush();
+    });
     piBridge.handle("ha-attributes", async (msg) => {
         const e = ha.entities[String(msg.entityId ?? "")];
         await piBridge.reply(json({ event: "ha-attributes-result", requestId: msg.requestId as number, state: e?.state, attributes: haAttributes(e) }));
@@ -67,7 +71,7 @@ export function initPiBridge(): void {
     initExplore();
     initHaDiscovery();
     initDevicePicker();
-    piBridge.addPusher(() => [json({ event: "ha-status", status: haStatus() }), json({ event: "status", status: status() })]);
+    piBridge.addPusher(() => [json({ event: "ha-status", status: haStatus() }), json({ event: "status", status: status() }), json({ event: "proxy-password-state", ...proxyPasswordState() })]);
     broker.onState(() => piBridge.schedulePush());
     ha.onState(() => piBridge.schedulePush());
 

@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
+import http from "node:http";
+import net from "node:net";
 import { WebSocketServer, type WebSocket } from "ws";
 import { HaConnection, type HaState } from "./ha-connection";
 import { parseHaUrl, shortHaAddress } from "./url";
@@ -103,6 +105,78 @@ describe("HaConnection", () => {
         ha = new HaConnection(quiet);
         ha.configure({ url: "http://127.0.0.1:9", token: "t" });
         await waitFor(ha, "offline");
-        expect(ha.lastError).toBe("cannot connect");
+        expect(ha.lastError).toMatch(/^cannot connect/);
+    });
+});
+
+/** A proxy that tunnels CONNECT requests and wants basic auth, like a company web gateway. */
+function fakeProxy(user: string, password: string): Promise<{ address: string; connects: string[]; close: () => Promise<void> }> {
+    const connects: string[] = [];
+    const sockets = new Set<net.Socket>();
+    const server = http.createServer((_req, res) => res.writeHead(400).end());
+    server.on("connect", (req, client) => {
+        sockets.add(client);
+        const expected = `Basic ${Buffer.from(`${user}:${password}`).toString("base64")}`;
+        if (req.headers["proxy-authorization"] !== expected) {
+            client.end("HTTP/1.1 407 Proxy Authentication Required\r\nProxy-Authenticate: Basic realm=\"test\"\r\nConnection: close\r\n\r\n");
+            return;
+        }
+        const [host, port] = (req.url ?? "").split(":");
+        connects.push(req.url ?? "");
+        const upstream = net.connect(Number(port), host, () => {
+            client.write("HTTP/1.1 200 Connection established\r\n\r\n");
+            upstream.pipe(client);
+            client.pipe(upstream);
+        });
+        sockets.add(upstream);
+        upstream.on("error", () => client.destroy());
+        client.on("error", () => upstream.destroy());
+    });
+    return new Promise((ready) =>
+        server.listen(0, "127.0.0.1", () => {
+            const port = (server.address() as net.AddressInfo).port;
+            ready({
+                address: `127.0.0.1:${port}`,
+                connects,
+                close: () =>
+                    new Promise((done) => {
+                        for (const s of sockets) s.destroy();
+                        server.close(() => done());
+                    }),
+            });
+        }),
+    );
+}
+
+describe("HaConnection through a proxy", () => {
+    let ha: HaConnection | undefined;
+    let server: { url: string; close: () => Promise<void> } | undefined;
+    let proxy: { address: string; connects: string[]; close: () => Promise<void> } | undefined;
+    afterEach(async () => {
+        ha?.close();
+        ha?.configure({});
+        await proxy?.close();
+        await server?.close();
+    });
+
+    it("connects with the proxy's login and goes through it", async () => {
+        server = await fakeHa("good");
+        proxy = await fakeProxy("DOM\me", "secret");
+        ha = new HaConnection(quiet);
+        ha.configure({ url: server.url, token: "good", proxy: { url: proxy.address, user: "DOM\me", password: "secret" } });
+        await waitFor(ha, "online");
+        expect(proxy.connects).toHaveLength(1);
+        expect(proxy.connects[0]).toBe(new URL(server.url).host);
+    });
+
+    it("is not online with a wrong proxy password", async () => {
+        server = await fakeHa("good");
+        proxy = await fakeProxy("DOM\me", "secret");
+        ha = new HaConnection(quiet);
+        ha.configure({ url: server.url, token: "good", proxy: { url: proxy.address, user: "DOM\me", password: "wrong" } });
+        await waitFor(ha, "offline");
+        await new Promise((r) => setTimeout(r, 300));
+        expect(ha.state).not.toBe("online");
+        expect(proxy.connects).toHaveLength(0);
     });
 });

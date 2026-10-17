@@ -90,6 +90,7 @@ export type DeviceItem = {
 export type PiRequest =
     | { event: "reconnect" }
     | { event: "ha-reconnect" }
+    | { event: "proxy-password"; value: string }
     | { event: "window-opened"; width: number; height: number; scale: number }
     | { event: "ha-find"; requestId: number }
     | { event: "ha-attributes"; requestId: number; entityId: string }
@@ -106,6 +107,8 @@ export type PiRequest =
 export type PiPush =
     | { event: "status"; status: ConnectionStatus }
     | { event: "ha-status"; status: HaStatus }
+    /** Whether a proxy password is stored, and whether it is encrypted. */
+    | { event: "proxy-password-state"; set: boolean; encrypted: boolean }
     | { event: "ha-find-result"; requestId: number; found: FoundHa[] }
     | { event: "ha-attributes-result"; requestId: number; state?: string; attributes: { name: string; value: string }[] }
     | { event: "ha-entity-list-result"; requestId: number; entities: { id: string; name: string }[] }

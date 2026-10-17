@@ -4,12 +4,14 @@
 // reports its state. Once connected, the library reconnects by itself.
 // Knows nothing of Stream Deck.
 import { callService, createConnection, createLongLivedTokenAuth, ERR_CANNOT_CONNECT, ERR_INVALID_AUTH, subscribeEntities, type Connection, type HassEntities, type HassEntity } from "home-assistant-js-websocket";
+import { explainConnectFailure } from "./diagnose";
 import { haRead } from "./entities";
 import { resolveIcon, type ComponentIcons, type EntityIcons, type IconEntry } from "./icon-rules";
 import { stateText, type StateTexts } from "./state-text";
+import { createProxyDispatcher, fetchVia, useWebSocketVia, type Fetch, type ProxyConfig } from "./proxy";
 import { parseHaUrl, type HaAddress } from "./url";
 
-export type HaConfig = { url?: string; token?: string };
+export type HaConfig = { url?: string; token?: string; proxy?: ProxyConfig };
 
 /** The same states as the broker's; "denied": HA refused the token, retrying stops until the settings change. */
 export type HaState = "unconfigured" | "invalid" | "connecting" | "online" | "offline" | "denied";
@@ -48,6 +50,8 @@ export class HaConnection {
     private conn: Connection | undefined;
     private configKey = "";
     private token = "";
+    /** fetch for REST calls: through the proxy when one is set. */
+    private fetchImpl: Fetch = fetchVia(undefined);
     /** Bumped by every configure(), so a slow attempt for old settings is dropped. */
     private attempt = 0;
     private retryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -58,6 +62,11 @@ export class HaConnection {
     address: HaAddress | undefined;
     /** Why the last attempt failed, for the status line. */
     lastError: string | undefined;
+    /** What the probe found for the current settings ("ENOTFOUND", …); kept across retries. */
+    private reason: string | undefined;
+    private probing = false;
+    /** The connection goes through the configured proxy. */
+    private proxied = false;
     /** HA's version, once connected ("2026.9.4"). */
     version: string | undefined;
     entities: HassEntities = {};
@@ -74,7 +83,7 @@ export class HaConnection {
 
     /** Apply settings; reconnects only when something relevant changed (or `force`). */
     configure(config: HaConfig, force = false): void {
-        const key = JSON.stringify([config.url?.trim(), config.token?.trim() ?? ""]);
+        const key = JSON.stringify([config.url?.trim(), config.token?.trim() ?? "", config.proxy?.url?.trim(), config.proxy?.user?.trim(), config.proxy?.password]);
         if (key === this.configKey && !force) return;
         this.configKey = key;
         this.close();
@@ -85,7 +94,12 @@ export class HaConnection {
         this.icons = undefined;
         this.texts = {};
         this.address = parseHaUrl(config.url);
+        const dispatcher = config.proxy ? createProxyDispatcher(config.proxy) : undefined;
+        this.fetchImpl = fetchVia(dispatcher);
+        useWebSocketVia(dispatcher);
+        this.proxied = !!dispatcher;
         this.lastError = undefined;
+        this.reason = undefined;
         if (!config.url?.trim() && !config.token?.trim()) return this.setState("unconfigured");
         if (!this.address) return this.setState("invalid");
         if (!config.token?.trim()) return this.setState("unconfigured");
@@ -144,7 +158,7 @@ export class HaConnection {
     private async rest(method: "POST" | "DELETE", entityId: string, body?: string): Promise<boolean> {
         if (this.state !== "online" || !this.address) return false;
         try {
-            const res = await fetch(`${this.address.url}/api/states/${entityId}`, {
+            const res = await this.fetchImpl(`${this.address.url}/api/states/${entityId}`, {
                 method,
                 headers: { Authorization: `Bearer ${this.token}`, "Content-Type": "application/json" },
                 body,
@@ -267,10 +281,11 @@ export class HaConnection {
                 this.log.warn(`[ha] ${address.url}: token refused`);
                 return this.setState("denied");
             }
-            this.lastError = e === ERR_CANNOT_CONNECT ? "cannot connect" : String(e);
+            this.lastError = e === ERR_CANNOT_CONNECT ? (this.reason ? `cannot connect (${this.reason})` : "cannot connect") : String(e);
             this.log.warn(`[ha] ${address.url}: ${this.lastError}`);
             this.setState("offline");
             this.retryTimer = setTimeout(() => void this.connect(address, token, attempt, Math.min(retryMs * 2, MAX_RETRY_MS)), retryMs);
+            if (e === ERR_CANNOT_CONNECT && !this.reason && !this.probing) void this.explain(address, attempt);
             return;
         }
         if (attempt !== this.attempt) return conn.close();
@@ -292,10 +307,22 @@ export class HaConnection {
             this.entities = entities;
             for (const fn of this.entityListeners) fn(entities);
         });
-        this.log.info(`[ha] connected to ${address.url} (Home Assistant ${conn.haVersion})`);
+        this.log.info(`[ha] connected to ${address.url}${this.proxied ? " via proxy" : ""} (Home Assistant ${conn.haVersion})`);
         this.setState("online");
         // Only now: the icons need the registry, which is read through the online connection
         void this.loadIcons(conn, attempt);
+    }
+
+    /** Look up why the socket would not open and put it into the status line and the log. */
+    private async explain(address: HaAddress, attempt: number): Promise<void> {
+        this.probing = true;
+        const reason = await explainConnectFailure(address.url, this.fetchImpl, this.proxied).finally(() => (this.probing = false));
+        // Retries run meanwhile, so the state may be "connecting" again: only the settings count
+        if (!reason || attempt !== this.attempt) return;
+        this.reason = reason;
+        this.lastError = `cannot connect (${reason})`;
+        this.log.warn(`[ha] ${address.url}: ${this.lastError}`);
+        for (const fn of this.stateListeners) fn();
     }
 
     private setState(state: HaState): void {

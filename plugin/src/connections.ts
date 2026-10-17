@@ -7,6 +7,7 @@ import type { JsonObject } from "@elgato/utils";
 import { ha } from "./ha/connection";
 import { configureHaDevice, haDeviceWill } from "./ha-device/device";
 import { newClientId } from "./mqtt/broker";
+import { protectSecret, unprotectSecret } from "./secret";
 import { broker } from "./mqtt/connection";
 
 export type GlobalSettings = {
@@ -14,6 +15,13 @@ export type GlobalSettings = {
     haUrl?: string;
     /** A long-lived access token from the HA user profile. */
     haToken?: string;
+    /** A proxy for Home Assistant ("proxy.company.local:8080"), with a basic-auth login if it asks for one. */
+    proxyUrl?: string;
+    proxyUser?: string;
+    /** The proxy password encrypted for this Windows account ("dpapi1:…"); "" once removed. */
+    proxyPasswordProtected?: string;
+    /** The proxy password in clear text: only where it can't be encrypted (and from before it was). */
+    proxyPassword?: string;
     /** "192.168.1.10", "mqtts://broker:8883", "ws://host:9001/mqtt", … */
     brokerUrl?: string;
     brokerUser?: string;
@@ -44,6 +52,7 @@ export async function startConnections(): Promise<void> {
     }
     apply(settings);
     loaded = true;
+    await protectStoredPassword();
     if (Object.keys(imported).length) await streamDeck.settings.setGlobalSettings(current);
 }
 
@@ -92,14 +101,69 @@ export function reconnectHa(): void {
 function apply(settings: GlobalSettings): void {
     // The PI may save global settings without the client id it doesn't know about, or with an old
     // copy of the Coverlicht keys (only the plugin writes those): keep ours
-    current = { ...settings, clientId: settings.clientId || current.clientId, coverLights: current.coverLights ?? settings.coverLights };
+    // The proxy password is the plugin's too (the PI sends it as a message, never as a setting)
+    current = {
+        ...settings,
+        clientId: settings.clientId || current.clientId,
+        coverLights: current.coverLights ?? settings.coverLights,
+        proxyPasswordProtected: current.proxyPasswordProtected ?? settings.proxyPasswordProtected,
+        proxyPassword: current.proxyPassword ?? settings.proxyPassword,
+    };
     configureHa(current);
     configureBroker(current);
     if (current.clientId) configureHaDevice(!!current.haDevice, current.clientId);
 }
 
+/** Counts configureHa() calls, so a slow decryption for old settings is dropped. */
+let haEpoch = 0;
+/** The last password decrypted, so settings changes don't start PowerShell again. */
+let decrypted: { form: string; plain: string | undefined } | undefined;
+
 function configureHa(s: GlobalSettings, force = false): void {
-    ha.configure({ url: s.haUrl, token: s.haToken }, force);
+    const epoch = ++haEpoch;
+    const connect = (password: string | undefined) => {
+        if (epoch === haEpoch) ha.configure({ url: s.haUrl, token: s.haToken, proxy: { url: s.proxyUrl, user: s.proxyUser, password } }, force);
+    };
+    const form = s.proxyPasswordProtected;
+    if (!form) return connect(s.proxyPassword);
+    if (decrypted?.form === form) return connect(decrypted.plain);
+    void unprotectSecret(form).then((plain) => {
+        decrypted = { form, plain };
+        if (plain === undefined) streamDeck.logger.warn("[settings] proxy password can't be decrypted (saved by another account or PC?): enter it again");
+        connect(plain);
+    });
+}
+
+/** Encrypt a password that was saved in clear text (before encryption, or where it wasn't possible). */
+async function protectStoredPassword(): Promise<void> {
+    const plain = current.proxyPassword?.trim();
+    if (!plain || current.proxyPasswordProtected) return;
+    const form = await protectSecret(plain);
+    if (!form) return;
+    streamDeck.logger.info("[settings] proxy password is now stored encrypted");
+    decrypted = { form, plain };
+    saveGlobalSettings({ proxyPasswordProtected: form, proxyPassword: "" });
+}
+
+/** The PI's request to store (or, empty, remove) the proxy password; it never sits in a setting. */
+export async function setProxyPassword(value: string): Promise<void> {
+    if (!loaded) return;
+    const plain = value.trim();
+    if (!plain) {
+        decrypted = undefined;
+        saveGlobalSettings({ proxyPasswordProtected: "", proxyPassword: "" });
+    } else {
+        const form = await protectSecret(plain);
+        decrypted = form ? { form, plain } : undefined;
+        saveGlobalSettings(form ? { proxyPasswordProtected: form, proxyPassword: "" } : { proxyPasswordProtected: "", proxyPassword: plain });
+    }
+    configureHa(current, true);
+}
+
+/** What the PI shows of the proxy password: whether there is one, and whether it is encrypted. */
+export function proxyPasswordState(): { set: boolean; encrypted: boolean } {
+    const encrypted = !!current.proxyPasswordProtected;
+    return { set: encrypted || !!current.proxyPassword, encrypted };
 }
 
 function configureBroker(s: GlobalSettings, force = false): void {

@@ -1,12 +1,12 @@
 {
     "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
     "Name": "Home Assistant Controller",
-    "Version": "0.1.0.0",
+    "Version": "0.1.2.0",
     "Author": "Boris Kemper",
     "Category": "Home Assistant Controller",
     "CategoryIcon": "imgs/plugin/category-icon",
     "CodePath": "bin/plugin.js",
-    "Description": "Switch and show anything on your MQTT broker: Home Assistant, zigbee2mqtt, Tasmota, Shelly, ESPHome, ioBroker, Node-RED.\nUnofficial community plugin, not affiliated with Elgato.\n\nIcons by https://pictogrammers.com",
+    "Description": "Switch and show your smart home: lights, plugs, sensors, scenes, thermostats and blinds. Works with Home Assistant and, as a second source, with any MQTT broker (zigbee2mqtt, Tasmota, Shelly, ESPHome, ioBroker, Node-RED).\nUnofficial community plugin, not affiliated with Elgato.\n\nIcons by https://pictogrammers.com",
     "Icon": "imgs/plugin/marketplace",
     "SDKVersion": 3,
     "Software": {

@@ -39,7 +39,7 @@
   <pi-section class="pi-win" title="pi.value_line">
     <div data-show-when="source=ha" data-show-default="mqtt">
       <hac-ha-entity setting="valueEntityId" label="pi.entity" placeholder="pi.same_entity"></hac-ha-entity>
-      <hac-ha-attribute setting="valueAttribute" entity-setting="valueEntityId" fallback-setting="entityId" hint="pi.value_line_ha_hint"></hac-ha-attribute>
+      <hac-ha-attribute setting="valueAttribute" entity-setting="valueEntityId" fallback-setting="entityId" none-label="pi.no_line" hint="pi.value_line_ha_hint"></hac-ha-attribute>
     </div>
     <div data-show-when="source=mqtt" data-show-default="mqtt">
       <hac-topic setting="valueTopic" label="pi.value_topic" placeholder="pi.topic_search_placeholder" hint="pi.value_line_hint"></hac-topic>

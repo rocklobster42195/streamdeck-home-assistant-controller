@@ -4,6 +4,7 @@
 // <hac-ha-entity setting="secondEntityId" placeholder="…">: another entity id, typed with
 //   suggestions from all of HA's entities; empty means the key's own entity.
 import { escapeHtml, nextRequestId, sd, t } from "@rocklobster42195/streamdeck-kit/pi";
+import { STATE_ATTRIBUTE } from "../ha/lines";
 import type { PiPush } from "../pi/protocol";
 
 const str = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
@@ -70,7 +71,13 @@ export class HacHaAttribute extends HTMLElement {
 
     private render(): void {
         const current = str((sd.settings as Record<string, unknown>)[this.setting]);
-        const options = [{ value: "", label: `${t("pi.attribute_state")}${this.state !== undefined ? ` (${this.state})` : ""}` }, ...this.attrs.map((a) => ({ value: a.name, label: `${a.name} (${a.value})` }))];
+        const stateLabel = `${t("pi.attribute_state")}${this.state !== undefined ? ` (${this.state})` : ""}`;
+        // An optional line: empty means no line, so the state is a choice of its own. With an entity
+        // of its own the line is on anyway, and empty means that entity's state.
+        const s = sd.settings as Record<string, unknown>;
+        const optional = this.hasAttribute("none-label") && !str(s[this.getAttribute("entity-setting") ?? ""]);
+        const first = optional ? [{ value: "", label: t(this.getAttribute("none-label")!) }, { value: STATE_ATTRIBUTE, label: stateLabel }] : [{ value: "", label: stateLabel }];
+        const options = [...first, ...this.attrs.map((a) => ({ value: a.name, label: `${a.name} (${a.value})` }))];
         // A chosen attribute the entity doesn't report right now stays selectable
         if (current && !options.some((o) => o.value === current)) options.push({ value: current, label: current });
         const select = this.querySelector("select")!;

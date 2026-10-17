@@ -14,6 +14,7 @@ import type { SwitchTopics } from "../mqtt/switch-state";
 import { shownValue, zonesOf } from "../mqtt/value-state";
 import { ACCENT } from "../render/svg";
 import { renderKeyHint, renderSwitchKey } from "../render/switch-key";
+import { optionalLine } from "../ha/lines";
 import { HaToggle } from "./ha-toggle";
 import { Toggle } from "./toggle";
 import { TopicKey, type KeyInstance, type TopicKeySettings } from "./topic-key";
@@ -69,8 +70,9 @@ export class SwitchKey extends TopicKey<SwitchKeySettings> {
     private valueLine(inst: KeyInstance<SwitchKeySettings>, fromHa: boolean): { text?: string; number?: number; unit?: string } | undefined {
         const s = inst.settings;
         if (fromHa) {
-            if (!s.valueEntityId?.trim() && !s.valueAttribute?.trim()) return undefined;
-            const read = ha.read(ha.entities[s.valueEntityId?.trim() || s.entityId || ""], s.valueAttribute);
+            const line = optionalLine(s.valueAttribute, s.valueEntityId);
+            if (!line.on) return undefined;
+            const read = ha.read(ha.entities[s.valueEntityId?.trim() || s.entityId || ""], line.attribute);
             return { ...shownValue(read.payload, undefined, s.valueDecimals), unit: s.valueUnit?.trim() || read.unit };
         }
         if (!s.valueTopic?.trim()) return undefined;

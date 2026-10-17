@@ -23,10 +23,23 @@
     <pi-field setting="decimals" label="pi.decimals" placeholder="pi.decimals_placeholder"></pi-field>
   </pi-section>
 
-  <pi-section title="pi.value" data-show-when="source=ha" data-show-default="mqtt">
+  <pi-section title="pi.first_line" data-show-when="source=ha" data-show-default="mqtt">
     <hac-ha-attribute setting="attribute" entity-setting="entityId" hint="pi.attribute_hint"></hac-ha-attribute>
     <pi-field setting="unit" label="pi.unit" placeholder="pi.unit_from_ha"></pi-field>
     <pi-field setting="decimals" label="pi.decimals" placeholder="pi.decimals_placeholder"></pi-field>
+  </pi-section>
+
+  <pi-section class="pi-win" title="pi.second_line">
+    <div data-show-when="source=ha" data-show-default="mqtt">
+      <hac-ha-entity setting="secondEntityId" label="pi.entity" placeholder="pi.same_entity"></hac-ha-entity>
+      <hac-ha-attribute setting="secondAttribute" entity-setting="secondEntityId" fallback-setting="entityId" none-label="pi.no_line"></hac-ha-attribute>
+    </div>
+    <div data-show-when="source=mqtt" data-show-default="mqtt">
+      <hac-topic setting="secondTopic" label="pi.second_topic" placeholder="pi.topic_search_placeholder"></hac-topic>
+      <hac-json-field setting="secondField" topic-setting="secondTopic" label="pi.field"></hac-json-field>
+    </div>
+    <pi-field setting="secondUnit" label="pi.unit" placeholder="pi.unit_placeholder"></pi-field>
+    <pi-field setting="secondDecimals" label="pi.decimals" placeholder="pi.decimals_placeholder" hint="pi.second_line_hint"></pi-field>
   </pi-section>
 
   <pi-section title="pi.display">
@@ -45,21 +58,9 @@
     <pi-icon-picker setting="icon" none-label="pi.icon" reset-label="kit.threshold_remove"></pi-icon-picker>
   </pi-section>
 
-  <pi-section class="pi-win" title="pi.second_line">
-    <div data-show-when="source=ha" data-show-default="mqtt">
-      <hac-ha-entity setting="secondEntityId" label="pi.entity" placeholder="pi.same_entity"></hac-ha-entity>
-      <hac-ha-attribute setting="secondAttribute" entity-setting="secondEntityId" fallback-setting="entityId"></hac-ha-attribute>
-    </div>
-    <div data-show-when="source=mqtt" data-show-default="mqtt">
-      <hac-topic setting="secondTopic" label="pi.second_topic" placeholder="pi.topic_search_placeholder"></hac-topic>
-      <hac-json-field setting="secondField" topic-setting="secondTopic" label="pi.field"></hac-json-field>
-    </div>
-    <pi-field setting="secondUnit" label="pi.unit" placeholder="pi.unit_placeholder"></pi-field>
-    <pi-field setting="secondDecimals" label="pi.decimals" placeholder="pi.decimals_placeholder" hint="pi.second_line_hint"></pi-field>
-  </pi-section>
-
   <pi-section class="pi-win" title="pi.colors">
     <pi-thresholds setting="thresholds" base-setting="color" base-default="#FFFFFF" unit-setting="unit" min-setting="min" max-setting="max" default-min="0" default-max="100"></pi-thresholds>
+    <pi-toggle setting="iconInRange" label="pi.icon_in_range" hint="pi.icon_in_range_hint"></pi-toggle>
   </pi-section>
 
   <pi-section class="pi-win" title="pi.on_press">

@@ -16,6 +16,7 @@ import { ACCENT } from "../render/svg";
 import { renderKeyHint } from "../render/switch-key";
 import { renderValueKey } from "../render/value-key";
 import { pressListenTopic, pressState, runPress, type PressSettings } from "./press-action";
+import { optionalLine } from "../ha/lines";
 import { HaToggle } from "./ha-toggle";
 import { Toggle } from "./toggle";
 import { TopicKey, type KeyInstance, type TopicKeySettings } from "./topic-key";
@@ -33,6 +34,8 @@ export type ValueKeySettings = TopicKeySettings &
         /** Colour below the first threshold. */
         color?: string;
         thresholds?: JsonObject[];
+        /** The icon takes the colour of the value's range. */
+        iconInRange?: boolean;
         icon?: string;
         label?: string;
         /** HA: what a press switches ("toggle") or runs ("send"): a light, a scene, … */
@@ -107,8 +110,9 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
         const s = inst.settings;
         let read: { payload?: string; unit?: string; field?: string };
         if (fromHa) {
-            if (!s.secondAttribute?.trim() && !s.secondEntityId?.trim()) return undefined;
-            read = ha.read(ha.entities[s.secondEntityId?.trim() || s.entityId || ""], s.secondAttribute);
+            const line = optionalLine(s.secondAttribute, s.secondEntityId);
+            if (!line.on) return undefined;
+            read = ha.read(ha.entities[s.secondEntityId?.trim() || s.entityId || ""], line.attribute);
         } else {
             if (!s.secondTopic?.trim()) return undefined;
             read = { payload: this.payload(s.secondTopic), field: s.secondField };
@@ -142,6 +146,7 @@ export class ValueKey extends TopicKey<ValueKeySettings> {
             max: numberSetting(s.max, 100),
             offline: this.isOffline(inst),
             toggle: toggled === undefined ? undefined : { on: toggled === "on", color: s.pressColor || ACCENT },
+            iconInRangeColor: s.iconInRange === true,
         });
     }
 }

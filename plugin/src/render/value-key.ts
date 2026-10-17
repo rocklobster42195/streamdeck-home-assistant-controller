@@ -26,6 +26,8 @@ export type ValueKeyView = {
     offline: boolean;
     /** What a press switches, in the Switch key's look; none when the press doesn't switch. */
     toggle?: { on: boolean; color: string };
+    /** The icon takes the colour of the value's range (the value's own colour). */
+    iconInRangeColor?: boolean;
 };
 
 const DIM = "#7a7a80";
@@ -75,7 +77,7 @@ function textLook(v: ValueKeyView, color: string): string[] {
  */
 function iconLook(v: ValueKeyView, color: string): string[] {
     const soft = v.offline ? DIM : "#c8c8cc";
-    const parts = [icon(v.icon!, 40, 6, 64, iconInk(v, "#e8e8ec"))];
+    const parts = [icon(v.icon!, 40, 6, 64, iconInk(v, "#e8e8ec", color))];
     const unit = v.unit?.trim();
     const first = `${v.text ?? "–"}${unit ? ` ${unit}` : ""}`;
     const second = v.second?.trim();
@@ -115,13 +117,17 @@ function gauge(v: ValueKeyView, color: string): string[] {
         const size = fit(label, 17, SIZE - 50, true, 11);
         parts.push(text(clip(label, size, SIZE - 50, true), cx, 132, size, v.offline ? DIM : "#c8c8cc", 600));
     }
-    else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, iconInk(v, "#c8c8cc")));
+    else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, iconInk(v, "#c8c8cc", color)));
     return parts;
 }
 
-/** The icon's colour: as the Switch key's while a press switches something (on: its colour, off: grey). */
-function iconInk(v: ValueKeyView, plain: string): string {
+/**
+ * The icon's colour: the value's range colour when asked for; else as the Switch key's while a
+ * press switches something (on: its colour, off: grey); else `plain`.
+ */
+function iconInk(v: ValueKeyView, plain: string, rangeColor: string): string {
     if (v.offline) return DIM;
+    if (v.iconInRangeColor) return rangeColor;
     if (!v.toggle) return plain;
     return v.toggle.on ? v.toggle.color : KEY_TIERS.off;
 }
@@ -143,7 +149,7 @@ function horseshoe(v: ValueKeyView, color: string): string[] {
     if (label) {
         const size = fit(label, 16, 60, true, 10);
         parts.push(text(clip(label, size, 60, true), cx, 136, size, v.offline ? DIM : "#c8c8cc", 600));
-    } else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, iconInk(v, "#c8c8cc")));
+    } else if (v.icon) parts.push(icon(v.icon, cx - 12, 112, 24, iconInk(v, "#c8c8cc", color)));
     return parts;
 }
 

@@ -5,6 +5,7 @@ All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Con
 ## [Unreleased]
 
 ### Fixed
+- **One look for all keys (kit 0.1.0-alpha.36): one symbol size, no discs behind symbols, the hourglass replaces the symbol, and every error is the same red badge in the top left corner of a key.** (From a beta tester's remark that the keys looked like they belong to different plugins.)
 - **Value key: the state as the second line.** The second line was only shown with an attribute or another entity, so "attribute on top, state below" of the same entity could not be set up. The second line's picker now has "None" and "State" as separate choices (same for the Switch key's value line). The settings window lists the first line, the second line, then the display.
 - **"cannot connect" now says why.** The status line and the log add the reason (unknown host, certificate, timeout, proxy login refused, …).
 - **Wording: Home Assistant first.** The plugin description and the "set up" hint on a key no longer talk about MQTT only.

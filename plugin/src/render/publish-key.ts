@@ -1,7 +1,6 @@
 // The Trigger key (formerly Publish): its icon in its colour and the name below. Armed (waiting for the confirming
 // second press): filled with the colour and "Press again". Offline: dimmed with a cloud badge.
-import { KEY_ICON, KEY_TIERS, keyCaption, keyIcon } from "@rocklobster42195/streamdeck-kit";
-import { mdiCloudOffOutline } from "@mdi/js";
+import { KEY_ICON, KEY_TIERS, keyCaption, keyIcon, keyOfflineBadge } from "@rocklobster42195/streamdeck-kit";
 import { BG, icon, lines, SIZE, svgUri } from "./svg";
 
 export type PublishKeyView = {
@@ -28,6 +27,6 @@ export function renderPublishKey(v: PublishKeyView): string {
     const ink = v.offline ? KEY_TIERS.unavailable : v.color;
     parts.push(keyIcon(v.icon, label ? KEY_ICON.withCaption : KEY_ICON.full, ink));
     if (label) parts.push(keyCaption(label, v.offline ? ink : v.colorCaption ? v.color : "#FFFFFF"));
-    if (v.offline) parts.push(icon(mdiCloudOffOutline, SIZE - 42, 8, 32, "#ff6b6b"));
+    if (v.offline) parts.push(keyOfflineBadge());
     return svgUri(parts);
 }

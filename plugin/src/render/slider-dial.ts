@@ -6,9 +6,8 @@
 // value, text inside; with an actual value a thermostat (dot at the room temperature, which is also
 // written in the gap). Off (what a push switches is
 // off): dimmed with "Off". Offline: dimmed with a cloud badge.
-import { arc, escapeXml, halfArc, halfArcPosition, measureArialWidth, mdi, openRing, pie, scrimDisc, scrimText, stripImage, text, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
+import { arc, dialOfflineBadge, escapeXml, halfArc, halfArcPosition, measureArialWidth, mdi, openRing, pie, scrimDisc, scrimText, stripImage, text, zoneColor, type Zones } from "@rocklobster42195/streamdeck-kit";
 import { localNumber } from "../format";
-import { mdiCloudOffOutline } from "@mdi/js";
 
 export type SliderView = {
     look: "open" | "half" | "ring" | "pie";
@@ -48,7 +47,7 @@ export function renderSliderMessage(icon: string, line: string, warn: boolean): 
 
 export function renderSliderDial(v: SliderView): string {
     const parts = v.look === "ring" ? ring(v) : v.look === "pie" ? pieLook(v) : v.look === "half" ? half(v) : open(v);
-    if (v.offline) parts.push(mdi(mdiCloudOffOutline, 174, 4, 22, "#ff6b6b"));
+    if (v.offline) parts.push(dialOfflineBadge());
     return stripImage(parts, undefined, v.background);
 }
 

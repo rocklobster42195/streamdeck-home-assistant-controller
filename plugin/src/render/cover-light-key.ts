@@ -2,7 +2,7 @@
 // grey icon; no lamps or no Home Assistant: dimmed. A pause doesn't change the key (the lamps keep
 // their colour then, too).
 import { mdiLightbulbAuto, mdiLightbulbAutoOutline } from "@mdi/js";
-import { KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keySvg } from "@rocklobster42195/streamdeck-kit";
+import { KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyIcon, keyLabel, keySvg } from "@rocklobster42195/streamdeck-kit";
 
 export type CoverLightView = {
     active: boolean;
@@ -15,21 +15,16 @@ export type CoverLightView = {
 export function renderCoverLightKey(v: CoverLightView): string {
     const parts: string[] = [];
     const label = v.label?.trim();
-    const place = label ? KEY_ICON.withCaption : KEY_ICON.full;
-    if (v.unavailable) {
-        parts.push(keyIcon(mdiLightbulbAutoOutline, place, KEY_TIERS.unavailable));
-        if (label) parts.push(keyCaption(label, KEY_TIERS.unavailable));
-        return keySvg(parts);
-    }
+    // The icon and the name: a short name sits under the icon, a long one breaks onto two lines (kit keyLabel)
+    const put = (path: string, ink: string, textColor: string): string[] => {
+        if (!label) return [keyIcon(path, KEY_ICON.full, ink)];
+        const l = keyLabel(label, textColor);
+        return [keyIcon(path, l.place, ink), l.svg];
+    };
+    if (v.unavailable) return keySvg(put(mdiLightbulbAutoOutline, KEY_TIERS.unavailable, KEY_TIERS.unavailable));
     if (v.active) {
         const c = v.color ?? KEY_TIERS.available;
-        parts.push(keyActivePlate(c));
-        parts.push(keyIcon(mdiLightbulbAuto, place, c));
-        if (label) parts.push(keyCaption(label, "#ffffff"));
-        parts.push(keyActiveFrame(c));
-    } else {
-        parts.push(keyIcon(mdiLightbulbAutoOutline, place, KEY_TIERS.off));
-        if (label) parts.push(keyCaption(label, "#c8c8cc"));
-    }
+        parts.push(keyActivePlate(c), ...put(mdiLightbulbAuto, c, "#ffffff"), keyActiveFrame(c));
+    } else parts.push(...put(mdiLightbulbAutoOutline, KEY_TIERS.off, "#c8c8cc"));
     return keySvg(parts);
 }

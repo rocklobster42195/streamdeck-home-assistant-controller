@@ -2,7 +2,7 @@
 // on: in its colour on a tinted plate with a rounded frame, off: grey. The name as a bold caption
 // under the icon, an optional value line ("42 W") under that. Unknown state: grey with a question
 // mark; offline: dimmed with a cloud badge; nothing set up: a hint.
-import { KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keyOfflineBadge, keySvg } from "@rocklobster42195/streamdeck-kit";
+import { KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keyLabel, keyOfflineBadge, keySvg } from "@rocklobster42195/streamdeck-kit";
 import { mdiHelpCircleOutline, mdiLightbulbOnOutline } from "@mdi/js";
 import type { SwitchState } from "../mqtt/switch-state";
 import { BG, icon, lines, SIZE, svgUri } from "./svg";
@@ -35,12 +35,12 @@ export function renderSwitchKey(v: SwitchKeyView): string {
     if (on) parts.push(keyActivePlate(v.colorOn));
     if (label && value) {
         // Two lines: a smaller icon, the name and the value under it
-        parts.push(keyIcon(path, { size: 60, x: 42, y: 6 }, ink));
+        parts.push(keyIcon(path, KEY_ICON.twoLines, ink));
         parts.push(keyCaption(label, text, { y: 98, max: 20, min: 13 }));
         parts.push(keyCaption(value, text, { y: 128, max: 24, min: 14 }));
     } else if (label || value) {
-        parts.push(keyIcon(path, KEY_ICON.withCaption, ink));
-        parts.push(keyCaption((label || value)!, text));
+        const l = keyLabel((label || value)!, text);
+        parts.push(keyIcon(path, l.place, ink), l.svg);
     } else parts.push(keyIcon(path, KEY_ICON.full, ink));
     if (v.state === "unknown" && !v.offline) parts.push(icon(mdiHelpCircleOutline, SIZE - 42, 8, 32, "#c8c8cc"));
     if (v.offline) parts.push(keyOfflineBadge());

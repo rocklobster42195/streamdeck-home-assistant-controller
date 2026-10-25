@@ -1,8 +1,10 @@
 # Changelog
 
-All notable changes to HA-C (Home Assistant Controller, formerly MQ-C / MQTT Controller) are documented here.
+All notable changes to the Home Assistant Controller are documented here.
 
 ## [Unreleased]
+
+## [0.1.2-alpha.1] — 2026-10-25
 
 ### Fixed
 - **One look for all keys (kit 0.1.0-alpha.36): one symbol size, no discs behind symbols, the hourglass replaces the symbol, and every error is the same red badge in the top left corner of a key.** (From a beta tester's remark that the keys looked like they belong to different plugins.)

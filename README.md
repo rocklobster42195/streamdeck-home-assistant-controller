@@ -12,6 +12,10 @@ Switch and show your smart home on your Stream Deck: lights, plugs, sensors, sce
 
 **Status:** alpha, in daily use on a Stream Deck +. All actions work with Home Assistant entities and with MQTT topics.
 
+<img src="docs/screenshots/overview.png" width="800" alt="HA-C on a Stream Deck +: switch keys for lamps, value keys with a number, a gauge and an open ring, a power key, a garage and a scene key, and four dials with a lamp, a thermostat, a blind and another lamp"/>
+
+*The picture comes from the simulator with invented lamps, sensors and a blind (`npm run showcase`).*
+
 ## Contents
 
 - [Quick start](#quick-start)

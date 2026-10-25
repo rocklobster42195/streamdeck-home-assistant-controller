@@ -33,7 +33,7 @@ export function trackHacActions(): void {
 
 /** Call after streamDeck.connect() (the plugin version comes from there). */
 export async function startHacBus(): Promise<void> {
-    bus = new DeckBus({ id: "de.boriskemper.ha-controller", name: "HA-C", version: streamDeck.info.plugin.version, caps: [] });
+    bus = new DeckBus({ id: "de.boriskemper.ha-controller", name: "HA-C", version: streamDeck.info.plugin.version, caps: [], namespace: process.env.DECKBUS_NAMESPACE || undefined });
     bus.setState("actions", actions.list());
     panorama.connect(bus);
     panoramaRows.connect(bus);

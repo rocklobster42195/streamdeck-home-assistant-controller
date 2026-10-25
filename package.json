@@ -20,7 +20,8 @@
         "pi:preview": "node tools/pi-preview.mjs",
         "sim:keys": "node tools/sd-sim/keys.mjs sim-out",
         "sim:dial": "node tools/sd-sim/dial.mjs sim-out",
-        "sim:discovery": "node tools/sd-sim/discovery.mjs sim-out"
+        "sim:discovery": "node tools/sd-sim/discovery.mjs sim-out",
+        "showcase": "DECKBUS_NAMESPACE=showcase node tools/sd-sim/showcase.mjs"
     },
     "devDependencies": {
         "@tsconfig/node24": "^24.0.5",

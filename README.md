@@ -218,7 +218,7 @@ Home Assistant Controller is one of a small family of Stream Deck plugins. They 
 
 | | Plugin | For | Status |
 |---|---|---|---|
-| ![Sonos Controller](https://img.shields.io/badge/%20%20%20-87AE73?style=flat-square) | [Sonos Controller](https://github.com/rocklobster42195/streamdeck-sonos-controller) | Sonos speakers | on the Marketplace, 0.5.0 in beta |
+| ![Sonos Controller](https://img.shields.io/badge/%20%20%20-A5A5A5?style=flat-square) | [Sonos Controller](https://github.com/rocklobster42195/streamdeck-sonos-controller) | Sonos speakers | on the Marketplace, 0.5.0 in beta |
 | ![Music Assistant Controller](https://img.shields.io/badge/%20%20%20-009FDF?style=flat-square) | [Music Assistant Controller](https://github.com/rocklobster42195/streamdeck-music-assistant-controller) | your Music Assistant server and its players | alpha |
 | ![System Audio Controller](https://img.shields.io/badge/%20%20%20-E14190?style=flat-square) | [System Audio Controller](https://github.com/rocklobster42195/streamdeck-system-audio-controller) | your computer's sound: volume, apps, microphone | beta |
 | ![X-Air Controller](https://img.shields.io/badge/%20%20%20-00ACA8?style=flat-square) | [X-Air Controller](https://github.com/rocklobster42195/streamdeck-xair-controller) | Behringer X-Air and Midas mixers | alpha |

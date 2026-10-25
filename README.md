@@ -2,11 +2,15 @@
 
 Switch and show your smart home on your Stream Deck: lights, plugs, sensors, scenes, thermostats, blinds. HA-C talks to **Home Assistant** directly, and to **any MQTT broker** as a second source (zigbee2mqtt, Tasmota, Shelly, ESPHome, ioBroker, Node-RED …). Pick a device by name, room or label; HA-C fills in the rest and draws the key the way Home Assistant shows it: its icon, its state text, its colours.
 
-> Unofficial community plugin. Not affiliated with Elgato or Home Assistant / the Open Home Foundation.
+[![Latest, beta included](https://img.shields.io/github/v/release/rocklobster42195/streamdeck-home-assistant-controller?include_prereleases&label=latest&color=005DA0)](https://github.com/rocklobster42195/streamdeck-home-assistant-controller/releases)
+[![Ko-fi](https://img.shields.io/badge/support-Ko--fi-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/rocklobster42195)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+> **Disclaimer:** This is an independent, community-made plugin. It is not affiliated with, endorsed by, or officially connected to Home Assistant, the Open Home Foundation or Elgato in any way. Home Assistant is a trademark of the Open Home Foundation.
 
 **Looking for something simpler?** If you only use Home Assistant and want a lean, proven plugin, have a look at the [Home Assistant plugin by cgiesche](https://github.com/cgiesche/streamdeck-homeassistant): it has been around for years and does the basics very well. HA-C's focus is different: Home Assistant and MQTT side by side, gauges and dials, a short settings panel with a settings window for the details, and working together with the other plugins of its family.
 
-**Status:** early, in daily use on a Stream Deck +. All actions work with Home Assistant entities and with MQTT topics.
+**Status:** alpha, in daily use on a Stream Deck +. All actions work with Home Assistant entities and with MQTT topics.
 
 ## Contents
 
@@ -23,6 +27,9 @@ Switch and show your smart home on your Stream Deck: lights, plugs, sensors, sce
 - [Troubleshooting](#troubleshooting)
 - [Planned](#planned)
 - [Development](#development)
+- [Part of a family](#part-of-a-family)
+- [Ideas and feedback](#ideas-and-feedback)
+- [Support](#support)
 - [Credits and licence](#credits-and-licence)
 
 ## Quick start
@@ -203,7 +210,34 @@ npm run pi:preview    # the settings pages in a browser, with invented data
 npm run watch         # rebuild and restart the plugin in Stream Deck
 ```
 
-HA-C is built on [`@rocklobster42195/streamdeck-kit`](https://github.com/rocklobster42195/streamdeck-kit), linked from a local checkout next to this one until it is on npm.
+HA-C is built on [`@rocklobster42195/streamdeck-kit`](https://github.com/rocklobster42195/streamdeck-kit), taken from npm.
+
+## Part of a family
+
+Home Assistant Controller is one of a small family of Stream Deck plugins. They are built on the same open foundation, **[streamdeck-kit](https://github.com/rocklobster42195/streamdeck-kit)** (MIT, on npm), so they look and feel the same and share what is worth sharing.
+
+| | Plugin | For | Status |
+|---|---|---|---|
+| ![Sonos Controller](https://img.shields.io/badge/%20%20%20-87AE73?style=flat-square) | [Sonos Controller](https://github.com/rocklobster42195/streamdeck-sonos-controller) | Sonos speakers | on the Marketplace, 0.5.0 in beta |
+| ![Music Assistant Controller](https://img.shields.io/badge/%20%20%20-009FDF?style=flat-square) | [Music Assistant Controller](https://github.com/rocklobster42195/streamdeck-music-assistant-controller) | your Music Assistant server and its players | alpha |
+| ![System Audio Controller](https://img.shields.io/badge/%20%20%20-E14190?style=flat-square) | [System Audio Controller](https://github.com/rocklobster42195/streamdeck-system-audio-controller) | your computer's sound: volume, apps, microphone | beta |
+| ![X-Air Controller](https://img.shields.io/badge/%20%20%20-00ACA8?style=flat-square) | [X-Air Controller](https://github.com/rocklobster42195/streamdeck-xair-controller) | Behringer X-Air and Midas mixers | alpha |
+| ![Home Assistant Controller](https://img.shields.io/badge/%20%20%20-005DA0?style=flat-square) | **Home Assistant Controller** (this plugin) | your smart home, also over MQTT | alpha |
+
+What they have in common:
+
+- **The same look and feel.** Keys and dials are drawn by the same kit: one symbol size, the same colours, errors always in the same place, and a settings window in one style with diagnostics, in English, German and Spanish.
+- **One Panorama across plugins.** Dials of different plugins in one row share an effect (particles, a picture, a webcam, …) as if they were one display.
+- **They find each other.** Through [deckbus](#works-with-other-plugins-deckbus) the plugins share players and colours without any setup, on your computer only.
+- **Reusable.** The kit is open, MIT licensed and on npm as [`@rocklobster42195/streamdeck-kit`](https://www.npmjs.com/package/@rocklobster42195/streamdeck-kit). If you build Stream Deck plugins yourself, take what helps.
+
+## Ideas and feedback
+
+Ideas from outside are very welcome: they show what I stopped seeing on my own deck. Please open an [issue](https://github.com/rocklobster42195/streamdeck-home-assistant-controller/issues/new/choose) with your idea or problem. Small fixes as pull requests are welcome too; for bigger things, please start with an issue. Code that every plugin could use (drawing, effects, the settings window) belongs in [streamdeck-kit](https://github.com/rocklobster42195/streamdeck-kit).
+
+## Support
+
+This plugin started as a tool for my own Stream Deck. It is free and MIT licensed, and everyone is welcome to use it. If you like it, a coffee and a beer are always welcome: **[ko-fi.com/rocklobster42195](https://ko-fi.com/rocklobster42195)**.
 
 ## Credits and licence
 

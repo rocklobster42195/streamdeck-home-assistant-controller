@@ -2,7 +2,7 @@
 .env.*
 node_modules/
 notes/
-CLAUDE.md
+CLAUDE.local.md
 .claude/
 
 # Build output

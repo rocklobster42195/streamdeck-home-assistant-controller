@@ -16,7 +16,7 @@
     "dependencies": {
         "@elgato/streamdeck": "^2.1.0",
         "@mdi/js": "^7.4.47",
-        "@rocklobster42195/streamdeck-kit": "0.1.0-alpha.40",
+        "@rocklobster42195/streamdeck-kit": "0.1.0-alpha.41",
         "bonjour-service": "^1.4.4",
         "home-assistant-js-websocket": "^9.7.0",
         "mqtt": "^5.16.0",

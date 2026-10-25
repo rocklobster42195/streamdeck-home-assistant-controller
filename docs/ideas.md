@@ -61,6 +61,15 @@ Display name **Home Assistant Controller**, public short name **HA-C**. With the
      The script talks to the plugin through HA's event bus (`ha_c_command` / `ha_c_announce`), so neither side needs its own port. The deck then becomes a real HA device, a remote with a display, and HA decides everything. Note: `ha.register()` uses MQTT Discovery, so it needs a broker to survive restarts.
   4. **Without JSA, through MQ-C:** MQ-C already talks MQTT, so it could publish the same Home Assistant discovery for the deck itself. Only as a thought, not planned.
 
+## Display overrides from attributes (idea 2026-10-19, user; not decided)
+
+The main configuration stays in the PI and the settings window (ePI): pickers, preview, colour ranges (`pi-thresholds`). On top, a **small set of attributes** on the entity (HA) or fields in the JSON payload (MQTT) can change what a key shows at runtime, so a JSA script (`ha.update(entity, { hac_color: "#E30018" })`) or a template sensor drives the look without any channel of its own.
+
+- **The set (display level only):** `icon` (already honoured, HA's own convention), `hac_color` (current value colour), `hac_label`, optionally `hac_unit`.
+- **Rule:** an attribute wins when it is set, otherwise the PI applies. The PI shows a note ("Icon comes from the attribute") so the two sources are never a surprise.
+- **Left out on purpose:** colour ranges, look, press actions as attributes. JSON in an attribute is hard to write and debug and has no preview; the PI is the better place. Whoever needs the whole key driven by a script uses the JSA key (webhook, see below).
+- **Cost:** `hac_*` is a convention of ours that must stay stable and be documented (README, TECH-READ, API-REFERENCE; ask before touching them). Starts with the Value key (HA source and MQTT JSON field), then Switch and Multi-state.
+
 ## JSA on the deck
 
 JSA webhooks (`ha.onWebhook`, port 3001) are bidirectional, which fits exactly:
@@ -83,7 +92,8 @@ JSA webhooks (`ha.onWebhook`, port 3001) are bidirectional, which fits exactly:
 - **HA states drive the whole suite:** away, night or movie night set the night mode and scenes in every plugin.
 - **HA sensors** go into gauges and sparklines, and can also tint MA-C's Panorama effects.
 - **deckbus states become HA entities** (SA-C grill 2026-10-05, `system-audio-controller/notes/2026-10-05-sac-future-grill.md`): HA-C mirrors other plugins' bus states through the JSA mini-integration, e.g. SA-C's "call active" as `binary_sensor` (app as attribute), mic muted, active output device, and the active audio scene as `select` (HA can trigger scenes too). The other plugins know nothing about HA.
-- **The Multi-state key moves into the kit** (same grill): the key and its states editor become kit code; HA-C, MQ-C and SA-C (App output key, scene key) build on it.
+- **The Multi-state key moves into the kit** (same grill): the key and its states editor become kit code; HA-C, MQ-C and SA-C (App output key, scene key) build on it.
+
 
 - **Deck brightness without a brightness API: the suite draws itself dark** (idea 2026-10-15, user; not decided). The Stream Deck SDK has no brightness, but a plugin can draw its own keys and dials black. So the number from the JSA list above becomes a plain HA entity (`input_boolean.deck_blackout` for on/off or `input_number.deck_brightness` for 0–100 %; works without any integration, HA-C reads it like any entity), HA-C broadcasts it on deckbus as `display: { level: 0..1 }`, and the kit draws every key and dial through a black overlay with that opacity (one place for the key actions, the Panorama engine and the lists).
   - Intermediate levels come for free, and a soft transition. The panel's backlight stays on; a black picture is practically dark.
